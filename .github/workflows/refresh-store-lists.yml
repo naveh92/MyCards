@@ -58,9 +58,15 @@ jobs:
           curl -sSL -o .work/gson.jar \
             https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
           javac -encoding UTF-8 -cp .work/gson.jar -d .work/classes tools/CatalogGen.java
+          # The ":true" flag in supplier-args.txt marks which snapshots are bundled into
+          # the APK — a size decision. Everything gets *published*, so force the flag on
+          # for every entry here. Without this only the bundled few are written, and the
+          # rsync --delete below then removes every other list from the site.
+          ARGS=$(grep -v '^#' tools/supplier-args.txt | sed 's/:true$//' | sed 's/$/:true/' | tr '\n' ' ')
           java -Dfile.encoding=UTF-8 -cp ".work/classes:.work/gson.jar" CatalogGen \
-            .work/publish/stores .work/raw $(grep -v '^#' tools/supplier-args.txt | tr '\n' ' ') \
-            > .work/entries.json
+            .work/publish/stores .work/raw $ARGS > .work/entries.json
+
+          echo "generated $(ls .work/publish/stores | wc -l) store lists"
           # Every list is published; the APK still bundles only the largest few.
           cp app/src/main/assets/catalog.json .work/publish/catalog.json
 
@@ -87,6 +93,15 @@ jobs:
 
       - name: Publish into the docs/ directory served by GitHub Pages
         run: |
+          # Guard the --delete: if generation went wrong and produced far fewer lists than
+          # are already published, stop rather than wiping the site. A refresh should never
+          # be able to remove data by failing quietly.
+          generated=$(ls .work/publish/stores/*.json 2>/dev/null | wc -l)
+          existing=$(ls docs/stores/*.json 2>/dev/null | wc -l)
+          if [ "$existing" -gt 0 ] && [ "$generated" -lt "$existing" ]; then
+            echo "Refusing to publish: generated $generated lists but $existing are live."
+            exit 1
+          fi
           mkdir -p docs
           rsync -a --delete .work/publish/ docs/
 
