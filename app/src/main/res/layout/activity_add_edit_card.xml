@@ -21,9 +21,28 @@
         android:layout_weight="1"
         android:fillViewport="true">
 
+        <!--
+            Autofill is switched off for the whole form, not just for one field.
+
+            Android's autofill heuristics classify by context, and a screen holding a card
+            number, an expiry and a CVV reads as a payment form — so a field labelled "Card
+            type" gets offered the user's saved credit cards. Nothing here is a field an
+            autofill service can usefully fill: the card type is a gift-card brand, the
+            amount and notes are free text, and the payment details belong to the gift card
+            in the user's hand, not to their wallet. Filling a personal Visa into them would
+            write a real card number into this app's database.
+
+            It also stops the mirror-image problem: without this, entering a gift card's
+            number prompts "Save to Google?", offering to copy card details the app went to
+            some trouble to keep on the device.
+
+            noExcludeDescendants covers every input below in one attribute, so a field added
+            later is opted out by default rather than by remembering to annotate it.
+        -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:importantForAutofill="noExcludeDescendants"
             android:orientation="vertical"
             android:padding="16dp">
 
