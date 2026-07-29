@@ -17,6 +17,10 @@ on:
       reason:
         description: 'Why this run was triggered by hand'
         required: false
+      simulate_failure:
+        description: 'Fail on purpose, to check the alerting actually works'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -42,7 +46,15 @@ jobs:
           java-version: '17'
 
       - name: Check the upstream source is still healthy
-        run: bash tools/check-sources.sh
+        run: |
+          # Alerting you never test is alerting you only find out about when it matters.
+          # This aborts before anything is fetched or published, so a simulated run cannot
+          # touch the live lists — it exercises the issue-filing path and nothing else.
+          if [ "${{ inputs.simulate_failure }}" = "true" ]; then
+            echo "simulate_failure was requested: failing deliberately."
+            exit 1
+          fi
+          bash tools/check-sources.sh
 
       - name: Fetch supplier payloads
         run: |
