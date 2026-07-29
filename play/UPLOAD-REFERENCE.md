@@ -52,7 +52,13 @@ Three things catch first-time publishers, in rough order of how much time they c
 | Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2.1 MB |
 | R8 mapping — **upload alongside** | `app/build/outputs/mapping/release/mapping.txt` | 16 MB |
 
-`app-release.aab` sha256: `e3e20d60339427909689f06b51291007e94751a32ed912fa14d06e09359998de`
+The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
+every rebuild even with identical sources, and a recorded hash would be stale immediately.
+To check that the file you upload is the one you just built:
+
+```
+sha256sum app/build/outputs/bundle/release/app-release.aab
+```
 
 Upload `mapping.txt` in the same release (Play accepts it on the bundle's *Downloads*
 page). Without it every crash report is an unreadable stack of `a()`, `b()`, `c()`, because
@@ -63,6 +69,19 @@ To rebuild from clean:
 ```
 ./gradlew clean test bundleRelease
 ```
+
+If that fails with *"JAVA_HOME is not set and no 'java' command could be found in your
+PATH"*, the environment has no JDK on it. Android Studio ships one, so nothing needs
+installing — point at it once, in an ordinary (non-admin) PowerShell:
+
+```
+setx JAVA_HOME "C:\Program Files\Android\Android Studio\jbr"
+```
+
+Then open a **new** terminal: `setx` writes the variable for future sessions and does not
+alter the one it runs in. Setting `org.gradle.java.home` in a `gradle.properties` does *not*
+solve this — that only chooses the JDK the Gradle daemon compiles with, and the `gradlew`
+launcher already needs a JVM to start Gradle and read that file.
 
 ## Signing
 
