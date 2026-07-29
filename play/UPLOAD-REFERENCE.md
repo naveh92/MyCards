@@ -50,7 +50,7 @@ Three things catch first-time publishers, in rough order of how much time they c
 |---|---|---|
 | **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,534,613 bytes |
 | Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2.1 MB |
-| R8 mapping — **upload alongside** | `app/build/outputs/mapping/release/mapping.txt` | 16 MB |
+| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 16 MB |
 
 The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
 every rebuild even with identical sources, and a recorded hash would be stale immediately.
@@ -60,9 +60,21 @@ To check that the file you upload is the one you just built:
 sha256sum app/build/outputs/bundle/release/app-release.aab
 ```
 
-Upload `mapping.txt` in the same release (Play accepts it on the bundle's *Downloads*
-page). Without it every crash report is an unreadable stack of `a()`, `b()`, `c()`, because
-the release build is minified.
+**The mapping needs no separate upload.** AGP embeds it in the bundle itself, at
+`BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map`, and Play extracts it on
+upload — so crash reports are de-obfuscated automatically. Confirm it is there with:
+
+```
+unzip -l app/build/outputs/bundle/release/app-release.aab | grep proguard.map
+```
+
+The separate *"upload deobfuscation file"* control in the Console's App bundle explorer
+exists for APK-based releases, and as a way to replace a mapping after the fact. It is not
+part of the AAB flow.
+
+The copy left in `app/build/outputs/mapping/release/` is still worth keeping for the release
+you ship: it lets you decode a stack trace locally, with R8's `retrace`, without going
+through the Console.
 
 To rebuild from clean:
 
