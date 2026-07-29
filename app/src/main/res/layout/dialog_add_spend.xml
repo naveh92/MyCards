@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -7,18 +8,21 @@
     android:paddingEnd="24dp"
     android:paddingTop="12dp">
 
+    <!-- The example goes in placeholderText, not android:hint on the EditText. Both draw
+         in the same place when the field is empty, which rendered the label and the
+         example on top of each other. -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/titleLayout"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/spend_title_label">
+        android:hint="@string/spend_title_label"
+        app:placeholderText="@string/spend_title_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/spendTitleInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/spend_title_hint"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 

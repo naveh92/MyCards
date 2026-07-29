@@ -76,6 +76,22 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
         this.master = new ArrayList<>(options);
     }
 
+    /**
+     * Restores the full list immediately, on the calling thread.
+     *
+     * <p>Android's {@link Filter} publishes its results asynchronously, so resetting through
+     * it makes the dropdown visibly close and reopen a frame later. With a couple of dozen
+     * card types there is nothing to gain from the worker thread, and a synchronous reset
+     * lets the menu open once, already showing everything.
+     */
+    public void showAll() {
+        setNotifyOnChange(false);
+        clear();
+        addAll(master);
+        setNotifyOnChange(true);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public Filter getFilter() {

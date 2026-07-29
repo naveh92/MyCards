@@ -43,8 +43,9 @@
     <!-- Spend log -->
     <string name="spend_log">Spending</string>
     <string name="add_spend">Log a purchase</string>
-    <string name="spend_title_label">What was it for?</string>
+    <string name="spend_title_label">What was it for? (optional)</string>
     <string name="spend_title_hint">e.g. Shoes at Castro</string>
+    <string name="spend_untitled">Purchase</string>
     <string name="spend_amount_label">Amount</string>
     <string name="spend_store_label">Store (optional)</string>
     <string name="spend_date_label">Date</string>

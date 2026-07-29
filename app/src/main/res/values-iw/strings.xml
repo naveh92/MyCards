@@ -43,8 +43,9 @@
     <!-- Spend log -->
     <string name="spend_log">הוצאות</string>
     <string name="add_spend">רישום קנייה</string>
-    <string name="spend_title_label">על מה זה היה?</string>
+    <string name="spend_title_label">על מה זה היה? (לא חובה)</string>
     <string name="spend_title_hint">לדוגמה: נעליים בקסטרו</string>
+    <string name="spend_untitled">קנייה</string>
     <string name="spend_amount_label">סכום</string>
     <string name="spend_store_label">חנות (לא חובה)</string>
     <string name="spend_date_label">תאריך</string>

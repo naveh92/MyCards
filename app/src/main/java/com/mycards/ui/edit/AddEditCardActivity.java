@@ -144,19 +144,27 @@ public class AddEditCardActivity extends AppCompatActivity {
 
                 // Tapping the field should offer the whole list, not filter by whatever
                 // name is already sitting in it.
+                // The field is editable so it can be typed into, which means Material's
+                // exposed-dropdown toggle does not open it for us — that only happens for
+                // non-editable menus. So open it here, but do every step synchronously:
+                // the earlier flicker came from resetting through Android's Filter, which
+                // publishes on a worker thread and so closed and reopened the menu a frame
+                // after it had already appeared.
                 cardTypeInput.setOnClickListener(v -> {
                     selectedType = null;
-                    // The 'false' suppresses filtering, which stops the adapter from
-                    // immediately re-narrowing to the name already in the field...
+                    // 'false' suppresses filtering, so clearing does not re-narrow the list
+                    // to the name that was already in the field.
                     cardTypeInput.setText("", false);
-                    // ...but it also leaves the adapter holding whatever it was last
-                    // filtered to, so the field would look empty while the list still
-                    // showed only the previous matches. Reset it explicitly.
-                    adapter.getFilter().filter(null, count ->
-                            // Posted rather than called inline: opening the dropdown while
-                            // the tap is still being handled gets it dismissed again by the
-                            // framework's own toggle.
-                            cardTypeInput.post(cardTypeInput::showDropDown));
+                    adapter.showAll();
+                    // Opened on the next frame, because the framework finishes handling
+                    // this same tap by dismissing the popup. Only the *opening* is
+                    // deferred — the list is already complete by now, so it appears once
+                    // with everything in it rather than visibly refilling.
+                    cardTypeInput.post(() -> {
+                        if (!cardTypeInput.isPopupShowing()) {
+                            cardTypeInput.showDropDown();
+                        }
+                    });
                 });
 
                 if (existing != null) {

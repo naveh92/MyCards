@@ -18,8 +18,9 @@ import java.util.Calendar;
 /**
  * Collects a purchase.
  *
- * <p>The description is mandatory. An untitled row of numbers tells you nothing three months
- * later, and this log is the only record of where a gift card's money actually went.
+ * <p>Only the amount is required — that is the one value the balance cannot be derived
+ * without. The description is optional, but a blank one falls back to the shop name and then
+ * to a generic label, so the log never degrades into an unreadable row of numbers.
  */
 public final class AddSpendDialog {
 
@@ -87,13 +88,6 @@ public final class AddSpendDialog {
         // Wired after show() so a validation failure does not dismiss the dialog and
         // discard everything the user just typed.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String title = text(titleInput);
-            if (TextUtils.isEmpty(title)) {
-                titleLayout.setError(activity.getString(R.string.spend_required_title));
-                return;
-            }
-            titleLayout.setError(null);
-
             double amount;
             try {
                 amount = Double.parseDouble(text(amountInput));
@@ -107,7 +101,18 @@ public final class AddSpendDialog {
             }
             amountLayout.setError(null);
 
-            callback.onSpend(title, amount, text(storeInput), spentAt[0]);
+            // The description is optional, but the log still needs something readable in
+            // it months later. Fall back to the shop, then to a generic label, rather than
+            // leaving a bare row of numbers.
+            String store = text(storeInput);
+            String title = text(titleInput);
+            if (TextUtils.isEmpty(title)) {
+                title = TextUtils.isEmpty(store)
+                        ? activity.getString(R.string.spend_untitled)
+                        : store;
+            }
+
+            callback.onSpend(title, amount, store, spentAt[0]);
             dialog.dismiss();
         });
     }

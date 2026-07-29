@@ -29,7 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:paddingBottom="96dp">
 
                 <TextView
                     android:id="@+id/cardTitle"
@@ -168,13 +169,15 @@
                     android:text="@string/no_spends_yet"
                     android:textAppearance="@style/TextAppearance.MyCards.Meta" />
 
+                <!-- The clearance for the floating button belongs on the scrolling
+                     container, not here: padding on the list itself is drawn as part of
+                     the list, showing up as a slab of dead space under the last entry. -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/spendList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:nestedScrollingEnabled="false"
-                    android:paddingBottom="88dp" />
+                    android:nestedScrollingEnabled="false" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
