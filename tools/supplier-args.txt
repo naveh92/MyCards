@@ -1,0 +1,26 @@
+# CatalogGen arguments: <supplierId>:<slug>[:bundle]
+#
+# "bundle" means the snapshot is also copied into the APK, so the card works offline on a
+# fresh install. Only the largest few are bundled — bundling all 21 would add megabytes for
+# card types most people do not hold, and any unbundled type simply fetches on first use.
+13438757:buyme_all:true
+9018727:buyme_baby
+17573670:buyme_local
+15579925:buyme_yng
+17574075:buyme_together:true
+17573460:buyme_foody
+20620:buyme_fashion_beauty
+7565407:buyme_style:true
+17573505:buyme_vacation_spa
+15925581:buyme_wellness
+398383:azrieli
+16552152:buyme_rishon
+15490363:buyme_home_design
+15753815:buyme_ramat_gan
+752649:buyme_chef:true
+17573891:buyme_business
+17573615:buyme_brunch
+17573995:buyme_cheers
+4299680:buyme_kosher
+17574524:buyme_pets
+17574048:buyme_live

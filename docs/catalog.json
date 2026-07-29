@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": 2,
+  "updatedAt": "2026-07-29T00:00:00Z",
+
+  "_readme": [
+    "Seed copy shipped inside the APK so a fresh install works offline.",
+    "At runtime the app fetches a newer copy from RemoteConfig.CATALOG_URL every 7 days.",
+    "storeSources is an ordered fallback chain: the first source that yields stores wins.",
+    "Unknown 'type' values are skipped rather than treated as errors, so a future catalog",
+    "can introduce a new source type and older installs fall through to the next one.",
+    "BuyMe entries were generated from the live endpoint by tools/CatalogGen; only the",
+    "largest few carry a bundled_asset, the rest fetch on first use to keep the APK small."
+  ],
+
+  "cardTypes": [
+    {
+      "id": "buyme_all",
+      "names": { "en": "BuyMe All", "he": "BuyMe All" },
+      "aliases": ["BUYME ALL - ????? ???? ????? ???", "BUYME ALL", "????? ???? ????? ???", "ALL"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_all.json" },
+        { "type": "bundled_asset", "asset": "stores/buyme_all.json" },
+        { "type": "buyme_brands", "supplierId": "13438757" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_baby",
+      "names": { "en": "BuyMe Baby", "he": "BuyMe Baby" },
+      "aliases": ["BUYME BABY- ????? ????? ????", "BUYME BABY", "????? ????? ????", "BABY"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_baby.json" },
+        { "type": "buyme_brands", "supplierId": "9018727" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_local",
+      "names": { "en": "BuyMe Local", "he": "BuyMe Local" },
+      "aliases": ["BUYME LOCAL � ????? ???????", "BUYME LOCAL", "????? ???????", "LOCAL"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_local.json" },
+        { "type": "buyme_brands", "supplierId": "17573670" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_yng",
+      "names": { "en": "BuyMe Yng", "he": "BuyMe Yng" },
+      "aliases": ["BUYME YNG - ???? ?????? ???? ????", "BUYME YNG", "???? ?????? ???? ????", "YNG"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_yng.json" },
+        { "type": "buyme_brands", "supplierId": "15579925" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_together",
+      "names": { "en": "BuyMe Together", "he": "BuyMe Together" },
+      "aliases": ["BUYME TOGETHER - ?????? ???????", "BUYME TOGETHER", "?????? ???????", "TOGETHER"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_together.json" },
+        { "type": "bundled_asset", "asset": "stores/buyme_together.json" },
+        { "type": "buyme_brands", "supplierId": "17574075" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_foody",
+      "names": { "en": "BuyMe Foody", "he": "BuyMe Foody" },
+      "aliases": ["BUYME FOODY -????? ????????? ????", "BUYME FOODY", "????? ????????? ????", "FOODY"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_foody.json" },
+        { "type": "buyme_brands", "supplierId": "17573460" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_fashion_beauty",
+      "names": { "en": "BuyMe Fashion & Beauty", "he": "BuyMe Fashion & Beauty" },
+      "aliases": ["BUYME FASHION & BEAUTY", "BEAUTY"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_fashion_beauty.json" },
+        { "type": "buyme_brands", "supplierId": "20620" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_style",
+      "names": { "en": "BuyMe Style", "he": "BuyMe Style" },
+      "aliases": ["BUYME STYLE - ????? ????? ?????", "BUYME STYLE", "????? ????? ?????", "STYLE"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_style.json" },
+        { "type": "bundled_asset", "asset": "stores/buyme_style.json" },
+        { "type": "buyme_brands", "supplierId": "7565407" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_vacation_spa",
+      "names": { "en": "BuyMe Vacation & Spa", "he": "BuyMe Vacation & Spa" },
+      "aliases": ["BUYME VACATION & SPA- ?????? ????", "BUYME VACATION & SPA", "?????? ????", "SPA"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_vacation_spa.json" },
+        { "type": "buyme_brands", "supplierId": "17573505" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_wellness",
+      "names": { "en": "BuyMe Wellness", "he": "BuyMe Wellness" },
+      "aliases": ["BUYME WELLNESS � ???? ???? ?????", "BUYME WELLNESS", "???? ???? ?????", "WELLNESS"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_wellness.json" },
+        { "type": "buyme_brands", "supplierId": "15925581" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "azrieli",
+      "names": { "en": "Azrieli", "he": "Azrieli" },
+      "aliases": ["AZRIELI"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/azrieli.json" },
+        { "type": "buyme_brands", "supplierId": "398383" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_rishon",
+      "names": { "en": "BuyMe Rishon", "he": "BuyMe Rishon" },
+      "aliases": ["BUYME RISHON", "RISHON"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_rishon.json" },
+        { "type": "buyme_brands", "supplierId": "16552152" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_home_design",
+      "names": { "en": "BuyMe Home Design", "he": "BuyMe Home Design" },
+      "aliases": ["BUYME HOME DESIGN - ??? ???????", "BUYME HOME DESIGN", "??? ???????", "DESIGN"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_home_design.json" },
+        { "type": "buyme_brands", "supplierId": "15490363" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_ramat_gan",
+      "names": { "en": "BuyMe Ramat-Gan", "he": "BuyMe Ramat-Gan" },
+      "aliases": ["BUYME RAMAT-GAN", "RAMAT-GAN"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_ramat_gan.json" },
+        { "type": "buyme_brands", "supplierId": "15753815" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_chef",
+      "names": { "en": "BuyMe Chef", "he": "BuyMe Chef" },
+      "aliases": ["BUYME CHEF - ????? ?????? ??", "BUYME CHEF", "????? ?????? ??", "CHEF"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_chef.json" },
+        { "type": "bundled_asset", "asset": "stores/buyme_chef.json" },
+        { "type": "buyme_brands", "supplierId": "752649" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_business",
+      "names": { "en": "?????? ?????", "he": "?????? ?????" },
+      "aliases": ["?????? ????? - ???? ?? ??? ????", "???? ?? ??? ????", "?????"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_business.json" },
+        { "type": "buyme_brands", "supplierId": "17573891" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_brunch",
+      "names": { "en": "BuyMe Brunch", "he": "BuyMe Brunch" },
+      "aliases": ["BUYME BRUNCH- ????? ?????? ????", "BUYME BRUNCH", "????? ?????? ????", "BRUNCH"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_brunch.json" },
+        { "type": "buyme_brands", "supplierId": "17573615" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_cheers",
+      "names": { "en": "BuyMe Cheers", "he": "BuyMe Cheers" },
+      "aliases": ["BUYME CHEERS - ?????? ?????????", "BUYME CHEERS", "?????? ?????????", "CHEERS"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_cheers.json" },
+        { "type": "buyme_brands", "supplierId": "17573995" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_kosher",
+      "names": { "en": "BuyMe Kosher", "he": "BuyMe Kosher" },
+      "aliases": ["BUYME KOSHER - ????? ?????? ?????", "BUYME KOSHER", "????? ?????? ?????", "KOSHER"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_kosher.json" },
+        { "type": "buyme_brands", "supplierId": "4299680" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_pets",
+      "names": { "en": "BuyMe Pets", "he": "BuyMe Pets" },
+      "aliases": ["BUYME PETS - ????? ?????? ????", "BUYME PETS", "????? ?????? ????", "PETS"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_pets.json" },
+        { "type": "buyme_brands", "supplierId": "17574524" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+    {
+      "id": "buyme_live",
+      "names": { "en": "BuyMe Live", "he": "BuyMe Live" },
+      "aliases": ["BUYME LIVE � ????? ????? ??????", "BUYME LIVE", "????? ????? ??????", "LIVE"],
+      "issuer": "BuyMe",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/buyme_live.json" },
+        { "type": "buyme_brands", "supplierId": "17574048" }
+      ],
+      "balanceSources": [ { "type": "buyme_gift_page" } ]
+    },
+
+    {
+      "id": "all_in_zone",
+      "names": { "en": "All-inZone", "he": "אול אין זון" },
+      "aliases": ["allinzone", "all in zone", "אול אין זון", "אולאינזון", "All-In Zone"],
+      "issuer": "HTZone",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/all_in_zone.json" },
+        { "type": "bundled_asset", "asset": "stores/all_in_zone.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "superzone",
+      "names": { "en": "SuperZone", "he": "סופר זון" },
+      "aliases": ["superzone", "super zone", "סופרזון", "סופר זון"],
+      "issuer": "HTZone",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/superzone.json" },
+        { "type": "bundled_asset", "asset": "stores/superzone.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "giftzone",
+      "names": { "en": "GiftZone", "he": "גיפט זון" },
+      "aliases": ["giftzone", "gift zone", "גיפטזון", "גיפט זון"],
+      "issuer": "HTZone",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/giftzone.json" },
+        { "type": "bundled_asset", "asset": "stores/giftzone.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "chefzone",
+      "names": { "en": "ChefZone", "he": "שף זון" },
+      "aliases": ["chefzone", "chef zone", "שףזון", "שף זון", "מסעדות"],
+      "issuer": "HTZone",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/chefzone.json" },
+        { "type": "bundled_asset", "asset": "stores/chefzone.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "spazone",
+      "names": { "en": "SpaZone", "he": "ספא זון" },
+      "aliases": ["spazone", "spa zone", "ספאזון", "ספא זון"],
+      "issuer": "HTZone",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/spazone.json" },
+        { "type": "bundled_asset", "asset": "stores/spazone.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "love_gift_card",
+      "names": { "en": "Love Gift Card", "he": "לאב גיפט קארד" },
+      "aliases": ["love", "love gift card", "love card", "לאב", "לאב קארד", "קסטרו", "castro"],
+      "issuer": "Castro Model",
+      "_note": "A closed list of the issuer's own brands, transcribed from its published terms.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/love_gift_card.json" },
+        { "type": "bundled_asset", "asset": "stores/love_gift_card.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "max_gift",
+      "names": { "en": "Max Gift Card", "he": "מקס גיפט קארד" },
+      "aliases": ["max", "max gift", "virtual gift card max", "מקס", "מיי גיפט", "my gift", "mygift"],
+      "issuer": "Max",
+      "_note": "No store list. Max publishes its merchant list only as logo images in a PDF and inside the MyGift app; the web store page redirects and the API needs an app session. Transcribing the brands named in the PDF's fine print would give only those with exceptions, which is worse than showing nothing.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/max_gift.json" }
+      ],
+      "balanceSources": []
+    }
+  ]
+}

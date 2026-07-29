@@ -1,0 +1,24 @@
+{
+  "cardTypeId": "love_gift_card",
+  "source": "issuer_terms",
+  "schema": "n=name, a=aliases, o=online redeemable",
+  "_provenance": [
+    "Transcribed from the issuer's own published terms (תקנון LOVE CARD), not scraped.",
+    "LOVE CARD is issued by Castro Model Ltd and is accepted only at the Castro-Hoodies",
+    "group's own brands, so the list is short, closed and authoritative rather than a",
+    "shifting merchant network.",
+    "Online redemption is limited to Castro, Yves Rocher and Kiko Milano.",
+    "Sources: hoodies.co.il/tqnvn-love-card, carolinalemke.co.il/tqnvn-love-card,",
+    "topten-fashion.com/love-card-tqnvn"
+  ],
+  "stores": [
+    {"n":"קסטרו","a":["Castro","אופנה"],"o":true},
+    {"n":"קסטרו HOME","a":["Castro Home","Castro HOME","לבית"]},
+    {"n":"איב רושה","a":["Yves Rocher","Eve Rosha","קוסמטיקה"],"o":true},
+    {"n":"קיקו מילאנו","a":["Kiko Milano","KIKO","קוסמטיקה"],"o":true},
+    {"n":"הודיס","a":["Hoodies","אופנה"]},
+    {"n":"קרולינה למקה","a":["Carolina Lemke","משקפיים","אקססוריז"]},
+    {"n":"טופ טן","a":["Top Ten","TopTen","אופנה"]},
+    {"n":"אורבניקה","a":["Urbanica","Urbanika","אופנה"]}
+  ]
+}

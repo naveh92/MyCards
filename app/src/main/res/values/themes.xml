@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- NoActionBar: every screen supplies its own MaterialToolbar, and a decor-provided
+         action bar would collide with setSupportActionBar at runtime. -->
+    <style name="Theme.MyCards" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/brand_on_primary</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/brand_on_primary_container</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <!-- Matches the toolbar rather than the accent, which is light in dark mode. -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/toolbar_background</item>
+    </style>
+
+    <!-- Balances are the thing you scan for at a till, so they get their own scale. -->
+    <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.MyCards.CardTitle" parent="TextAppearance.Material3.TitleMedium" />
+
+    <style name="TextAppearance.MyCards.Meta" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:alpha">0.75</item>
+    </style>
+
+    <!-- Monospace keeps a 16-digit number readable while typing it into a terminal. -->
+    <style name="TextAppearance.MyCards.Secret" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+</resources>

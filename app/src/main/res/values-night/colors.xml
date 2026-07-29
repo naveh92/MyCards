@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light tones on purpose. Material 3 paints dialog buttons, links and focused field
+         labels with colorPrimary, so on a dark surface it has to be a light shade — a
+         mid-dark blue here is what made "Cancel" and "Save" nearly unreadable.
+         #A8C7E8 on the dark dialog surface clears WCAG AA for body text. -->
+    <color name="brand_primary">#A8C7E8</color>
+    <color name="brand_on_primary">#0B2A45</color>
+
+    <color name="brand_primary_container">#1B3B58</color>
+    <color name="brand_on_primary_container">#D3E4F7</color>
+
+    <color name="brand_secondary">#7FD1A6</color>
+
+    <!-- The toolbar keeps a solid blue fill with white text in both themes; only slightly
+         darkened here so it does not glare against a dark screen. -->
+    <color name="toolbar_background">#17466F</color>
+    <color name="toolbar_on_background">#FFFFFF</color>
+
+    <!-- Warning and error tones need more luminance in dark mode to stay readable. -->
+    <color name="expiry_warning">#E8A33D</color>
+    <color name="expiry_expired">#F2B8B5</color>
+    <color name="online_badge">#7FD1A6</color>
+</resources>

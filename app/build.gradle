@@ -1,0 +1,89 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.mycards'
+    compileSdk 35
+
+    // Pinned to a version already present in the local SDK. Left unset, AGP tries to
+    // download build-tools 35.0.0, which fails behind a TLS-inspecting proxy.
+    buildToolsVersion '36.0.0'
+
+    defaultConfig {
+        applicationId "com.mycards"
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Hebrew ships as 'iw' on Android (legacy ISO code) — see res/values-iw.
+        resourceConfigurations += ['en', 'iw']
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
+    sourceSets {
+        // Exposes the exported Room schemas to MigrationTest, which replays a real v1
+        // database through the migration instead of trusting it by inspection.
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.activity:activity:1.9.2'
+
+    // Room
+    implementation 'androidx.room:room-runtime:2.6.1'
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+
+    // Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.6'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.8.6'
+
+    // Background sync
+    implementation 'androidx.work:work-runtime:2.9.1'
+
+    // Biometric gate for revealing card numbers
+    implementation 'androidx.biometric:biometric:1.1.0'
+
+    // Networking + JSON
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.google.code.gson:gson:2.11.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+    androidTestImplementation 'androidx.room:room-testing:2.6.1'
+}

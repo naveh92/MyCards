@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyCards</string>
+
+    <!-- Search -->
+    <string name="search_hint">Store or card name…</string>
+    <string name="search_empty_prompt">Type a store name to see which cards work there</string>
+    <string name="no_results">No card of yours is accepted at \"%1$s\"</string>
+    <string name="no_cards_yet">No cards yet. Tap + to add your first gift card.</string>
+    <string name="accepted_at">Accepted at %1$s</string>
+    <string name="and_more_stores">+%1$d more</string>
+    <string name="matched_card_name">Matches the card name</string>
+    <string name="online_badge">Online</string>
+
+    <!-- Card summary -->
+    <string name="remaining_amount">%1$s left</string>
+    <string name="of_initial">of %1$s</string>
+    <string name="expires_on">Expires %1$s</string>
+    <string name="no_expiry">No expiry</string>
+    <string name="expired">Expired</string>
+    <string name="expires_soon">Expires in %1$d days</string>
+    <string name="card_count_stores">%1$d stores</string>
+
+    <!-- Card detail -->
+    <string name="card_details">Card details</string>
+    <string name="show_card_number">Show card number</string>
+    <string name="hide_card_number">Hide</string>
+    <string name="card_number">Card number</string>
+    <string name="cvv">CVV</string>
+    <string name="card_expiry">Card expiry</string>
+    <string name="gift_link">Gift card link</string>
+    <string name="open_gift_link">Open gift card</string>
+    <string name="copied_to_clipboard">Copied</string>
+    <string name="auto_hidden">Hidden again for safety</string>
+    <string name="no_sensitive_data">No card number saved for this card</string>
+
+    <!-- Biometric -->
+    <string name="biometric_title">Confirm it\'s you</string>
+    <string name="biometric_subtitle">Unlock to reveal the card number</string>
+    <string name="biometric_failed">Could not verify — the number stays hidden</string>
+    <string name="no_secure_lock_warning">This phone has no screen lock, so card numbers cannot be protected by biometrics. Set a screen lock to enable it.</string>
+
+    <!-- Spend log -->
+    <string name="spend_log">Spending</string>
+    <string name="add_spend">Log a purchase</string>
+    <string name="spend_title_label">What was it for?</string>
+    <string name="spend_title_hint">e.g. Shoes at Castro</string>
+    <string name="spend_amount_label">Amount</string>
+    <string name="spend_store_label">Store (optional)</string>
+    <string name="spend_date_label">Date</string>
+    <string name="no_spends_yet">Nothing logged yet</string>
+    <string name="spend_required_title">Give the purchase a short description</string>
+    <string name="spend_required_amount">Enter an amount above zero</string>
+    <string name="spend_exceeds_balance">That is more than the card has left</string>
+    <string name="delete_spend">Delete entry</string>
+
+    <!-- Add / edit card -->
+    <string name="add_card">Add card</string>
+    <string name="edit_card">Edit card</string>
+    <string name="card_type">Card type</string>
+    <string name="card_label">Label (optional)</string>
+    <string name="card_label_hint">e.g. Holiday gift 2026</string>
+    <string name="initial_amount">Amount on the card</string>
+    <string name="expiry_date">Expiry date</string>
+    <string name="expiry_placeholder">MM/YY</string>
+    <string name="error_invalid_expiry">Enter the expiry as MM/YY, e.g. 03/27</string>
+    <string name="optional_payment_details">Payment details (optional)</string>
+    <string name="optional_payment_explain">Stored encrypted on this device only, and revealed only after you unlock.</string>
+    <string name="notes">Notes</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="delete_card_confirm">Delete this card and its spending history?</string>
+    <string name="error_pick_card_type">Choose a card type</string>
+    <string name="error_amount_required">Enter the amount on the card</string>
+
+    <!-- Store list provenance -->
+    <string name="store_list_updated">Store list updated %1$s</string>
+    <string name="store_list_never_updated">Store list has never been updated</string>
+    <string name="store_list_unavailable">No store list available for this card yet</string>
+    <string name="store_list_unavailable_explain">No public source for this issuer was found, and inventing one would be worse than showing nothing. You can still track the balance and expiry.</string>
+    <string name="store_list_source">Source: %1$s</string>
+    <string name="updated_today">today</string>
+    <string name="updated_yesterday">yesterday</string>
+    <string name="updated_days_ago">%1$d days ago</string>
+    <string name="store_list_stale">This list may be out of date — check at the till</string>
+
+    <!-- Reconciliation -->
+    <string name="unlogged_transaction_title">Detected an unlogged transaction</string>
+    <string name="unlogged_transaction_body">%1$s has less money than your log accounts for</string>
+    <string name="reconcile_title">Balance mismatch</string>
+    <string name="reconcile_expected">Your log says</string>
+    <string name="reconcile_actual">The issuer says</string>
+    <string name="reconcile_difference">Missing</string>
+    <string name="reconcile_explain">Add the missing purchase so the log matches again.</string>
+    <string name="reconcile_add">Add this purchase</string>
+    <string name="reconcile_dismiss">Ignore for now</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_hebrew">עברית</string>
+    <string name="language_system">System default</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme_system">Follow device setting</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="update_store_data">Update store data now</string>
+    <string name="last_sync">Last updated: %1$s</string>
+    <string name="never">never</string>
+    <string name="sync_running">Updating…</string>
+    <string name="sync_done">Store data updated</string>
+    <string name="sync_failed">Update failed — showing the last saved data</string>
+    <string name="catalog_not_configured">No catalog URL configured, so only the built-in store lists are used.</string>
+    <string name="about_data_sources">Where store lists come from</string>
+
+    <!-- Backup -->
+    <string name="backup">Backup</string>
+    <string name="backup_explain">Your cards live only on this phone. Export an encrypted backup so a lost or replaced phone does not mean losing them.</string>
+    <string name="backup_export">Export encrypted backup</string>
+    <string name="backup_import">Restore from a backup</string>
+    <string name="backup_passphrase">Passphrase</string>
+    <string name="backup_passphrase_confirm">Repeat the passphrase</string>
+    <string name="backup_passphrase_explain">Encrypts the file. There is no way to recover it if you forget it — not even by reinstalling the app.</string>
+    <string name="backup_passphrase_mismatch">The two passphrases do not match</string>
+    <string name="backup_passphrase_too_short">Use at least 8 characters</string>
+    <string name="backup_exported">Backup saved</string>
+    <string name="backup_export_failed">Could not create the backup</string>
+    <string name="backup_imported">Restored: %1$s</string>
+    <string name="backup_import_failed">Could not read that backup</string>
+    <string name="backup_wrong_passphrase">Wrong passphrase, or the file has been damaged</string>
+    <string name="backup_not_a_backup">That is not a MyCards backup file</string>
+    <string name="backup_working">Working…</string>
+
+    <!-- Generic -->
+    <string name="menu_settings">Settings</string>
+    <string name="content_desc_add">Add a card</string>
+    <string name="content_desc_back">Back</string>
+</resources>

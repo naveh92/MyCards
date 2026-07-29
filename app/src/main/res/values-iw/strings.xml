@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">הכרטיסים שלי</string>
+
+    <!-- Search -->
+    <string name="search_hint">שם חנות או שם כרטיס…</string>
+    <string name="search_empty_prompt">הקלידו שם של חנות כדי לראות אילו כרטיסים מתקבלים בה</string>
+    <string name="no_results">אף כרטיס שלכם לא מתקבל ב\"%1$s\"</string>
+    <string name="no_cards_yet">אין עדיין כרטיסים. הקישו + כדי להוסיף כרטיס מתנה.</string>
+    <string name="accepted_at">מתקבל ב%1$s</string>
+    <string name="and_more_stores">ועוד %1$d</string>
+    <string name="matched_card_name">התאמה לשם הכרטיס</string>
+    <string name="online_badge">אונליין</string>
+
+    <!-- Card summary -->
+    <string name="remaining_amount">נותרו %1$s</string>
+    <string name="of_initial">מתוך %1$s</string>
+    <string name="expires_on">בתוקף עד %1$s</string>
+    <string name="no_expiry">ללא תאריך תפוגה</string>
+    <string name="expired">פג תוקף</string>
+    <string name="expires_soon">פג תוקף בעוד %1$d ימים</string>
+    <string name="card_count_stores">%1$d חנויות</string>
+
+    <!-- Card detail -->
+    <string name="card_details">פרטי הכרטיס</string>
+    <string name="show_card_number">הצגת מספר הכרטיס</string>
+    <string name="hide_card_number">הסתרה</string>
+    <string name="card_number">מספר כרטיס</string>
+    <string name="cvv">CVV</string>
+    <string name="card_expiry">תוקף הכרטיס</string>
+    <string name="gift_link">קישור לכרטיס המתנה</string>
+    <string name="open_gift_link">פתיחת כרטיס המתנה</string>
+    <string name="copied_to_clipboard">הועתק</string>
+    <string name="auto_hidden">הוסתר שוב מטעמי בטיחות</string>
+    <string name="no_sensitive_data">לא נשמר מספר כרטיס עבור כרטיס זה</string>
+
+    <!-- Biometric -->
+    <string name="biometric_title">אימות זהות</string>
+    <string name="biometric_subtitle">אימות כדי להציג את מספר הכרטיס</string>
+    <string name="biometric_failed">האימות נכשל — המספר נשאר מוסתר</string>
+    <string name="no_secure_lock_warning">אין נעילת מסך במכשיר, ולכן לא ניתן להגן על מספרי הכרטיסים באמצעות ביומטריה. הגדירו נעילת מסך כדי להפעיל זאת.</string>
+
+    <!-- Spend log -->
+    <string name="spend_log">הוצאות</string>
+    <string name="add_spend">רישום קנייה</string>
+    <string name="spend_title_label">על מה זה היה?</string>
+    <string name="spend_title_hint">לדוגמה: נעליים בקסטרו</string>
+    <string name="spend_amount_label">סכום</string>
+    <string name="spend_store_label">חנות (לא חובה)</string>
+    <string name="spend_date_label">תאריך</string>
+    <string name="no_spends_yet">עדיין לא נרשמו הוצאות</string>
+    <string name="spend_required_title">הוסיפו תיאור קצר לקנייה</string>
+    <string name="spend_required_amount">הזינו סכום גדול מאפס</string>
+    <string name="spend_exceeds_balance">הסכום גדול מהיתרה שנותרה בכרטיס</string>
+    <string name="delete_spend">מחיקת רישום</string>
+
+    <!-- Add / edit card -->
+    <string name="add_card">הוספת כרטיס</string>
+    <string name="edit_card">עריכת כרטיס</string>
+    <string name="card_type">סוג הכרטיס</string>
+    <string name="card_label">כינוי (לא חובה)</string>
+    <string name="card_label_hint">לדוגמה: מתנת חג 2026</string>
+    <string name="initial_amount">הסכום שעל הכרטיס</string>
+    <string name="expiry_date">תאריך תפוגה</string>
+    <string name="expiry_placeholder">MM/YY</string>
+    <string name="error_invalid_expiry">הזינו תוקף בפורמט MM/YY, לדוגמה 03/27</string>
+    <string name="optional_payment_details">פרטי תשלום (לא חובה)</string>
+    <string name="optional_payment_explain">נשמרים מוצפנים במכשיר זה בלבד, ומוצגים רק לאחר אימות.</string>
+    <string name="notes">הערות</string>
+    <string name="save">שמירה</string>
+    <string name="cancel">ביטול</string>
+    <string name="delete">מחיקה</string>
+    <string name="delete_card_confirm">למחוק את הכרטיס ואת היסטוריית ההוצאות שלו?</string>
+    <string name="error_pick_card_type">בחרו סוג כרטיס</string>
+    <string name="error_amount_required">הזינו את הסכום שעל הכרטיס</string>
+
+    <!-- Store list provenance -->
+    <string name="store_list_updated">רשימת החנויות עודכנה %1$s</string>
+    <string name="store_list_never_updated">רשימת החנויות מעולם לא עודכנה</string>
+    <string name="store_list_unavailable">אין עדיין רשימת חנויות לכרטיס זה</string>
+    <string name="store_list_unavailable_explain">לא נמצא מקור ציבורי למנפיק הזה, והמצאת רשימה הייתה גרועה מהצגת כלום. עדיין אפשר לעקוב אחרי היתרה והתוקף.</string>
+    <string name="store_list_source">מקור: %1$s</string>
+    <string name="updated_today">היום</string>
+    <string name="updated_yesterday">אתמול</string>
+    <string name="updated_days_ago">לפני %1$d ימים</string>
+    <string name="store_list_stale">ייתכן שהרשימה אינה מעודכנת — כדאי לוודא בקופה</string>
+
+    <!-- Reconciliation -->
+    <string name="unlogged_transaction_title">זוהתה עסקה שלא נרשמה</string>
+    <string name="unlogged_transaction_body">ב%1$s יש פחות כסף ממה שרשום ביומן ההוצאות</string>
+    <string name="reconcile_title">פער ביתרה</string>
+    <string name="reconcile_expected">לפי היומן</string>
+    <string name="reconcile_actual">לפי המנפיק</string>
+    <string name="reconcile_difference">חסר</string>
+    <string name="reconcile_explain">הוסיפו את הקנייה החסרה כדי שהיומן יתאים שוב.</string>
+    <string name="reconcile_add">הוספת הקנייה</string>
+    <string name="reconcile_dismiss">התעלמות בינתיים</string>
+
+    <!-- Settings -->
+    <string name="settings">הגדרות</string>
+    <string name="language">שפה</string>
+    <string name="language_english">English</string>
+    <string name="language_hebrew">עברית</string>
+    <string name="language_system">ברירת המחדל של המכשיר</string>
+    <string name="appearance">מראה</string>
+    <string name="theme_system">לפי הגדרת המכשיר</string>
+    <string name="theme_light">בהיר</string>
+    <string name="theme_dark">כהה</string>
+    <string name="update_store_data">עדכון נתוני חנויות עכשיו</string>
+    <string name="last_sync">עודכן לאחרונה: %1$s</string>
+    <string name="never">מעולם לא</string>
+    <string name="sync_running">מעדכן…</string>
+    <string name="sync_done">נתוני החנויות עודכנו</string>
+    <string name="sync_failed">העדכון נכשל — מוצגים הנתונים השמורים</string>
+    <string name="catalog_not_configured">לא הוגדרה כתובת קטלוג, ולכן נעשה שימוש ברשימות החנויות המובנות בלבד.</string>
+    <string name="about_data_sources">מקורות רשימות החנויות</string>
+
+    <!-- Backup -->
+    <string name="backup">גיבוי</string>
+    <string name="backup_explain">הכרטיסים שמורים במכשיר הזה בלבד. ייצאו גיבוי מוצפן כדי שאובדן או החלפה של המכשיר לא יימחקו אותם.</string>
+    <string name="backup_export">ייצוא גיבוי מוצפן</string>
+    <string name="backup_import">שחזור מגיבוי</string>
+    <string name="backup_passphrase">סיסמת הצפנה</string>
+    <string name="backup_passphrase_confirm">אימות הסיסמה</string>
+    <string name="backup_passphrase_explain">הסיסמה מצפינה את הקובץ. אם תישכח, לא ניתן לשחזר אותו — גם לא בהתקנה מחדש.</string>
+    <string name="backup_passphrase_mismatch">הסיסמאות אינן תואמות</string>
+    <string name="backup_passphrase_too_short">יש להזין לפחות 8 תווים</string>
+    <string name="backup_exported">הגיבוי נשמר</string>
+    <string name="backup_export_failed">יצירת הגיבוי נכשלה</string>
+    <string name="backup_imported">שוחזר: %1$s</string>
+    <string name="backup_import_failed">קריאת הגיבוי נכשלה</string>
+    <string name="backup_wrong_passphrase">סיסמה שגויה, או שהקובץ פגום</string>
+    <string name="backup_not_a_backup">הקובץ אינו גיבוי של MyCards</string>
+    <string name="backup_working">מעבד…</string>
+
+    <!-- Generic -->
+    <string name="menu_settings">הגדרות</string>
+    <string name="content_desc_add">הוספת כרטיס</string>
+    <string name="content_desc_back">חזרה</string>
+</resources>

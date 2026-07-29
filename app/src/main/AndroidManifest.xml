@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".MyCardsApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyCards">
+
+        <!-- Search is the launcher screen: the whole point is to answer
+             "which card works here?" in seconds at the checkout counter. -->
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateVisible|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.detail.CardDetailActivity"
+            android:parentActivityName=".ui.search.SearchActivity" />
+
+        <activity
+            android:name=".ui.edit.AddEditCardActivity"
+            android:parentActivityName=".ui.search.SearchActivity" />
+
+        <activity
+            android:name=".ui.reconcile.ReconcileActivity"
+            android:parentActivityName=".ui.search.SearchActivity" />
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:parentActivityName=".ui.search.SearchActivity" />
+
+        <!-- Locale switching without a custom Application-level attachBaseContext. -->
+        <service
+            android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
+            android:enabled="false"
+            android:exported="false">
+            <meta-data
+                android:name="autoStoreLocales"
+                android:value="true" />
+        </service>
+
+    </application>
+
+</manifest>

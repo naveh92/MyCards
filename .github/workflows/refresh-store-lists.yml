@@ -1,0 +1,107 @@
+name: Refresh store lists
+
+# Publishes the merchant lists that every install reads.
+#
+# This runs here rather than in a "moderator" build of the app on purpose: writing to the
+# repo needs a credential, and anything shipped inside an APK can be decompiled out of it.
+# Keeping the publisher in CI means the app has no write path at all — it only ever makes
+# anonymous GET requests — and it also means BuyMe sees one runner per week instead of one
+# request per user per week.
+
+on:
+  schedule:
+    # Weekly, early Monday UTC. Merchant lists change slowly; this is not urgent work.
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why this run was triggered by hand'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-store-lists
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Check the upstream source is still healthy
+        run: bash tools/check-sources.sh
+
+      - name: Fetch supplier payloads
+        run: |
+          mkdir -p .work/raw
+          UA="Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36"
+          while read -r id _; do
+            [ -z "$id" ] && continue
+            case "$id" in \#*) continue ;; esac
+            curl -sS --fail --max-time 180 -H "User-Agent: $UA" \
+              "https://buyme.co.il/siteapi/brands/$id" -o ".work/raw/$id.json"
+          done < tools/suppliers.txt
+
+      - name: Regenerate catalog and store lists
+        run: |
+          mkdir -p .work/publish/stores
+          curl -sSL -o .work/gson.jar \
+            https://repo1.maven.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar
+          javac -encoding UTF-8 -cp .work/gson.jar -d .work/classes tools/CatalogGen.java
+          java -Dfile.encoding=UTF-8 -cp ".work/classes:.work/gson.jar" CatalogGen \
+            .work/publish/stores .work/raw $(grep -v '^#' tools/supplier-args.txt | tr '\n' ' ') \
+            > .work/entries.json
+          # Every list is published; the APK still bundles only the largest few.
+          cp app/src/main/assets/catalog.json .work/publish/catalog.json
+
+      - name: Regenerate the HTZone lists
+        run: |
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+          javac -encoding UTF-8 -cp .work/gson.jar -d .work/classes tools/HtZoneGen.java
+          grep -v '^#' tools/htzone-pages.txt | while IFS=: read -r id slug; do
+            [ -z "$id" ] && continue
+            curl -sS --fail --max-time 180 -H "User-Agent: $UA" \
+              "https://www.htzone.co.il/voucher-zone/$id" -o ".work/raw/zone-$id.html"
+            java -Dfile.encoding=UTF-8 -cp ".work/classes:.work/gson.jar" HtZoneGen \
+              ".work/publish/stores/$slug.json" "$slug" ".work/raw/zone-$id.html"
+          done
+
+      - name: Keep the hand-maintained lists
+        run: |
+          # love_gift_card is transcribed from the issuer's published terms rather than
+          # scraped, so it is copied through instead of regenerated.
+          cp app/src/main/assets/stores/love_gift_card.json .work/publish/stores/ || true
+
+      - name: Write the manifest
+        run: bash tools/gen-manifest.sh .work/publish
+
+      - name: Publish into the docs/ directory served by GitHub Pages
+        run: |
+          mkdir -p docs
+          rsync -a --delete .work/publish/ docs/
+
+      - name: Commit only if a store list actually changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs
+          # The manifest's generatedAt changes on every run, so committing unconditionally
+          # would create a pointless commit each week and make every phone re-download.
+          # Only a real change to the lists or the catalog is worth publishing.
+          if git diff --cached --quiet -- docs/stores docs/catalog.json; then
+            echo "No store list changed; skipping commit."
+            git reset
+            exit 0
+          fi
+          git commit -m "Refresh store lists $(date -u +%Y-%m-%d)"
+          git push

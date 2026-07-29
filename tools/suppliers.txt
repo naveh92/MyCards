@@ -1,0 +1,28 @@
+# BuyMe supplier ids whose merchant lists are published.
+#
+# Found by probing every /supplier/{id} in buyme.co.il's sitemap against
+# siteapi/brands/{id}: a plain merchant answers with ~400 bytes, a multi-brand gift card
+# answers with megabytes. Re-run that probe if BuyMe launches a new card type.
+#
+# id        slug                    merchants (at time of discovery)
+13438757  # buyme_all               1276
+9018727   # buyme_baby               948
+17573670  # buyme_local              709
+15579925  # buyme_yng                403
+17574075  # buyme_together           390
+17573460  # buyme_foody              368
+20620     # buyme_fashion_beauty     303
+7565407   # buyme_style              230
+17573505  # buyme_vacation_spa       175
+15925581  # buyme_wellness           166
+398383    # azrieli                  144
+16552152  # buyme_rishon             125
+15490363  # buyme_home_design        121
+15753815  # buyme_ramat_gan          109
+752649    # buyme_chef                84
+17573891  # buyme_business            83
+17573615  # buyme_brunch              61
+17573995  # buyme_cheers              48
+4299680   # buyme_kosher              42
+17574524  # buyme_pets                31
+17574048  # buyme_live                20

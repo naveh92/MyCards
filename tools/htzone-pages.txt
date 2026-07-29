@@ -1,0 +1,17 @@
+# HTZone "Zone" vouchers: <voucher-zone id>:<slug>
+#
+# The id is the number in https://www.htzone.co.il/voucher-zone/{id}, whose markup embeds
+# the whole merchant list as a business_arr literal.
+#
+# Mapped by following each product page to the business list it links to:
+#   All-In Zone  -> /webview/107082/  -> voucher-zone/10
+#   SuperZone    -> /webview/105913/  -> voucher-zone/6
+# The rest were identified from the zone name referenced in their own page markup.
+#
+# Ids 5, 9, 11, 12 and 14 also carry large lists but could not be attributed to a named
+# voucher with confidence, so they are left out rather than guessed at.
+10:all_in_zone
+6:superzone
+4:giftzone
+1:chefzone
+3:spazone

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Accent used for text and controls (dialog buttons, links, focused fields).
+         In light mode this must be dark enough to read on white. -->
+    <color name="brand_primary">#1B5E9C</color>
+    <color name="brand_on_primary">#FFFFFF</color>
+
+    <color name="brand_primary_container">#D3E4F7</color>
+    <color name="brand_on_primary_container">#0B2A45</color>
+
+    <color name="brand_secondary">#2E7D5B</color>
+
+    <!-- Toolbar fill is kept separate from the accent on purpose. The accent has to flip
+         light in dark mode to stay legible as text, but the toolbar should stay a solid
+         brand blue in both themes. Tying them together forces one to be wrong. -->
+    <color name="toolbar_background">#1B5E9C</color>
+    <color name="toolbar_on_background">#FFFFFF</color>
+
+    <color name="expiry_warning">#B26A00</color>
+    <color name="expiry_expired">#B3261E</color>
+    <color name="online_badge">#2E7D5B</color>
+
+    <color name="ic_launcher_background">#1B5E9C</color>
+</resources>
