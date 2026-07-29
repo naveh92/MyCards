@@ -41,7 +41,7 @@
     <string name="no_secure_lock_warning">This phone has no screen lock, so card numbers cannot be protected by biometrics. Set a screen lock to enable it.</string>
 
     <!-- Spend log -->
-    <string name="spend_log">Spending</string>
+    <string name="spend_log">Spending History</string>
     <string name="add_spend">Log a purchase</string>
     <string name="spend_title_label">What was it for? (optional)</string>
     <string name="spend_title_hint">e.g. Shoes at Castro</string>
@@ -59,7 +59,7 @@
     <string name="add_card">Add card</string>
     <string name="edit_card">Edit card</string>
     <string name="card_type">Card type</string>
-    <string name="card_label">Label (optional)</string>
+    <string name="card_label">Card Name (optional)</string>
     <string name="card_label_hint">e.g. Holiday gift 2026</string>
     <string name="initial_amount">Amount on the card</string>
     <string name="expiry_date">Expiry date</string>

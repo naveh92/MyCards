@@ -133,26 +133,12 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
+                <!-- Expiry before CVV, matching both the card itself and the order the
+                     details are shown back on the detail screen. -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/cvv">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/cvvInput"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberPassword"
-                        android:maxLength="4" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
                     android:layout_weight="1"
                     android:hint="@string/card_expiry"
                     app:placeholderText="@string/expiry_placeholder">
@@ -163,6 +149,22 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         android:maxLength="5" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:hint="@string/cvv">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/cvvInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberPassword"
+                        android:maxLength="4" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 

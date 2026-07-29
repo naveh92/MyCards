@@ -125,8 +125,10 @@
                         android:textAppearance="@style/TextAppearance.MyCards.Secret"
                         android:textIsSelectable="true" />
 
+                    <!-- Number, expiry, then CVV — the order they are printed on the card
+                         and the order a payment form asks for them. -->
                     <TextView
-                        android:id="@+id/cvvValue"
+                        android:id="@+id/cardExpiryValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
@@ -134,7 +136,7 @@
                         android:textIsSelectable="true" />
 
                     <TextView
-                        android:id="@+id/cardExpiryValue"
+                        android:id="@+id/cvvValue"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"

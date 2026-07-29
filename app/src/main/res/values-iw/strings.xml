@@ -41,7 +41,7 @@
     <string name="no_secure_lock_warning">אין נעילת מסך במכשיר, ולכן לא ניתן להגן על מספרי הכרטיסים באמצעות ביומטריה. הגדירו נעילת מסך כדי להפעיל זאת.</string>
 
     <!-- Spend log -->
-    <string name="spend_log">הוצאות</string>
+    <string name="spend_log">היסטוריית הוצאות</string>
     <string name="add_spend">רישום קנייה</string>
     <string name="spend_title_label">על מה זה היה? (לא חובה)</string>
     <string name="spend_title_hint">לדוגמה: נעליים בקסטרו</string>
@@ -59,7 +59,7 @@
     <string name="add_card">הוספת כרטיס</string>
     <string name="edit_card">עריכת כרטיס</string>
     <string name="card_type">סוג הכרטיס</string>
-    <string name="card_label">כינוי (לא חובה)</string>
+    <string name="card_label">שם הכרטיס (לא חובה)</string>
     <string name="card_label_hint">לדוגמה: מתנת חג 2026</string>
     <string name="initial_amount">הסכום שעל הכרטיס</string>
     <string name="expiry_date">תאריך תפוגה</string>
