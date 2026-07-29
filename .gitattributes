@@ -1,0 +1,23 @@
+# Normalise line endings so a Windows checkout does not break the Linux CI runner.
+#
+# gradlew and the tools/*.sh scripts are executed by bash in GitHub Actions. If they are
+# checked out with CRLF, the shebang line ends in \r and the runner fails with
+# "bad interpreter: No such file or directory" — a confusing failure for a whitespace bug.
+* text=auto eol=lf
+
+# Windows batch files genuinely need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Executed on Linux, so these must stay LF regardless of platform.
+gradlew    text eol=lf
+*.sh       text eol=lf
+
+# Served verbatim over HTTP and hashed in the manifest: any line-ending rewrite would
+# change every sha256 and force every phone to re-download the lot.
+*.json     text eol=lf
+
+*.jar      binary
+*.png      binary
+*.jpg      binary
+*.webp     binary
