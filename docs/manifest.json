@@ -1,12 +1,12 @@
 {
   "manifestVersion": 1,
-  "generatedAt": "2026-07-29T10:20:53Z",
+  "generatedAt": "2026-07-29T10:57:10Z",
   "catalog": {
-    "sha256": "6b95182376333ac68708c7939bf5ee61217e0335acd9ed48b27ca5ce0e71605b",
-    "bytes": 13779
+    "sha256": "0985a70f76d30233683cb97f4012e8613d3caf153eb00c0f3656a7a5b94af73b",
+    "bytes": 14309
   },
   "stores": {
-    "all_in_zone": { "sha256": "810c75181f6a7d5baaec3b967aafe7354e3efbc3df2fd8305524d883a43720c3", "bytes": 71064, "count": 747 },
+    "all_in_zone": { "sha256": "f08c4234cbbd47bbce94549b767198b700c857cafe703b746c5f1085d704e2fc", "bytes": 71818, "count": 747 },
     "azrieli": { "sha256": "53ba65d0625c63654753772e60b911ae183f4b6d5b7ad1057cc9774984cc65bc", "bytes": 47644, "count": 144 },
     "buyme_all": { "sha256": "bc5ca5fd04d45464ae7a38f6da1bc78f44f6ac1712831a6431e44799773f9c06", "bytes": 503329, "count": 1276 },
     "buyme_baby": { "sha256": "62de094f25a5d31024b08b906a118d753c47100b5b1a4a316ae43c03ce7e889a", "bytes": 374618, "count": 948 },
@@ -28,10 +28,10 @@
     "buyme_vacation_spa": { "sha256": "0ac07a7b968f475180008baf540e5f16867c7b32c659e0acb897b29afd4702c6", "bytes": 66085, "count": 175 },
     "buyme_wellness": { "sha256": "ec83a89d5cee59bbd45cebc51aac25dd62263330bae813451690eaea3ef2b556", "bytes": 73203, "count": 166 },
     "buyme_yng": { "sha256": "d14d6a0be3da6cb403fd36c6a63f903d231d5314335688eb93d76bc411e20ec9", "bytes": 159773, "count": 403 },
-    "chefzone": { "sha256": "a60f0447424143918cbcaddc968d7a64429e8f45eb5185f70adacb256f9edb5f", "bytes": 6272, "count": 79 },
-    "giftzone": { "sha256": "e56868a11270f6a0d11d06e25a3d7efbfc05f95a9b4861f21c8aa124b2f73ef5", "bytes": 67010, "count": 737 },
-    "love_gift_card": { "sha256": "a3d4c91a3cdcf262b38cafd09b7c11abe3c54b4171dee3eb9b382075095b1b2a", "bytes": 1265, "count": 8 },
-    "spazone": { "sha256": "4b26acb887d5b8cc87900cfd65800a8faa87439b84d6cf9c8b8a7f0df223828a", "bytes": 1738, "count": 22 },
-    "superzone": { "sha256": "544f63d6b9daa6ced27e96c8b88c0d7fb3e829d09d4f7d9f33d06d907594d0a6", "bytes": 65737, "count": 752 }
+    "chefzone": { "sha256": "4187ed3939fd48d805344c9331c84071bbe224bc4ac9c0a386695b6383b19eb0", "bytes": 6358, "count": 79 },
+    "giftzone": { "sha256": "9e100bec5db06d3d3e162635c5a771b191d814271e5b11d242ef148809890f91", "bytes": 67754, "count": 737 },
+    "love_gift_card": { "sha256": "08d4377b4c8fffb006078946537b3681ce6774a9a9a1860cb2a9c96c559b0e0a", "bytes": 1289, "count": 8 },
+    "spazone": { "sha256": "61245558f6fec4afc88cc2771641edad19d99227cb8fe4a6a091c3a4814be34e", "bytes": 1767, "count": 22 },
+    "superzone": { "sha256": "39abca6b6806cbe8455e6bf1e9e255a1628699b1c274fadd45b935f79567a74b", "bytes": 66496, "count": 752 }
   }
 }

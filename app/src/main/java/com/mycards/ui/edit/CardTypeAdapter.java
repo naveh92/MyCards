@@ -77,19 +77,35 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
     }
 
     /**
-     * Restores the full list immediately, on the calling thread.
+     * Puts every option back, synchronously.
      *
-     * <p>Android's {@link Filter} publishes its results asynchronously, so resetting through
-     * it makes the dropdown visibly close and reopen a frame later. With a couple of dozen
-     * card types there is nothing to gain from the worker thread, and a synchronous reset
-     * lets the menu open once, already showing everything.
+     * <p>Call this the moment a choice is made, while the menu is already closing. Reopening
+     * the menu does not re-run the filter — the adapter simply keeps whatever it was last
+     * narrowed to — so without this the next open would show only the previous matches.
+     * Restoring on selection rather than on open is what keeps it from flickering: the list
+     * changes while nothing is on screen to see it.
      */
-    public void showAll() {
+    public void restoreAll() {
         setNotifyOnChange(false);
         clear();
         addAll(master);
         setNotifyOnChange(true);
         notifyDataSetChanged();
+    }
+
+    /**
+     * True when the text is exactly the name of one of the options.
+     *
+     * <p>Which means it is a previous selection sitting in the field, not something the
+     * user is typing to search with.
+     */
+    private boolean isExactLabel(String text) {
+        for (Option option : master) {
+            if (option.label.equalsIgnoreCase(text)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @NonNull
@@ -104,11 +120,14 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
         protected FilterResults performFiltering(CharSequence constraint) {
             List<Option> matched = new ArrayList<>();
 
-            List<String> variants = SearchEngine.queryVariants(
-                    constraint == null ? "" : constraint.toString());
+            String raw = constraint == null ? "" : constraint.toString().trim();
+            List<String> variants = SearchEngine.queryVariants(raw);
 
-            if (variants.isEmpty()) {
-                // Empty box means "show me everything", not "show me nothing".
+            // Reopening the menu on a field that already holds a choice should offer every
+            // option again, not just the one already picked. Recognising a selection here
+            // is what keeps that from needing the text to be cleared and the popup
+            // reopened by hand, which is what made it flicker.
+            if (variants.isEmpty() || isExactLabel(raw)) {
                 matched.addAll(master);
             } else {
                 for (Option option : master) {

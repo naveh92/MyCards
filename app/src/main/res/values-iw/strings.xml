@@ -52,7 +52,7 @@
     <string name="no_spends_yet">עדיין לא נרשמו הוצאות</string>
     <string name="spend_required_title">הוסיפו תיאור קצר לקנייה</string>
     <string name="spend_required_amount">הזינו סכום גדול מאפס</string>
-    <string name="spend_exceeds_balance">הסכום גדול מהיתרה שנותרה בכרטיס</string>
+    <string name="spend_exceeds_balance">נותרו בכרטיס %1$s בלבד</string>
     <string name="delete_spend">מחיקת רישום</string>
 
     <!-- Add / edit card -->
@@ -76,6 +76,7 @@
     <string name="error_amount_required">הזינו את הסכום שעל הכרטיס</string>
 
     <!-- Store list provenance -->
+    <string name="store_list_title">רשימת החנויות</string>
     <string name="store_list_updated">רשימת החנויות עודכנה %1$s</string>
     <string name="store_list_never_updated">רשימת החנויות מעולם לא עודכנה</string>
     <string name="store_list_unavailable">אין עדיין רשימת חנויות לכרטיס זה</string>

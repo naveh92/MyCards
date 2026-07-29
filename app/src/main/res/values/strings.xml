@@ -52,7 +52,7 @@
     <string name="no_spends_yet">Nothing logged yet</string>
     <string name="spend_required_title">Give the purchase a short description</string>
     <string name="spend_required_amount">Enter an amount above zero</string>
-    <string name="spend_exceeds_balance">That is more than the card has left</string>
+    <string name="spend_exceeds_balance">Only %1$s left on this card</string>
     <string name="delete_spend">Delete entry</string>
 
     <!-- Add / edit card -->
@@ -76,6 +76,7 @@
     <string name="error_amount_required">Enter the amount on the card</string>
 
     <!-- Store list provenance -->
+    <string name="store_list_title">Store list</string>
     <string name="store_list_updated">Store list updated %1$s</string>
     <string name="store_list_never_updated">Store list has never been updated</string>
     <string name="store_list_unavailable">No store list available for this card yet</string>

@@ -17,7 +17,7 @@
     {
       "id": "buyme_all",
       "names": { "en": "BuyMe All", "he": "BuyMe All" },
-      "aliases": ["BUYME ALL - ????? ???? ????? ???", "BUYME ALL", "????? ???? ????? ???", "ALL"],
+      "aliases": ["BUYME ALL - מגוון אדיר במתנה אחת", "BUYME ALL", "מגוון אדיר במתנה אחת", "ALL"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_all.json" },
@@ -29,7 +29,7 @@
     {
       "id": "buyme_baby",
       "names": { "en": "BuyMe Baby", "he": "BuyMe Baby" },
-      "aliases": ["BUYME BABY- ????? ????? ????", "BUYME BABY", "????? ????? ????", "BABY"],
+      "aliases": ["BUYME BABY- מגוון מתנות לידה", "BUYME BABY", "מגוון מתנות לידה", "BABY"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_baby.json" },
@@ -40,7 +40,7 @@
     {
       "id": "buyme_local",
       "names": { "en": "BuyMe Local", "he": "BuyMe Local" },
-      "aliases": ["BUYME LOCAL � ????? ???????", "BUYME LOCAL", "????? ???????", "LOCAL"],
+      "aliases": ["BUYME LOCAL – מתנות מקומיות", "BUYME LOCAL", "מתנות מקומיות", "LOCAL"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_local.json" },
@@ -51,7 +51,7 @@
     {
       "id": "buyme_yng",
       "names": { "en": "BuyMe Yng", "he": "BuyMe Yng" },
-      "aliases": ["BUYME YNG - ???? ?????? ???? ????", "BUYME YNG", "???? ?????? ???? ????", "YNG"],
+      "aliases": ["BUYME YNG - מתנה מושלמת לבני נוער", "BUYME YNG", "מתנה מושלמת לבני נוער", "YNG"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_yng.json" },
@@ -62,7 +62,7 @@
     {
       "id": "buyme_together",
       "names": { "en": "BuyMe Together", "he": "BuyMe Together" },
-      "aliases": ["BUYME TOGETHER - ?????? ???????", "BUYME TOGETHER", "?????? ???????", "TOGETHER"],
+      "aliases": ["BUYME TOGETHER - חוויות משותפות", "BUYME TOGETHER", "חוויות משותפות", "TOGETHER"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_together.json" },
@@ -74,7 +74,7 @@
     {
       "id": "buyme_foody",
       "names": { "en": "BuyMe Foody", "he": "BuyMe Foody" },
-      "aliases": ["BUYME FOODY -????? ????????? ????", "BUYME FOODY", "????? ????????? ????", "FOODY"],
+      "aliases": ["BUYME FOODY -מתנות קולינריות שוות", "BUYME FOODY", "מתנות קולינריות שוות", "FOODY"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_foody.json" },
@@ -96,7 +96,7 @@
     {
       "id": "buyme_style",
       "names": { "en": "BuyMe Style", "he": "BuyMe Style" },
-      "aliases": ["BUYME STYLE - ????? ????? ?????", "BUYME STYLE", "????? ????? ?????", "STYLE"],
+      "aliases": ["BUYME STYLE - אופנה ולייף סטייל", "BUYME STYLE", "אופנה ולייף סטייל", "STYLE"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_style.json" },
@@ -108,7 +108,7 @@
     {
       "id": "buyme_vacation_spa",
       "names": { "en": "BuyMe Vacation & Spa", "he": "BuyMe Vacation & Spa" },
-      "aliases": ["BUYME VACATION & SPA- ?????? ????", "BUYME VACATION & SPA", "?????? ????", "SPA"],
+      "aliases": ["BUYME VACATION & SPA- מלונות וספא", "BUYME VACATION & SPA", "מלונות וספא", "SPA"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_vacation_spa.json" },
@@ -119,7 +119,7 @@
     {
       "id": "buyme_wellness",
       "names": { "en": "BuyMe Wellness", "he": "BuyMe Wellness" },
-      "aliases": ["BUYME WELLNESS � ???? ???? ?????", "BUYME WELLNESS", "???? ???? ?????", "WELLNESS"],
+      "aliases": ["BUYME WELLNESS – מתנה לגוף ולנפש", "BUYME WELLNESS", "מתנה לגוף ולנפש", "WELLNESS"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_wellness.json" },
@@ -152,7 +152,7 @@
     {
       "id": "buyme_home_design",
       "names": { "en": "BuyMe Home Design", "he": "BuyMe Home Design" },
-      "aliases": ["BUYME HOME DESIGN - ??? ???????", "BUYME HOME DESIGN", "??? ???????", "DESIGN"],
+      "aliases": ["BUYME HOME DESIGN - בית ואווירה", "BUYME HOME DESIGN", "בית ואווירה", "DESIGN"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_home_design.json" },
@@ -174,7 +174,7 @@
     {
       "id": "buyme_chef",
       "names": { "en": "BuyMe Chef", "he": "BuyMe Chef" },
-      "aliases": ["BUYME CHEF - ????? ?????? ??", "BUYME CHEF", "????? ?????? ??", "CHEF"],
+      "aliases": ["BUYME CHEF - מגוון מסעדות שף", "BUYME CHEF", "מגוון מסעדות שף", "CHEF"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_chef.json" },
@@ -185,8 +185,8 @@
     },
     {
       "id": "buyme_business",
-      "names": { "en": "?????? ?????", "he": "?????? ?????" },
-      "aliases": ["?????? ????? - ???? ?? ??? ????", "???? ?? ??? ????", "?????"],
+      "names": { "en": "עוטפים עסקים", "he": "עוטפים עסקים" },
+      "aliases": ["עוטפים עסקים - מתנה עם ערך מוסף", "מתנה עם ערך מוסף", "עסקים"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_business.json" },
@@ -197,7 +197,7 @@
     {
       "id": "buyme_brunch",
       "names": { "en": "BuyMe Brunch", "he": "BuyMe Brunch" },
-      "aliases": ["BUYME BRUNCH- ????? ?????? ????", "BUYME BRUNCH", "????? ?????? ????", "BRUNCH"],
+      "aliases": ["BUYME BRUNCH- מגוון ארוחות בוקר", "BUYME BRUNCH", "מגוון ארוחות בוקר", "BRUNCH"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_brunch.json" },
@@ -208,7 +208,7 @@
     {
       "id": "buyme_cheers",
       "names": { "en": "BuyMe Cheers", "he": "BuyMe Cheers" },
-      "aliases": ["BUYME CHEERS - ?????? ?????????", "BUYME CHEERS", "?????? ?????????", "CHEERS"],
+      "aliases": ["BUYME CHEERS - חוויות אלכוהליות", "BUYME CHEERS", "חוויות אלכוהליות", "CHEERS"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_cheers.json" },
@@ -219,7 +219,7 @@
     {
       "id": "buyme_kosher",
       "names": { "en": "BuyMe Kosher", "he": "BuyMe Kosher" },
-      "aliases": ["BUYME KOSHER - ????? ?????? ?????", "BUYME KOSHER", "????? ?????? ?????", "KOSHER"],
+      "aliases": ["BUYME KOSHER - מגוון מסעדות כשרות", "BUYME KOSHER", "מגוון מסעדות כשרות", "KOSHER"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_kosher.json" },
@@ -230,7 +230,7 @@
     {
       "id": "buyme_pets",
       "names": { "en": "BuyMe Pets", "he": "BuyMe Pets" },
-      "aliases": ["BUYME PETS - ????? ?????? ????", "BUYME PETS", "????? ?????? ????", "PETS"],
+      "aliases": ["BUYME PETS - מתנות לאוהבי חיות", "BUYME PETS", "מתנות לאוהבי חיות", "PETS"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_pets.json" },
@@ -241,7 +241,7 @@
     {
       "id": "buyme_live",
       "names": { "en": "BuyMe Live", "he": "BuyMe Live" },
-      "aliases": ["BUYME LIVE � ????? ????? ??????", "BUYME LIVE", "????? ????? ??????", "LIVE"],
+      "aliases": ["BUYME LIVE – מתנות מעולם התרבות", "BUYME LIVE", "מתנות מעולם התרבות", "LIVE"],
       "issuer": "BuyMe",
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/buyme_live.json" },

@@ -135,37 +135,20 @@ public class AddEditCardActivity extends AppCompatActivity {
                 // The list is filtered, so position indexes the filtered view, not the
                 // catalog — read the option back off the adapter rather than by index.
                 cardTypeInput.setOnItemClickListener((parent, view, position, id) -> {
+                    // Read the choice before touching the adapter — position indexes the
+                    // filtered view, and restoreAll() replaces it.
                     CardTypeAdapter.Option picked = adapter.getItem(position);
                     if (picked != null) {
                         selectedType = picked.def;
                         cardTypeLayout.setError(null);
                     }
+                    adapter.restoreAll();
                 });
 
-                // Tapping the field should offer the whole list, not filter by whatever
-                // name is already sitting in it.
-                // The field is editable so it can be typed into, which means Material's
-                // exposed-dropdown toggle does not open it for us — that only happens for
-                // non-editable menus. So open it here, but do every step synchronously:
-                // the earlier flicker came from resetting through Android's Filter, which
-                // publishes on a worker thread and so closed and reopened the menu a frame
-                // after it had already appeared.
-                cardTypeInput.setOnClickListener(v -> {
-                    selectedType = null;
-                    // 'false' suppresses filtering, so clearing does not re-narrow the list
-                    // to the name that was already in the field.
-                    cardTypeInput.setText("", false);
-                    adapter.showAll();
-                    // Opened on the next frame, because the framework finishes handling
-                    // this same tap by dismissing the popup. Only the *opening* is
-                    // deferred — the list is already complete by now, so it appears once
-                    // with everything in it rather than visibly refilling.
-                    cardTypeInput.post(() -> {
-                        if (!cardTypeInput.isPopupShowing()) {
-                            cardTypeInput.showDropDown();
-                        }
-                    });
-                });
+                // No click or touch listener here on purpose. Material's exposed-dropdown
+                // sets its own touch handling to toggle the menu, and overriding it was
+                // what caused the double-open: its toggle and ours both fired. Showing the
+                // full list on reopen is handled inside the adapter's filter instead.
 
                 if (existing != null) {
                     editing = existing;

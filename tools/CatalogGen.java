@@ -24,6 +24,13 @@ public class CatalogGen {
     }
 
     public static void main(String[] args) throws Exception {
+        // System.out follows the console encoding on modern JDKs, not file.encoding, so
+        // redirecting it to a file silently rewrites every Hebrew character as '?'. The
+        // snapshots escaped this because they go through Files.write with an explicit
+        // charset; the catalog printed here did not.
+        System.setOut(new PrintStream(
+                new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8.name()));
+
         String assetsDir = args[0];
         // Payloads are pre-downloaded with curl: this machine sits behind a TLS-inspecting
         // proxy whose CA the JDK does not trust, so direct HTTPS from Java fails.

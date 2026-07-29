@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/toolbar_background"
-            app:navigationIcon="@android:drawable/ic_menu_revert"
+            app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/card_details"
             app:titleTextColor="@color/toolbar_on_background" />
 
@@ -32,10 +32,15 @@
                 android:padding="16dp"
                 android:paddingBottom="96dp">
 
+                <!-- Tapping the name opens the store-list details, which are reference
+                     information rather than something needed at a checkout counter. -->
                 <TextView
                     android:id="@+id/cardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
                 <TextView
@@ -63,14 +68,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-                <!-- Provenance: how old the merchant list is and where it came from. -->
-                <TextView
-                    android:id="@+id/storeInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="@style/TextAppearance.MyCards.Meta" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/mismatchCard"
@@ -176,7 +173,8 @@
                     android:id="@+id/spendList"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@android:color/transparent"
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
         </ScrollView>

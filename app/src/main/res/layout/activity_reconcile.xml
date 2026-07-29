@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/toolbar_background"
-        app:navigationIcon="@android:drawable/ic_menu_revert"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:title="@string/reconcile_title"
         app:titleTextColor="@color/toolbar_on_background" />
 

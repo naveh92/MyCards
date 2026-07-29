@@ -31,16 +31,22 @@ public final class AddSpendDialog {
         void onSpend(String title, double amount, String storeName, long spentAt);
     }
 
-    public static void show(Activity activity, String currency, OnSpendEntered callback) {
-        show(activity, currency, null, 0d, callback);
+    public static void show(Activity activity, String currency, double maxAmount,
+                            OnSpendEntered callback) {
+        show(activity, currency, maxAmount, null, 0d, callback);
     }
 
     /**
+     * @param maxAmount     the card's remaining balance; spends above it are rejected.
+     *                      A gift card holds a fixed sum and cannot go overdrawn, so an
+     *                      amount larger than the balance is a typo, and accepting it would
+     *                      leave the card showing a negative balance.
      * @param prefillTitle  suggested description, used by the reconciliation flow
      * @param prefillAmount pre-filled amount; 0 leaves the field empty
      */
     public static void show(Activity activity,
                             String currency,
+                            double maxAmount,
                             String prefillTitle,
                             double prefillAmount,
                             OnSpendEntered callback) {
@@ -97,6 +103,13 @@ public final class AddSpendDialog {
             }
             if (amount <= 0) {
                 amountLayout.setError(activity.getString(R.string.spend_required_amount));
+                return;
+            }
+            // Tolerance of one agora, so a balance of exactly 25.00 accepts a 25.00 spend
+            // rather than tripping on floating-point representation.
+            if (amount > maxAmount + 0.01d) {
+                amountLayout.setError(activity.getString(R.string.spend_exceeds_balance,
+                        Formats.money(maxAmount, currency)));
                 return;
             }
             amountLayout.setError(null);

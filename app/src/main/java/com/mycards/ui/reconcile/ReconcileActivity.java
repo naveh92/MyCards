@@ -85,7 +85,8 @@ public class ReconcileActivity extends AppCompatActivity {
     }
 
     private void addMissingSpend() {
-        AddSpendDialog.show(this, card.currency, null, difference,
+        // The gap can never exceed what the log says is left, so the balance is the cap.
+        AddSpendDialog.show(this, card.currency, cardsRepo.remainingBalance(cardId), null, difference,
                 (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
                     // Recorded as RECONCILIATION so the log stays honest about which entries
                     // were observed and which were inferred from a balance gap.

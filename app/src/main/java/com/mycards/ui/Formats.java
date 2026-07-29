@@ -34,7 +34,24 @@ public final class Formats {
         boolean whole = Math.abs(amount - Math.rint(amount)) < 0.005d;
         nf.setMaximumFractionDigits(whole ? 0 : 2);
         nf.setMinimumFractionDigits(whole ? 0 : 2);
-        return nf.format(amount);
+        return tidy(nf.format(amount));
+    }
+
+    /**
+     * Strips the invisible padding the Hebrew currency format leaves behind.
+     *
+     * <p>{@code NumberFormat} for he-IL wraps its output in bidi marks and separates the
+     * symbol with a non-breaking space. Dropped into a sentence like "Originally %s", those
+     * render as a conspicuous gap. Removing them is safe: the direction of the surrounding
+     * text is resolved by the view's own bidi handling, not by these characters.
+     */
+    private static String tidy(String formatted) {
+        return formatted
+                // LRM, RLM and Arabic letter mark.
+                .replaceAll("[‎‏؜]", "")
+                .replace(' ', ' ')
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
     // --- expiry: month and year only ---

@@ -56,6 +56,8 @@ public class CardDetailActivity extends AppCompatActivity {
     private CardTypeDef cardType;
 
     private SpendAdapter spendAdapter;
+    private StoreCacheEntity storeCache;
+    private double remainingBalance;
     private View secretBlock;
     private MaterialButton revealButton;
     private final Handler autoHide = new Handler(Looper.getMainLooper());
@@ -85,6 +87,10 @@ public class CardDetailActivity extends AppCompatActivity {
 
         RecyclerView spendList = findViewById(R.id.spendList);
         spendList.setLayoutManager(new LinearLayoutManager(this));
+        // Rows are otherwise just stacked text and run together visually.
+        spendList.addItemDecoration(
+                new com.google.android.material.divider.MaterialDividerItemDecoration(
+                        this, LinearLayoutManager.VERTICAL));
 
         findViewById(R.id.addSpend).setOnClickListener(v -> showAddSpendDialog());
         findViewById(R.id.reconcileButton).setOnClickListener(v -> openReconcile());
@@ -130,6 +136,7 @@ public class CardDetailActivity extends AppCompatActivity {
         subtitle.setText(typeName);
         subtitle.setVisibility(hasLabel ? View.VISIBLE : View.GONE);
 
+        remainingBalance = remaining;
         ((TextView) findViewById(R.id.balance)).setText(Formats.money(remaining, card.currency));
         ((TextView) findViewById(R.id.balanceMeta)).setText(
                 getString(R.string.of_initial, Formats.money(card.initialAmount, card.currency)));
@@ -151,22 +158,10 @@ public class CardDetailActivity extends AppCompatActivity {
                     Formats.expiryToDisplay(card.expiryDate)));
         }
 
-        // Say plainly how fresh the merchant list is — a stale list quietly presented as
-        // current is what leaves someone stuck at a till.
-        TextView storeInfo = findViewById(R.id.storeInfo);
-        if (cache == null || cache.storeCount == 0) {
-            storeInfo.setText(getString(R.string.store_list_unavailable) + "\n"
-                    + getString(R.string.store_list_unavailable_explain));
-        } else {
-            StringBuilder sb = new StringBuilder()
-                    .append(getString(R.string.card_count_stores, cache.storeCount))
-                    .append(" · ")
-                    .append(Formats.updatedAgo(this, cache.fetchedAt));
-            if (cache.sourceType != null) {
-                sb.append("\n").append(getString(R.string.store_list_source, cache.sourceType));
-            }
-            storeInfo.setText(sb.toString());
-        }
+        // Provenance matters, but not while standing at a till — it lives behind a tap on
+        // the card name rather than taking up a permanent line.
+        storeCache = cache;
+        findViewById(R.id.cardTitle).setOnClickListener(v -> showStoreListDialog());
 
         MaterialCardView mismatch = findViewById(R.id.mismatchCard);
         mismatch.setVisibility(card.hasUnreconciledMismatch ? View.VISIBLE : View.GONE);
@@ -287,8 +282,37 @@ public class CardDetailActivity extends AppCompatActivity {
 
     // --- spending ---
 
+    /** Where this card's merchant list came from and how old it is. */
+    private void showStoreListDialog() {
+        String message;
+        if (storeCache == null || storeCache.storeCount == 0) {
+            message = getString(R.string.store_list_unavailable_explain);
+        } else {
+            StringBuilder sb = new StringBuilder()
+                    .append(getString(R.string.card_count_stores, storeCache.storeCount))
+                    .append('\n')
+                    .append(Formats.updatedAgo(this, storeCache.fetchedAt));
+            if (storeCache.sourceType != null) {
+                sb.append('\n')
+                        .append(getString(R.string.store_list_source, storeCache.sourceType));
+            }
+            message = sb.toString();
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.store_list_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
     private void showAddSpendDialog() {
-        AddSpendDialog.show(this, card.currency, (title, amount, storeName, spentAt) ->
+        // Capped at what is actually left: a gift card cannot go overdrawn, so a spend
+        // larger than the balance is always a typo rather than a real purchase. Floored at
+        // zero so a card already in the red — from entries made before this check existed —
+        // reports "0 left" rather than a nonsensical negative remainder.
+        AddSpendDialog.show(this, card.currency, Math.max(0d, remainingBalance),
+                (title, amount, storeName, spentAt) ->
                 AppExecutors.io(() -> {
                     cardsRepo.addSpend(cardId, title, amount, storeName, spentAt,
                             com.mycards.data.db.SpendEntity.SOURCE_MANUAL);
