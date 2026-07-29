@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">הכרטיסים שלי</string>
+    <string name="app_name">כרטיסי המתנה שלי</string>
 
     <!-- Search -->
     <string name="search_hint">שם חנות או שם כרטיס…</string>

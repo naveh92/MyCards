@@ -1,4 +1,4 @@
-# Google Play store listing — MyCards
+# Google Play store listing — MyGiftCards
 
 Everything the Play Console asks for, with the answer already written out. Copy each field
 across; nothing here needs inventing on the spot.
@@ -20,8 +20,12 @@ The AAB to upload is `app/build/outputs/bundle/release/app-release.aab`.
 **App name** (30 char limit)
 
 ```
-MyCards: Gift Card Wallet
+MyGiftCards
 ```
+
+The old title carried "Gift Card Wallet" as a keyword tail. The name now says "GiftCards"
+itself, so repeating it reads as padding. If you want the keywords back for store search,
+`MyGiftCards: Israeli Gift Cards` fits the 30-character limit exactly.
 
 **Short description** (80 char limit — 76 used)
 
@@ -37,10 +41,10 @@ accepted here — but which? By the time you have opened three websites, the que
 has grown, and you pay full price with your own credit card. Again. The gift cards sit in a
 drawer until they expire.
 
-MyCards answers that question in about two seconds.
+MyGiftCards answers that question in about two seconds.
 
 TYPE A SHOP, SEE WHICH CARD WORKS
-Start typing the name of the shop you are standing in. MyCards searches every merchant list
+Start typing the name of the shop you are standing in. MyGiftCards searches every merchant list
 it knows about and shows you which of your cards is accepted there, how much is left on each
 one, and when it expires. Each result names the merchant that matched, so you can tell at a
 glance whether the app understood you.
@@ -59,7 +63,7 @@ and a warning on anything about to lapse. Log a purchase and the balance drops. 
 to spend the money before it evaporates.
 
 SHOP LISTS THAT STAY CURRENT
-MyCards ships with merchant lists for BuyMe (All, Chef, Style, Together and more), All-inZone,
+MyGiftCards ships with merchant lists for BuyMe (All, Chef, Style, Together and more), All-inZone,
 SuperZone, GiftZone, ChefZone, SpaZone and LOVE — over 1,200 shops on the widest card alone.
 The lists refresh automatically in the background, so a card that gains a new chain does not
 leave you guessing. The app works fully offline using the lists already on your phone.
@@ -71,7 +75,7 @@ held in the Android Keystore and, on a phone with a screen lock, revealing them 
 fingerprint, face or PIN — enforced by Android itself, not by the app.
 
 BACKUP THAT SURVIVES A LOST PHONE
-Because nothing is stored on a server, MyCards lets you export an encrypted backup protected
+Because nothing is stored on a server, MyGiftCards lets you export an encrypted backup protected
 by a passphrase only you know. Move it to a new phone and everything comes back. No cloud
 account required, and no one else can read it.
 
@@ -82,7 +86,7 @@ follows your phone, or you can pin it to light or dark.
 NO ADS, NO TRACKING, NO ANALYTICS
 No advertising SDKs, no analytics, no crash reporting, no data collection of any kind.
 
-MyCards is an independent app. It is not affiliated with, endorsed by or operated by BuyMe,
+MyGiftCards is an independent app. It is not affiliated with, endorsed by or operated by BuyMe,
 HTZone, Castro, Max or any other gift-card issuer. Merchant lists are compiled from
 information the issuers publish and may be incomplete or out of date — the app always shows
 you how fresh a list is, so check with the shop before relying on it for a large purchase.
@@ -95,7 +99,7 @@ you how fresh a list is, so check with the shop before relying on it for a large
 **App name**
 
 ```
-MyCards: הכרטיסים שלי
+MyGiftCards: כרטיסי המתנה שלי
 ```
 
 **Short description**
@@ -111,7 +115,7 @@ MyCards: הכרטיסים שלי
 אתרים, התור מאחוריכם התארך, ואתם משלמים מחיר מלא בכרטיס האשראי שלכם. שוב. וכרטיסי המתנה
 נשארים במגירה עד שהתוקף שלהם פג.
 
-MyCards עונה על השאלה הזו בשתי שניות.
+MyGiftCards עונה על השאלה הזו בשתי שניות.
 
 הקלידו שם של חנות, קבלו תשובה
 התחילו להקליד את שם החנות שאתם נמצאים בה. האפליקציה סורקת את כל רשימות בתי העסק ומראה איזה
@@ -151,7 +155,7 @@ SuperZone, GiftZone, ChefZone, SpaZone ו-LOVE — יותר מ-1,200 בתי עס
 בלי פרסומות, בלי מעקב, בלי אנליטיקס
 אין ערכות פרסום, אין אנליטיקס, אין דיווח קריסות ואין איסוף מידע מכל סוג.
 
-MyCards היא אפליקציה עצמאית. אין לה קשר, שיוך או חסות מטעם BuyMe, HTZone, קסטרו, מקס או כל
+MyGiftCards היא אפליקציה עצמאית. אין לה קשר, שיוך או חסות מטעם BuyMe, HTZone, קסטרו, מקס או כל
 מנפיק אחר של כרטיסי מתנה. רשימות בתי העסק מבוססות על מידע שהמנפיקים מפרסמים ועשויות להיות
 חלקיות או לא מעודכנות — האפליקציה תמיד מציגה עד כמה הרשימה עדכנית, אז כדאי לוודא מול החנות
 לפני רכישה גדולה.
@@ -245,7 +249,7 @@ If a reviewer questions it, the supporting facts are:
 reviewer's attention. It is legitimate — the values are the user's own, entered by hand, held
 encrypted on their own device and never transmitted — but "stores CVV" reads badly out of
 context, because PCI-DSS forbids *merchants* from retaining CVVs. That rule governs businesses
-processing card payments, not a personal wallet holding your own card, and MyCards processes
+processing card payments, not a personal wallet holding your own card, and MyGiftCards processes
 no payments at all.
 
 If a rejection cites it, the fallback is to drop CVV storage: it is the field with the least

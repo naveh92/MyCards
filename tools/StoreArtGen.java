@@ -104,18 +104,28 @@ public final class StoreArtGen {
         drawCards(mark);
         mark.dispose();
 
+        int textLeft = 420;
+
+        // Sized to fit rather than fixed: "MyGiftCards" is half again as long as the name it
+        // replaced, and at a hardcoded size it ran off the right edge of the banner.
         g.setColor(WHITE);
-        g.setFont(new Font("SansSerif", Font.BOLD, 86));
-        g.drawString("MyCards", 420, 232);
+        int titleSize = 86;
+        g.setFont(new Font("SansSerif", Font.BOLD, titleSize));
+        while (titleSize > 40
+                && textLeft + g.getFontMetrics().stringWidth("MyGiftCards") > w - 60) {
+            titleSize -= 2;
+            g.setFont(new Font("SansSerif", Font.BOLD, titleSize));
+        }
+        g.drawString("MyGiftCards", textLeft, 232);
 
         g.setColor(new Color(255, 255, 255, 215));
         g.setFont(new Font("SansSerif", Font.PLAIN, 40));
-        g.drawString("Which gift card works here?", 424, 296);
+        g.drawString("Which gift card works here?", textLeft + 4, 296);
 
         // A rule to anchor the type block rather than leaving it floating.
         g.setColor(new Color(255, 255, 255, 90));
         g.setStroke(new BasicStroke(3));
-        g.drawLine(424, 330, 424 + 300, 330);
+        g.drawLine(textLeft + 4, 330, textLeft + 4 + 300, 330);
 
         g.dispose();
         ImageIO.write(img, "png", out);

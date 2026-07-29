@@ -1,4 +1,4 @@
-# Play Console upload reference — MyCards
+# Play Console upload reference — MyGiftCards
 
 Every technical value the Console asks for, read off the built artifact rather than typed
 from memory. Listing prose (descriptions, form answers, review risks) is in
@@ -38,8 +38,8 @@ Three things catch first-time publishers, in rough order of how much time they c
 | Min SDK | 26 — Android 8.0 Oreo |
 | Target SDK | 36 — Android 16 |
 | Compile SDK | 36 |
-| App label (default) | MyCards |
-| App label (Hebrew) | הכרטיסים שלי |
+| App label (default) | MyGiftCards |
+| App label (Hebrew) | כרטיסי המתנה שלי |
 | Locales in the bundle | default (English) + `iw` (Hebrew) |
 | Screen sizes | small, normal, large, xlarge |
 | Native code | none — one universal bundle, no ABI splits |
@@ -159,7 +159,7 @@ first few most prominently, and `01-search` is the one that explains the app.
 
 | Field | English | Hebrew |
 |---|---|---|
-| App name (≤30) | `MyCards: Gift Card Wallet` | `MyCards: הכרטיסים שלי` |
+| App name (≤30) | `MyGiftCards` | `MyGiftCards: כרטיסי המתנה שלי` |
 | Short description (≤80) | `Find which of your gift cards works at the shop you are standing in right now.` | `גלו תוך שניות איזה מכרטיסי המתנה שלכם מתקבל בחנות שאתם עומדים בה עכשיו.` |
 
 Full descriptions (≤4000) are in [STORE-LISTING.md](STORE-LISTING.md).
@@ -174,8 +174,15 @@ Full descriptions (≤4000) are in [STORE-LISTING.md](STORE-LISTING.md).
 | Source | `https://github.com/naveh92/MyCards` |
 
 The privacy policy URL is served from `docs/` on GitHub Pages. The weekly refresh workflow
-excludes `privacy.html` from its `rsync --delete`, so a store-list refresh cannot remove it.
-Play rechecks that URL periodically and a 404 puts the listing at risk.
+excludes `privacy.html` and `index.html` from its `rsync --delete`, so a store-list refresh
+cannot remove them. Play rechecks that URL periodically and a 404 puts the listing at risk.
+
+**These URLs still say `MyCards`, and that is correct.** The app is called MyGiftCards, but
+the repository is named `MyCards` and GitHub Pages serves a project site at the repository's
+path. Renaming the repo would break both of these live URLs — including the privacy policy
+on the listing — for the sake of cosmetics nobody sees. The same goes for the keystore
+filename, the certificate's `OU`/`O` fields, the `com.mycards` Java namespace and the
+`.mycards` backup extension: all internal or historical identifiers, none of them the brand.
 
 ## Suggested first release
 

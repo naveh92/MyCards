@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyCards</string>
+    <string name="app_name">MyGiftCards</string>
 
     <!-- Search -->
     <string name="search_hint">Store or card name…</string>
