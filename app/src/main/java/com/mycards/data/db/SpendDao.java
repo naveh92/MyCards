@@ -14,6 +14,9 @@ public interface SpendDao {
     @Insert
     long insert(SpendEntity spend);
 
+    @androidx.room.Update
+    void update(SpendEntity spend);
+
     @Delete
     void delete(SpendEntity spend);
 

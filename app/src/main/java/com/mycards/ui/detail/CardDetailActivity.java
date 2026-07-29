@@ -58,6 +58,8 @@ public class CardDetailActivity extends AppCompatActivity {
     private SpendAdapter spendAdapter;
     private StoreCacheEntity storeCache;
     private double remainingBalance;
+    /** Decrypted and scheme-corrected gift link; null when nothing usable is stored. */
+    private String giftUrl;
     private View secretBlock;
     private MaterialButton revealButton;
     private final Handler autoHide = new Handler(Looper.getMainLooper());
@@ -168,11 +170,33 @@ public class CardDetailActivity extends AppCompatActivity {
 
         revealButton.setVisibility(card.hasSensitiveData() ? View.VISIBLE : View.GONE);
 
+        // Resolved once here rather than on click. A link that decrypts to nothing usable
+        // would otherwise show a button that could only fail, which is how an empty VIEW
+        // intent was reaching the system and crashing.
         MaterialButton giftLink = findViewById(R.id.giftLinkButton);
-        giftLink.setVisibility(card.hasGiftUrl() ? View.VISIBLE : View.GONE);
+        giftLink.setVisibility(View.GONE);
+        if (card.hasGiftUrl()) {
+            AppExecutors.io(() -> {
+                String resolved = resolveGiftUrl();
+                AppExecutors.main(() -> {
+                    giftUrl = resolved;
+                    giftLink.setVisibility(resolved == null ? View.GONE : View.VISIBLE);
+                });
+            });
+        }
         giftLink.setOnClickListener(v -> openGiftLink());
 
-        spendAdapter = new SpendAdapter(card.currency, this::confirmDeleteSpend);
+        spendAdapter = new SpendAdapter(card.currency, new SpendAdapter.OnSpendAction() {
+            @Override
+            public void onEdit(com.mycards.data.db.SpendEntity spend) {
+                editSpend(spend);
+            }
+
+            @Override
+            public void onDelete(com.mycards.data.db.SpendEntity spend) {
+                confirmDeleteSpend(spend);
+            }
+        });
         RecyclerView spendList = findViewById(R.id.spendList);
         spendList.setAdapter(spendAdapter);
         spendAdapter.submitList(spends);
@@ -190,6 +214,15 @@ public class CardDetailActivity extends AppCompatActivity {
             hideSecrets();
             return;
         }
+
+        // With no secure lock screen the vault could not create an auth-bound key, so these
+        // values are not behind the OS gate and there is nothing for a prompt to verify.
+        // Demanding one anyway just fails and hides data the user is entitled to see.
+        if (!cardsRepo.vault().isBiometricProtectionAvailable()) {
+            revealSecrets();
+            return;
+        }
+
         BiometricGate.authenticate(this,
                 getString(R.string.biometric_title),
                 getString(R.string.biometric_subtitle),
@@ -264,20 +297,41 @@ public class CardDetailActivity extends AppCompatActivity {
         }
     }
 
-    private void openGiftLink() {
-        AppExecutors.io(() -> {
-            try {
-                String url = cardsRepo.vault().decryptData(card.encGiftUrl);
-                if (url == null || url.trim().isEmpty()) {
-                    return;
-                }
-                AppExecutors.main(() -> startActivity(
-                        new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim()))));
-            } catch (Exception e) {
-                AppExecutors.main(() -> Toast.makeText(this,
-                        R.string.biometric_failed, Toast.LENGTH_SHORT).show());
+    /**
+     * Decrypts the gift link and makes it openable.
+     *
+     * @return a URL with a scheme, or null when there is nothing usable stored
+     */
+    private String resolveGiftUrl() {
+        try {
+            String url = cardsRepo.vault().decryptData(card.encGiftUrl);
+            if (url == null || url.trim().isEmpty()) {
+                return null;
             }
-        });
+            url = url.trim();
+            // "buyme.co.il" is a perfectly reasonable thing to paste in, but without a
+            // scheme no activity will claim the intent.
+            if (!url.matches("(?i)^[a-z][a-z0-9+.-]*://.*")) {
+                url = "https://" + url;
+            }
+            return url;
+        } catch (Exception e) {
+            android.util.Log.w("CardDetailActivity", "could not decrypt the gift link", e);
+            return null;
+        }
+    }
+
+    private void openGiftLink() {
+        if (giftUrl == null) {
+            Toast.makeText(this, R.string.gift_link_unusable, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(giftUrl)));
+        } catch (android.content.ActivityNotFoundException noBrowser) {
+            // A device with nothing registered for http(s) is unusual but not impossible.
+            Toast.makeText(this, R.string.gift_link_no_app, Toast.LENGTH_SHORT).show();
+        }
     }
 
     // --- spending ---
@@ -320,6 +374,34 @@ public class CardDetailActivity extends AppCompatActivity {
                 }));
     }
 
+    private void editSpend(com.mycards.data.db.SpendEntity spend) {
+        // The cap excludes this entry's own amount, so raising it is checked against the
+        // balance it would actually leave rather than a total it is already part of.
+        double available = Math.max(0d, remainingBalance + spend.amount);
+
+        AddSpendDialog.showEdit(this, card.currency, available, spend,
+                (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
+                    spend.title = title;
+                    spend.amount = amount;
+                    spend.storeName = storeName;
+                    spend.spentAt = spentAt;
+                    cardsRepo.spends().update(spend);
+                    AppExecutors.main(this::load);
+                }));
+    }
+
+    private void confirmDeleteCard() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_card)
+                .setMessage(R.string.delete_card_confirm)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (d, w) -> AppExecutors.io(() -> {
+                    cardsRepo.cards().delete(card);
+                    AppExecutors.main(this::finish);
+                }))
+                .show();
+    }
+
     private void confirmDeleteSpend(com.mycards.data.db.SpendEntity spend) {
         new AlertDialog.Builder(this)
                 .setTitle(spend.title)
@@ -340,6 +422,19 @@ public class CardDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_detail, menu);
+
+        // Menu items cannot be tinted from XML, so the destructive one is coloured here.
+        // Deleting a card takes its spend history with it and cannot be undone, so it
+        // should not look like the neutral action sitting above it.
+        MenuItem delete = menu.findItem(R.id.action_delete_card);
+        if (delete != null) {
+            android.text.SpannableString title =
+                    new android.text.SpannableString(delete.getTitle());
+            title.setSpan(new android.text.style.ForegroundColorSpan(
+                            getColor(R.color.expiry_expired)),
+                    0, title.length(), 0);
+            delete.setTitle(title);
+        }
         return true;
     }
 
@@ -349,6 +444,10 @@ public class CardDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(this, AddEditCardActivity.class);
             intent.putExtra(AddEditCardActivity.EXTRA_CARD_ID, cardId);
             startActivity(intent);
+            return true;
+        }
+        if (item.getItemId() == R.id.action_delete_card) {
+            confirmDeleteCard();
             return true;
         }
         return super.onOptionsItemSelected(item);

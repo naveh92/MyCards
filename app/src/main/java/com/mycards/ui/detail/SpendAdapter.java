@@ -16,14 +16,16 @@ import com.mycards.ui.Formats;
 
 public class SpendAdapter extends ListAdapter<SpendEntity, SpendAdapter.VH> {
 
-    public interface OnSpendLongClick {
-        void onLongClick(SpendEntity spend);
+    public interface OnSpendAction {
+        void onEdit(SpendEntity spend);
+
+        void onDelete(SpendEntity spend);
     }
 
     private final String currency;
-    private final OnSpendLongClick listener;
+    private final OnSpendAction listener;
 
-    public SpendAdapter(String currency, OnSpendLongClick listener) {
+    public SpendAdapter(String currency, OnSpendAction listener) {
         super(DIFF);
         this.currency = currency;
         this.listener = listener;
@@ -69,7 +71,7 @@ public class SpendAdapter extends ListAdapter<SpendEntity, SpendAdapter.VH> {
             amount = itemView.findViewById(R.id.spendAmount);
         }
 
-        void bind(SpendEntity spend, String currency, OnSpendLongClick listener) {
+        void bind(SpendEntity spend, String currency, OnSpendAction listener) {
             title.setText(spend.title);
 
             StringBuilder sub = new StringBuilder(
@@ -88,8 +90,11 @@ public class SpendAdapter extends ListAdapter<SpendEntity, SpendAdapter.VH> {
             // No minus sign: everything in this list is a deduction, so the symbol adds
             // nothing and reads oddly next to a right-to-left shekel sign.
             amount.setText(Formats.money(spend.amount, currency));
+            // Tap edits, long-press deletes: correcting a mistyped amount is the common
+            // case and should not require guessing that a long-press exists.
+            itemView.setOnClickListener(v -> listener.onEdit(spend));
             itemView.setOnLongClickListener(v -> {
-                listener.onLongClick(spend);
+                listener.onDelete(spend);
                 return true;
             });
         }

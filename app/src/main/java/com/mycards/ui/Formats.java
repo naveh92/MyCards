@@ -54,6 +54,17 @@ public final class Formats {
                 .trim();
     }
 
+    /**
+     * The amount as a bare number for an input field — no symbol, no grouping separators,
+     * and no trailing ".0" on whole shekels.
+     */
+    public static String plainAmount(double amount) {
+        if (Math.abs(amount - Math.rint(amount)) < 0.005d) {
+            return String.valueOf((long) Math.rint(amount));
+        }
+        return String.format(Locale.US, "%.2f", amount);
+    }
+
     // --- expiry: month and year only ---
 
     /**

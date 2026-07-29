@@ -11,12 +11,13 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mycards.R;
+import com.mycards.data.db.SpendEntity;
 import com.mycards.ui.Formats;
 
 import java.util.Calendar;
 
 /**
- * Collects a purchase.
+ * Collects or edits a purchase.
  *
  * <p>Only the amount is required — that is the one value the balance cannot be derived
  * without. The description is optional, but a blank one falls back to the shop name and then
@@ -31,43 +32,63 @@ public final class AddSpendDialog {
         void onSpend(String title, double amount, String storeName, long spentAt);
     }
 
+    /** New purchase against a card with {@code maxAmount} left on it. */
     public static void show(Activity activity, String currency, double maxAmount,
                             OnSpendEntered callback) {
-        show(activity, currency, maxAmount, null, 0d, callback);
+        show(activity, currency, maxAmount, R.string.add_spend,
+                null, 0d, null, System.currentTimeMillis(), callback);
+    }
+
+    /** New purchase with a suggested description and amount, used when reconciling. */
+    public static void show(Activity activity, String currency, double maxAmount,
+                            String prefillTitle, double prefillAmount,
+                            OnSpendEntered callback) {
+        show(activity, currency, maxAmount, R.string.add_spend,
+                prefillTitle, prefillAmount, null, System.currentTimeMillis(), callback);
     }
 
     /**
-     * @param maxAmount     the card's remaining balance; spends above it are rejected.
-     *                      A gift card holds a fixed sum and cannot go overdrawn, so an
-     *                      amount larger than the balance is a typo, and accepting it would
-     *                      leave the card showing a negative balance.
-     * @param prefillTitle  suggested description, used by the reconciliation flow
-     * @param prefillAmount pre-filled amount; 0 leaves the field empty
+     * Edits an existing entry.
+     *
+     * @param remainingBalance what is left <em>excluding</em> this entry, so raising its
+     *                         amount is checked against the balance it would actually leave
+     *                         rather than against a total it is itself part of
      */
-    public static void show(Activity activity,
-                            String currency,
-                            double maxAmount,
-                            String prefillTitle,
-                            double prefillAmount,
-                            OnSpendEntered callback) {
+    public static void showEdit(Activity activity, String currency, double remainingBalance,
+                                SpendEntity existing, OnSpendEntered callback) {
+        show(activity, currency, remainingBalance, R.string.edit_spend,
+                existing.title, existing.amount, existing.storeName, existing.spentAt, callback);
+    }
+
+    private static void show(Activity activity,
+                             String currency,
+                             double maxAmount,
+                             int titleRes,
+                             String prefillTitle,
+                             double prefillAmount,
+                             String prefillStore,
+                             long prefillDate,
+                             OnSpendEntered callback) {
 
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_add_spend, null);
 
-        TextInputLayout titleLayout = view.findViewById(R.id.titleLayout);
         TextInputLayout amountLayout = view.findViewById(R.id.spendAmountLayout);
         TextInputEditText titleInput = view.findViewById(R.id.spendTitleInput);
         TextInputEditText amountInput = view.findViewById(R.id.spendAmountInput);
         TextInputEditText storeInput = view.findViewById(R.id.spendStoreInput);
         TextInputEditText dateInput = view.findViewById(R.id.spendDateInput);
 
-        final long[] spentAt = {System.currentTimeMillis()};
+        final long[] spentAt = {prefillDate > 0 ? prefillDate : System.currentTimeMillis()};
         dateInput.setText(Formats.prettyDate(activity, spentAt[0]));
 
         if (prefillTitle != null) {
             titleInput.setText(prefillTitle);
         }
         if (prefillAmount > 0) {
-            amountInput.setText(String.valueOf(prefillAmount));
+            amountInput.setText(Formats.plainAmount(prefillAmount));
+        }
+        if (prefillStore != null) {
+            storeInput.setText(prefillStore);
         }
 
         dateInput.setOnClickListener(v -> {
@@ -83,7 +104,7 @@ public final class AddSpendDialog {
         });
 
         AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle(R.string.add_spend)
+                .setTitle(titleRes)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.save, null)
@@ -91,8 +112,8 @@ public final class AddSpendDialog {
 
         dialog.show();
 
-        // Wired after show() so a validation failure does not dismiss the dialog and
-        // discard everything the user just typed.
+        // Wired after show() so a validation failure leaves the dialog open instead of
+        // discarding what was typed.
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             double amount;
             try {

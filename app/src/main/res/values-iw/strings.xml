@@ -71,7 +71,11 @@
     <string name="save">שמירה</string>
     <string name="cancel">ביטול</string>
     <string name="delete">מחיקה</string>
-    <string name="delete_card_confirm">למחוק את הכרטיס ואת היסטוריית ההוצאות שלו?</string>
+    <string name="delete_card">מחיקת הכרטיס</string>
+    <string name="delete_card_confirm">למחוק את הכרטיס ואת היסטוריית ההוצאות שלו? לא ניתן לבטל פעולה זו.</string>
+    <string name="edit_spend">עריכת קנייה</string>
+    <string name="gift_link_unusable">לא נשמר קישור תקין לכרטיס המתנה</string>
+    <string name="gift_link_no_app">אין במכשיר אפליקציה שיכולה לפתוח קישורים</string>
     <string name="error_pick_card_type">בחרו סוג כרטיס</string>
     <string name="error_amount_required">הזינו את הסכום שעל הכרטיס</string>
 

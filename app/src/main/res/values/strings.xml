@@ -71,7 +71,11 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
-    <string name="delete_card_confirm">Delete this card and its spending history?</string>
+    <string name="delete_card">Delete card</string>
+    <string name="delete_card_confirm">Delete this card and its spending history? This cannot be undone.</string>
+    <string name="edit_spend">Edit purchase</string>
+    <string name="gift_link_unusable">No usable gift card link saved</string>
+    <string name="gift_link_no_app">No app on this phone can open links</string>
     <string name="error_pick_card_type">Choose a card type</string>
     <string name="error_amount_required">Enter the amount on the card</string>
 

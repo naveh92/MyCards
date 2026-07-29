@@ -14,6 +14,7 @@ import com.mycards.data.db.CardEntity;
 import com.mycards.search.CardMatch;
 import com.mycards.search.CardTypeIndex;
 import com.mycards.search.SearchEngine;
+import com.mycards.sync.SyncScheduler;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.Formats;
 
@@ -90,6 +91,16 @@ public class SearchViewModel extends AndroidViewModel {
 
             indexes = catalogRepo.buildIndexes(catalog, ids, tag);
             balances = cardsRepo.remainingBalances();
+
+            // Only a few card types ship a snapshot inside the APK, so adding a card of any
+            // other type leaves it with no merchants at all. Waiting for the weekly worker
+            // would mean the card reads "no store list available" for days; fetch now.
+            for (CardTypeIndex index : indexes) {
+                if (index.getStores().isEmpty()) {
+                    SyncScheduler.syncNow(getApplication());
+                    break;
+                }
+            }
 
             List<CardRow> result = buildRows(currentQuery);
             AppExecutors.main(() -> {
