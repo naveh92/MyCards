@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyCards — which gift card works here?</title>
+<meta name="description" content="An Android app that tells you which of your Israeli gift cards is accepted at the shop you are standing in.">
+<style>
+  :root { color-scheme: light dark; --brand: #1B5E9C; --line: rgba(128,128,128,.3); }
+  @media (prefers-color-scheme: dark) { :root { --brand: #6AB0EC; } }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0 auto; padding: 3rem 1.25rem 5rem; max-width: 46rem;
+    font: 16px/1.65 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header { display: flex; align-items: center; gap: 1rem; margin-bottom: .5rem; }
+  .mark { width: 64px; height: 64px; border-radius: 14px; background: #1B5E9C; flex: 0 0 auto; }
+  h1 { font-size: 1.9rem; margin: 0; }
+  .tagline { font-size: 1.15rem; opacity: .8; margin: .1rem 0 2rem; }
+  h2 { font-size: 1.1rem; margin-top: 2.5rem; }
+  .lede { border-inline-start: 4px solid var(--brand); padding-inline-start: 1rem; }
+  a { color: var(--brand); }
+  ul { padding-inline-start: 1.2rem; }
+  li { margin: .35rem 0; }
+  code { font-size: .92em; background: rgba(128,128,128,.14); padding: .1em .35em; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { text-align: start; padding: .45rem .6rem; border-bottom: 1px solid var(--line); }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+  td.num { text-align: end; font-variant-numeric: tabular-nums; opacity: .85; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 3rem 0; }
+  footer { margin-top: 3rem; font-size: .88rem; opacity: .7; }
+  [dir="rtl"] { direction: rtl; }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="mark" viewBox="0 0 108 108" aria-hidden="true">
+    <rect width="108" height="108" rx="15" fill="#1B5E9C"/>
+    <rect x="31" y="38" width="54" height="34" rx="5" fill="#fff" fill-opacity=".55"/>
+    <rect x="23" y="40" width="54" height="34" rx="5" fill="#fff"/>
+    <rect x="23" y="50" width="54" height="7" fill="#1B5E9C"/>
+    <rect x="30" y="63" width="18" height="4" rx="2" fill="#1B5E9C"/>
+  </svg>
+  <div>
+    <h1>MyCards</h1>
+    <p class="tagline">Which gift card works here?</p>
+  </div>
+</header>
+
+<p class="lede">
+  You are at the till with four gift cards from work. One of them is accepted here — but
+  which? By the time you have checked three websites, the queue has grown and you have paid
+  full price with your own card. Again.
+</p>
+
+<p>
+  MyCards answers that in about two seconds. Type part of the shop's name and it shows which
+  of your cards is accepted there, how much is left, and when it expires — naming the merchant
+  that matched, so you can see it understood you.
+</p>
+
+<h2>What it does</h2>
+
+<ul>
+  <li>Searches merchant lists covering BuyMe (All, Chef, Style, Together and more), All-inZone,
+      SuperZone, GiftZone, ChefZone, SpaZone and LOVE.</li>
+  <li>Hebrew and English, with forgiving matching: partial words, final-letter folding, niqqud
+      ignored, and wrong-keyboard-layout typing.</li>
+  <li>Sorts cards soonest-to-expire first, because the money evaporates.</li>
+  <li>Card numbers stay on the device, encrypted with an Android Keystore key.</li>
+  <li>No account, no ads, no analytics, no tracking.</li>
+</ul>
+
+<h2>Privacy</h2>
+
+<p>
+  Your cards are stored on your phone and are not uploaded anywhere. The full policy is here:
+  <strong><a href="privacy.html">MyCards privacy policy</a></strong>.
+</p>
+
+<h2>What this site serves</h2>
+
+<p>
+  This is the app's data source, not a marketing site. It publishes the merchant lists that
+  every install reads, refreshed weekly by a
+  <a href="https://github.com/naveh92/MyCards/actions">GitHub Actions workflow</a>. Phones
+  fetch the small manifest first and re-download a list only when its hash has changed.
+</p>
+
+<table>
+  <tr><th>File</th><th>What it is</th></tr>
+  <tr><td><a href="manifest.json"><code>manifest.json</code></a></td>
+      <td>sha256 and size of every published file — the thing phones poll</td></tr>
+  <tr><td><a href="catalog.json"><code>catalog.json</code></a></td>
+      <td>Card types, aliases, and where each list is fetched from</td></tr>
+  <tr><td><code>stores/&lt;card-type&gt;.json</code></td>
+      <td>One merchant list per card type</td></tr>
+</table>
+
+<div id="lists"></div>
+
+<h2>Source</h2>
+
+<p>
+  The app is open source: <a href="https://github.com/naveh92/MyCards">github.com/naveh92/MyCards</a>.
+</p>
+
+<hr>
+
+<div dir="rtl" lang="he">
+  <h2>בעברית</h2>
+  <p>
+    MyCards היא אפליקציית אנדרואיד שעונה תוך שניות על השאלה "איזה מכרטיסי המתנה שלי מתקבל
+    בחנות הזו?". מקלידים חלק משם החנות ורואים איזה כרטיס מתקבל שם, כמה נשאר בו ומתי פג תוקפו.
+    הכרטיסים נשמרים במכשיר בלבד, ללא חשבון וללא מעקב.
+  </p>
+  <p><a href="privacy.html">מדיניות הפרטיות</a></p>
+</div>
+
+<footer>
+  MyCards is an independent app. It is not affiliated with, endorsed by, or operated by BuyMe,
+  H&amp;O / HTZone, Castro, Max, or any other gift-card issuer. Merchant lists are compiled from
+  information the issuers publish and may be incomplete or out of date.
+</footer>
+
+<script>
+  // Progressive enhancement only: renders what is currently published, straight from the
+  // manifest, so this page cannot drift from the data next to it. If the fetch fails the
+  // page above still stands on its own.
+  fetch('manifest.json').then(function (r) {
+    if (!r.ok) { throw new Error(r.status); }
+    return r.json();
+  }).then(function (m) {
+    var slugs = Object.keys(m.stores || {}).sort();
+    if (!slugs.length) { return; }
+
+    var rows = slugs.map(function (s) {
+      return '<tr><td><a href="stores/' + s + '.json"><code>' + s + '</code></a></td>'
+           + '<td class="num">' + (m.stores[s].count || 0).toLocaleString() + '</td></tr>';
+    }).join('');
+
+    var when = m.generatedAt ? new Date(m.generatedAt).toLocaleDateString(undefined,
+        { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+
+    document.getElementById('lists').innerHTML =
+        '<h2>Currently published</h2>'
+      + (when ? '<p>' + slugs.length + ' merchant lists, last generated ' + when + '.</p>' : '')
+      + '<table><tr><th>Card type</th><th class="num">Merchants</th></tr>' + rows + '</table>';
+  }).catch(function () {
+    /* Offline, or the manifest moved. The static content above is unaffected. */
+  });
+</script>
+
+</body>
+</html>
