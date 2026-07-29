@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyCards — Privacy Policy</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0 auto; padding: 2rem 1.25rem 4rem; max-width: 44rem;
+    font: 16px/1.65 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  h1 { font-size: 1.7rem; margin-bottom: .25rem; }
+  h2 { font-size: 1.15rem; margin-top: 2rem; }
+  .updated { opacity: .7; font-size: .9rem; margin-top: 0; }
+  .lede { border-inline-start: 4px solid #1B5E9C; padding-inline-start: 1rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { text-align: start; padding: .5rem .6rem; border-bottom: 1px solid rgba(128,128,128,.35); vertical-align: top; }
+  th { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; opacity: .75; }
+  code { font-size: .92em; }
+  hr { border: 0; border-top: 1px solid rgba(128,128,128,.3); margin: 3rem 0; }
+  [dir="rtl"] { direction: rtl; }
+  footer { margin-top: 3rem; font-size: .9rem; opacity: .75; }
+</style>
+</head>
+<body>
+
+<h1>MyCards — Privacy Policy</h1>
+<p class="updated">Last updated: 29 July 2026</p>
+
+<p class="lede">
+  MyCards has no accounts, no servers of its own, and no analytics. Your gift cards are
+  stored on your phone and are not uploaded anywhere. Uninstalling the app deletes them.
+</p>
+
+<h2>What the app stores, and where</h2>
+
+<p>
+  Everything you enter — card type, name, balance, expiry, purchase history, and optionally a
+  payment card number, CVV and gift-card link — is written to a database inside the app's
+  private storage on your device. None of it is transmitted to the developer or to anyone
+  else. There is no account to create and nothing to sign in to.
+</p>
+
+<p>
+  Card numbers, CVVs and card expiry dates are encrypted with a key held in the Android
+  Keystore. Where your phone has a screen lock, that key is bound to it, so the values cannot
+  be decrypted without a fresh fingerprint, face or PIN check — the operating system enforces
+  this, not the app. Keystore keys cannot be exported from the device.
+</p>
+
+<h2>Network connections the app makes</h2>
+
+<table>
+  <tr>
+    <th>Where</th>
+    <th>Why</th>
+    <th>What is sent</th>
+  </tr>
+  <tr>
+    <td><code>naveh92.github.io</code><br>(GitHub Pages)</td>
+    <td>To download the lists of shops that accept each kind of gift card, roughly weekly.</td>
+    <td>Nothing about you. These are ordinary anonymous requests for public files. As with
+        any website, the host receives your IP address and can log it; see
+        <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement">GitHub's
+        privacy statement</a>.</td>
+  </tr>
+  <tr>
+    <td>The gift-card issuer's own website<br>(for example buyme.co.il)</td>
+    <td><strong>Only if</strong> you choose to save a gift-card link on a card. The app then
+        checks that page periodically to see whether the balance is lower than your purchase
+        log accounts for, and tells you if a purchase looks unrecorded.</td>
+    <td>The link you saved, to the issuer that issued it. Nothing is sent to the developer.
+        Leave the gift-card link field empty and this never happens.</td>
+  </tr>
+</table>
+
+<p>
+  That is the complete list. The app contains no advertising, no analytics, no crash
+  reporting, no tracking, and no third-party SDKs that collect data.
+</p>
+
+<h2>Backups you create</h2>
+
+<p>
+  You can export an encrypted backup file. It is encrypted with a passphrase that only you
+  know, using AES-256-GCM with a key derived by PBKDF2. The file is written wherever you
+  choose to save it, and the developer never receives a copy. If you forget the passphrase,
+  the file cannot be recovered — not by you, and not by anyone else.
+</p>
+
+<h2>Permissions</h2>
+
+<table>
+  <tr><th>Permission</th><th>What it is for</th></tr>
+  <tr><td>Internet / network state</td><td>Downloading the shop lists described above.</td></tr>
+  <tr><td>Biometrics</td><td>Confirming it is you before revealing a saved card number.</td></tr>
+  <tr>
+    <td>Notifications</td>
+    <td>A single alert, when a card holds less than your purchase log accounts for. The app
+        only asks for this once you have saved a card with a gift-card link, since that is
+        the only case where the alert can occur. Declining costs you nothing else.</td>
+  </tr>
+</table>
+
+<h2>Children</h2>
+
+<p>
+  MyCards is a general-purpose utility and is not directed at children. It collects no
+  personal information from anyone, of any age.
+</p>
+
+<h2>Deleting your data</h2>
+
+<p>
+  Uninstall the app, or clear its storage from Android's app settings. Because nothing is
+  held on a server, that is the end of it — there is no copy elsewhere for anyone to delete,
+  and no request you need to send. Any backup file you exported yourself is yours to delete.
+</p>
+
+<h2>Changes</h2>
+
+<p>
+  If this policy changes, the revised version will be published at this address with a new
+  date at the top.
+</p>
+
+<h2>Contact</h2>
+
+<p>
+  Questions about this policy: <a href="mailto:navehohana@gmail.com">navehohana@gmail.com</a>
+</p>
+
+<hr>
+
+<div dir="rtl" lang="he">
+
+  <h1>MyCards — מדיניות פרטיות</h1>
+  <p class="updated">עודכן לאחרונה: 29 ביולי 2026</p>
+
+  <p class="lede">
+    באפליקציה אין חשבונות, אין שרתים משלה ואין אנליטיקס. הכרטיסים שלך נשמרים במכשיר שלך
+    ואינם נשלחים לשום מקום. הסרת האפליקציה מוחקת אותם.
+  </p>
+
+  <h2>מה נשמר, והיכן</h2>
+
+  <p>
+    כל מה שאתם מזינים — סוג הכרטיס, שם, יתרה, תוקף, היסטוריית רכישות, ובאופן אופציונלי גם
+    מספר כרטיס אשראי, CVV וקישור לכרטיס המתנה — נשמר במסד נתונים באחסון הפרטי של האפליקציה
+    במכשיר. שום פרט מזה אינו נשלח למפתח או לגורם אחר. אין חשבון ליצור ואין להתחבר לשום דבר.
+  </p>
+
+  <p>
+    מספרי כרטיס, CVV ותאריכי תוקף מוצפנים באמצעות מפתח שנשמר ב־Android Keystore. במכשיר שבו
+    מוגדרת נעילת מסך, המפתח קשור אליה, ולכן לא ניתן לפענח את הערכים ללא אימות טביעת אצבע,
+    פנים או קוד — מערכת ההפעלה אוכפת זאת, לא האפליקציה.
+  </p>
+
+  <h2>חיבורי רשת</h2>
+
+  <p>
+    האפליקציה פונה ל־<code>naveh92.github.io</code> כדי להוריד את רשימות החנויות המכבדות כל
+    סוג כרטיס, בערך פעם בשבוע. אלו בקשות אנונימיות רגילות לקבצים ציבוריים, ולא נשלח בהן שום
+    מידע עליכם.
+  </p>
+
+  <p>
+    בנוסף, <strong>רק אם</strong> בחרתם לשמור קישור לכרטיס מתנה, האפליקציה תבדוק מדי פעם את
+    העמוד של המנפיק (למשל buyme.co.il) כדי לזהות רכישה שלא נרשמה ביומן. אם תשאירו את שדה
+    הקישור ריק, פנייה כזו לא מתבצעת כלל.
+  </p>
+
+  <p>
+    זו הרשימה המלאה. אין באפליקציה פרסומות, אנליטיקס, דיווח קריסות או מעקב.
+  </p>
+
+  <h2>גיבויים</h2>
+
+  <p>
+    ניתן לייצא קובץ גיבוי מוצפן בסיסמה שרק אתם יודעים, בהצפנת AES-256-GCM. הקובץ נשמר במקום
+    שתבחרו והמפתח אינו מקבל עותק. אם תשכחו את הסיסמה, לא ניתן לשחזר את הקובץ.
+  </p>
+
+  <h2>מחיקת מידע</h2>
+
+  <p>
+    הסירו את האפליקציה או נקו את האחסון שלה בהגדרות המכשיר. מכיוון ששום דבר אינו נשמר בשרת,
+    בכך הסתיים העניין — אין עותק אחר שצריך למחוק.
+  </p>
+
+  <h2>יצירת קשר</h2>
+
+  <p>
+    שאלות בנוגע למדיניות זו:
+    <a href="mailto:navehohana@gmail.com">navehohana@gmail.com</a>
+  </p>
+
+</div>
+
+<footer>
+  MyCards is an independent app. It is not affiliated with, endorsed by, or operated by BuyMe,
+  H&amp;O / HTZone, Castro, Max, or any other gift-card issuer. Trademarks belong to their
+  respective owners.
+</footer>
+
+</body>
+</html>

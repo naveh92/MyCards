@@ -126,6 +126,8 @@
     <string name="backup_explain">הכרטיסים שמורים במכשיר הזה בלבד. ייצאו גיבוי מוצפן כדי שאובדן או החלפה של המכשיר לא יימחקו אותם.</string>
     <string name="backup_export">ייצוא גיבוי מוצפן</string>
     <string name="backup_import">שחזור מגיבוי</string>
+    <string name="backup_export_action">ייצוא</string>
+    <string name="backup_import_action">שחזור</string>
     <string name="backup_passphrase">סיסמת הצפנה</string>
     <string name="backup_passphrase_confirm">אימות הסיסמה</string>
     <string name="backup_passphrase_explain">הסיסמה מצפינה את הקובץ. אם תישכח, לא ניתן לשחזר אותו — גם לא בהתקנה מחדש.</string>

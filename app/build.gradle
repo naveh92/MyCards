@@ -2,18 +2,31 @@ plugins {
     id 'com.android.application'
 }
 
+// Signing credentials are read from an untracked file rather than hardcoded here, so the
+// build script stays safe to publish. A clone without the file still builds and tests —
+// only `assembleRelease`/`bundleRelease` produce an unsigned artifact, which fails loudly
+// at upload rather than quietly shipping something signed with a debug key.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace 'com.mycards'
-    compileSdk 35
+    // API 36. Play requires new submissions to target this from 31 August 2026, and an app
+    // uploaded at 35 would need re-releasing within weeks. Verified on an Android 16 device:
+    // the edge-to-edge enforcement this brings is already handled in EdgeToEdge.
+    compileSdk 36
 
     // Pinned to a version already present in the local SDK. Left unset, AGP tries to
-    // download build-tools 35.0.0, which fails behind a TLS-inspecting proxy.
+    // download the build-tools it prefers, which fails behind a TLS-inspecting proxy.
     buildToolsVersion '36.0.0'
 
     defaultConfig {
         applicationId "com.mycards"
         minSdk 26
-        targetSdk 35
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
@@ -29,11 +42,25 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            if (keystoreProps.containsKey('storeFile')) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 

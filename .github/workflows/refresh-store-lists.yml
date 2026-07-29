@@ -118,7 +118,16 @@ jobs:
             exit 1
           fi
           mkdir -p docs
-          rsync -a --delete .work/publish/ docs/
+          # docs/ serves two different things: the generated store lists, and hand-written
+          # pages that are part of the site. --delete would remove anything it did not just
+          # generate, so the hand-written pages are excluded explicitly. privacy.html in
+          # particular is the URL on the Play listing — Play rechecks it, and a 404 there
+          # puts the app at risk of being taken down.
+          rsync -a --delete \
+            --exclude 'privacy.html' \
+            --exclude 'index.html' \
+            --exclude 'CNAME' \
+            .work/publish/ docs/
 
       - name: Commit only if a store list actually changed
         run: |

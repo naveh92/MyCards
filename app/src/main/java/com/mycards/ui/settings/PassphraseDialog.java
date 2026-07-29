@@ -46,7 +46,9 @@ public final class PassphraseDialog {
                 .setTitle(titleRes)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.save, null)
+                .setPositiveButton(confirm
+                        ? R.string.backup_export_action
+                        : R.string.backup_import_action, null)
                 .create();
 
         dialog.show();

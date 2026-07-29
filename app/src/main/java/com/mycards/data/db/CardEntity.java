@@ -43,7 +43,7 @@ public class CardEntity {
     /** The user's own label, so two cards of one type stay distinguishable. */
     public String label;
 
-    /** Gift-card expiry as ISO {@code yyyy-MM-dd}; null when open-ended. */
+    /** Gift-card expiry as {@code yyyy-MM} (see {@code Formats.ISO_MONTH}); null when open-ended. */
     public String expiryDate;
 
     /** Face value when the card was added. */

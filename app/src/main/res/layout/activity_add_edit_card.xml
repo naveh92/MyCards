@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/toolbar_background"
+        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
         app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
         app:title="@string/add_card"
         app:titleTextColor="@color/toolbar_on_background" />

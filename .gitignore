@@ -9,3 +9,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Signing material. The keystore lives outside the repo; this file holds its passwords.
+# Losing the keystore is survivable (Play can reset an upload key) but leaking it is not,
+# so it never goes near version control.
+/keystore.properties
+*.jks
+*.keystore

@@ -126,6 +126,10 @@
     <string name="backup_explain">Your cards live only on this phone. Export an encrypted backup so a lost or replaced phone does not mean losing them.</string>
     <string name="backup_export">Export encrypted backup</string>
     <string name="backup_import">Restore from a backup</string>
+    <!-- Confirm buttons on the passphrase dialog. "Save" was misleading on a restore:
+         nothing is being saved, and the word suggests the passphrase is being remembered. -->
+    <string name="backup_export_action">Export</string>
+    <string name="backup_import_action">Restore</string>
     <string name="backup_passphrase">Passphrase</string>
     <string name="backup_passphrase_confirm">Repeat the passphrase</string>
     <string name="backup_passphrase_explain">Encrypts the file. There is no way to recover it if you forget it — not even by reinstalling the app.</string>

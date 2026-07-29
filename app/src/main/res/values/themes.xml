@@ -13,6 +13,23 @@
         <item name="android:statusBarColor" tools:targetApi="l">@color/toolbar_background</item>
     </style>
 
+    <!--
+        The toolbar is a solid brand blue in both themes, so everything drawn on it has to be
+        light in both themes. Only the title took its colour from titleTextColor; the
+        navigation arrow and the overflow dots inherited colorOnSurface/colorOnSurfaceVariant
+        from the app theme, which is near-white in dark mode but near-black in light mode —
+        so in light mode they turned dark on dark blue and all but disappeared.
+
+        Applied as android:theme on each toolbar rather than in the app theme, so it recolours
+        the toolbar's own contents and nothing else on the screen.
+    -->
+    <style name="ThemeOverlay.MyCards.Toolbar" parent="">
+        <item name="colorOnSurface">@color/toolbar_on_background</item>
+        <item name="colorOnSurfaceVariant">@color/toolbar_on_background</item>
+        <item name="android:textColorPrimary">@color/toolbar_on_background</item>
+        <item name="android:textColorSecondary">@color/toolbar_on_background</item>
+    </style>
+
     <!-- Balances are the thing you scan for at a till, so they get their own scale. -->
     <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textStyle">bold</item>

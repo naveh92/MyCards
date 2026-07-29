@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/toolbar_background"
+            android:theme="@style/ThemeOverlay.MyCards.Toolbar"
             app:title="@string/app_name"
             app:titleTextColor="@color/toolbar_on_background" />
 
