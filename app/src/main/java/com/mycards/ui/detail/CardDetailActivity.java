@@ -160,7 +160,7 @@ public class CardDetailActivity extends AppCompatActivity {
                     Formats.expiryToDisplay(card.expiryDate)));
         }
 
-        // Provenance matters, but not while standing at a till — it lives behind a tap on
+        // Provenance matters, but not while standing at a checkout counter — it lives behind a tap on
         // the card name rather than taking up a permanent line.
         storeCache = cache;
         findViewById(R.id.cardTitle).setOnClickListener(v -> showStoreListDialog());

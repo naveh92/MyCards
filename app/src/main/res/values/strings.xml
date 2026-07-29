@@ -6,7 +6,7 @@
     <string name="search_hint">Store or card name…</string>
     <string name="search_empty_prompt">Type a store name to see which cards work there</string>
     <string name="no_results">No card of yours is accepted at \"%1$s\"</string>
-    <string name="no_results_partial">No card of yours lists \"%1$s\" — but one of your shop lists is incomplete, so it may still be accepted. Worth asking at the till.</string>
+    <string name="no_results_partial">No card of yours lists \"%1$s\" — but one of your shop lists is incomplete, so it may still be accepted. Worth asking at the checkout counter.</string>
     <string name="no_cards_yet">No cards yet. Tap + to add your first gift card.</string>
     <string name="accepted_at">Accepted at %1$s</string>
     <string name="and_more_stores">+%1$d more</string>
@@ -90,7 +90,7 @@
     <string name="updated_today">today</string>
     <string name="updated_yesterday">yesterday</string>
     <string name="updated_days_ago">%1$d days ago</string>
-    <string name="store_list_stale">This list may be out of date — check at the till</string>
+    <string name="store_list_stale">This list may be out of date — check at the checkout counter</string>
     <string name="store_list_partial">This list is incomplete. The issuer publishes its shops only as pictures, so the app could read just the chains named in the card\'s written terms. Everything listed is accepted; a shop that is missing may be too.</string>
 
     <!-- Reconciliation -->

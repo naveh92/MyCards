@@ -55,7 +55,7 @@ public class StoreListJsonTest {
 
         assertTrue(aliases.contains("אדידס"));
         assertTrue(aliases.contains("tshsx"));
-        // Campaign tags are noise, not names anybody types at a till.
+        // Campaign tags are noise, not names anybody types at a checkout counter.
         assertFalse(aliases.contains("#casualedge#"));
         // The brand's own name is already indexed; no need to duplicate it.
         assertFalse(aliases.contains("adidas"));

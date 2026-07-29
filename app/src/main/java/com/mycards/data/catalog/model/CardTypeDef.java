@@ -20,7 +20,7 @@ public class CardTypeDef {
      * <p>Set for issuers that publish their network only as images or behind a login, where
      * the best available list is transcribed from whatever prose names brands. Everything in
      * such a list is accepted; what is missing is unknown. The UI has to say so, because the
-     * app's whole value is being trusted at a till — silence would turn "we do not know" into
+     * app's whole value is being trusted at a checkout counter — silence would turn "we do not know" into
      * "not accepted".
      */
     public boolean partialList;

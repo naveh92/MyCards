@@ -4,7 +4,7 @@ An app to organize all gift-cards in one place.
 
 An Android app for Israeli holiday gift cards, built around one question:
 
-> **I'm at the till in this shop — which of my cards works here, and how much is on it?**
+> **I'm at the checkout counter in this shop — which of my cards works here, and how much is on it?**
 
 Type part of a store or card name and the matching cards appear, each stating *why* it
 matched and how much is left.
@@ -211,7 +211,7 @@ that rather than hoping otherwise:
 
 Only the last row requires a developer. Everything above it is either automatic or a change
 to a JSON file you host. And because the fallback chain ends at a snapshot compiled into the
-APK, even total breakage degrades to *stale but working* — never an empty screen at a till.
+APK, even total breakage degrades to *stale but working* — never an empty screen at a checkout counter.
 
 The honest limit: nothing here rewrites a parser by itself. If BuyMe abandons JSON for
 server-rendered HTML, someone has to write that provider. What the design buys you is time —

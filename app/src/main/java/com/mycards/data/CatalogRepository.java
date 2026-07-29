@@ -305,7 +305,7 @@ public class CatalogRepository {
             FetchOutcome outcome = fetcher.fetch(def, env, expectedCount);
             if (!outcome.isSuccess()) {
                 // Every source failed. The previous cache stays exactly as it was —
-                // stale merchants beat none when someone is waiting at a till.
+                // stale merchants beat none when someone is waiting at a checkout counter.
                 Log.w(TAG, "keeping the existing cache for " + id + "; " + outcome.getFailures());
                 continue;
             }

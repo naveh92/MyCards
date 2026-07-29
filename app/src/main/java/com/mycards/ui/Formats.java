@@ -153,7 +153,7 @@ public final class Formats {
 
     /**
      * Describes how old the store data is. Age matters more than the exact timestamp: what
-     * the user needs to judge is whether to trust the list at the till.
+     * the user needs to judge is whether to trust the list at the checkout counter.
      */
     public static String updatedAgo(Context context, long fetchedAt) {
         if (fetchedAt <= 0L) {

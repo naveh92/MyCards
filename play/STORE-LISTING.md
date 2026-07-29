@@ -36,7 +36,7 @@ Find which of your gift cards works at the shop you are standing in right now.
 **Full description** (4000 char limit)
 
 ```
-You are at the till. Somewhere in your bag are four gift cards from work. One of them is
+You are at the checkout counter. Somewhere in your bag are four gift cards from work. One of them is
 accepted here — but which? By the time you have opened three websites, the queue behind you
 has grown, and you pay full price with your own credit card. Again. The gift cards sit in a
 drawer until they expire.

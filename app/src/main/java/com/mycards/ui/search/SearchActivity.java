@@ -36,7 +36,7 @@ import com.mycards.ui.settings.SettingsActivity;
 /**
  * The checkout screen: type part of a shop's name, see which of your cards works there.
  *
- * <p>Everything here is tuned for the twenty seconds you have at a till — the search field
+ * <p>Everything here is tuned for the twenty seconds you have at a checkout counter — the search field
  * takes focus immediately, results update as you type, and each row states the merchant that
  * matched so you can tell at a glance whether the app understood you.
  */

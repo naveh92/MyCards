@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * A card type that matched a query, carrying <em>why</em> it matched.
  *
- * <p>The reason matters as much as the hit: standing at a till, "BuyMe All — accepted at
+ * <p>The reason matters as much as the hit: standing at a checkout counter, "BuyMe All — accepted at
  * Zara" is actionable, whereas a bare card name leaves you guessing whether the app really
  * understood the question.
  */

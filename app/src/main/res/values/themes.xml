@@ -30,7 +30,7 @@
         <item name="android:textColorSecondary">@color/toolbar_on_background</item>
     </style>
 
-    <!-- Balances are the thing you scan for at a till, so they get their own scale. -->
+    <!-- Balances are the thing you scan for at a checkout counter, so they get their own scale. -->
     <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textStyle">bold</item>
     </style>

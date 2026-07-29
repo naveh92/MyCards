@@ -70,7 +70,7 @@ public class SearchViewModel extends AndroidViewModel {
      *
      * <p>Changes what "no results" is allowed to claim. With complete lists, nothing matching
      * means no card works there. With a partial list in the wallet it only means the app has
-     * not been told — and telling someone at a till that their card is refused, when it might
+     * not been told — and telling someone at a checkout counter that their card is refused, when it might
      * not be, is the one wrong answer this app must not give.
      */
     public boolean anyPartialStoreList() {
