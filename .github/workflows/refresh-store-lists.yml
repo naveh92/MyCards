@@ -20,6 +20,9 @@ on:
 
 permissions:
   contents: write
+  # So a broken upstream source can file an issue rather than failing quietly in a tab
+  # nobody looks at.
+  issues: write
 
 concurrency:
   group: refresh-store-lists
@@ -120,3 +123,59 @@ jobs:
           fi
           git commit -m "Refresh store lists $(date -u +%Y-%m-%d)"
           git push
+
+      # Runs whatever went wrong above: a changed upstream source, a failed download, or
+      # the guard refusing to publish a shrunken set.
+      - name: Report a failure as an issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: Store list refresh is failing
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "The weekly store list refresh failed."
+            echo
+            echo "Run: $RUN_URL"
+            echo
+            echo "Users are not broken by this. The app falls back to the last published"
+            echo "lists, then to the snapshots compiled into the APK, so it keeps working on"
+            echo "older data. What is lost is freshness, until the source is repaired."
+            echo
+            echo "Likely causes, cheapest first:"
+            echo
+            echo "- A transient network failure. The canary retries three times before"
+            echo "  giving up, so this is unlikely, but re-running the job rules it out."
+            echo "- An endpoint moved or changed its JSON shape. That is a catalog edit:"
+            echo "  generic_json and embedded_json take their paths from configuration, so"
+            echo "  no app release is needed."
+            echo "- A source stopped serving machine-readable data. That needs a new"
+            echo "  provider in the app, and users stay on bundled data until it ships."
+            echo
+            echo "This issue closes itself when a refresh next succeeds."
+          } > /tmp/failure-body.md
+
+          # Reuse one issue rather than filing a fresh one weekly. A pile of identical
+          # issues is just a slower way of being ignored.
+          EXISTING=$(gh issue list --state all --limit 50 --json number,title \
+            --jq "[.[] | select(.title == \"$TITLE\") | .number] | first // empty")
+
+          if [ -n "$EXISTING" ]; then
+            gh issue reopen "$EXISTING" || true
+            gh issue comment "$EXISTING" --body "Failed again: $RUN_URL"
+          else
+            gh issue create --title "$TITLE" --body-file /tmp/failure-body.md
+          fi
+
+      - name: Close the failure issue once a refresh succeeds
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: Store list refresh is failing
+        run: |
+          NUM=$(gh issue list --state open --limit 50 --json number,title \
+            --jq "[.[] | select(.title == \"$TITLE\") | .number] | first // empty")
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --body "A refresh succeeded; the sources are healthy again."
+            gh issue close "$NUM"
+          fi
