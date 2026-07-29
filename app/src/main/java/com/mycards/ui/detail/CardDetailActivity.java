@@ -350,6 +350,9 @@ public class CardDetailActivity extends AppCompatActivity {
                 sb.append('\n')
                         .append(getString(R.string.store_list_source, storeCache.sourceType));
             }
+            if (cardType != null && cardType.partialList) {
+                sb.append("\n\n").append(getString(R.string.store_list_partial));
+            }
             message = sb.toString();
         }
 

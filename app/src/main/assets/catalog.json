@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": 2,
-  "updatedAt": "2026-07-29T00:00:00Z",
+  "catalogVersion": 3,
+  "updatedAt": "2026-07-29T14:00:00Z",
 
   "_readme": [
     "Seed copy shipped inside the APK so a fresh install works offline.",
@@ -320,11 +320,26 @@
     {
       "id": "max_gift",
       "names": { "en": "Max Gift Card", "he": "מקס גיפט קארד" },
-      "aliases": ["max", "max gift", "virtual gift card max", "מקס", "מיי גיפט", "my gift", "mygift"],
+      "aliases": ["max", "max gift", "virtual gift card max", "מקס", "מיי גיפט", "my gift", "mygift", "max digital", "max physical", "מקס דיגיטלי", "מקס פיזי"],
       "issuer": "Max",
-      "_note": "No store list. Max publishes its merchant list only as logo images in a PDF and inside the MyGift app; the web store page redirects and the API needs an app session. Transcribing the brands named in the PDF's fine print would give only those with exceptions, which is worse than showing nothing.",
+      "partialList": true,
+      "_note": "Partial list, transcribed from the brands named in the terms text of Max's physical and digital gift-card leaflets. The merchant grids themselves are logo images, so a shop absent here may still accept the card. The physical and digital leaflets carry the same terms, so one list covers both; Max says the two networks diverge after a card is converted, but that difference exists only in the images.",
       "storeSources": [
-        { "type": "static_list", "url": "{base}/stores/max_gift.json" }
+        { "type": "static_list", "url": "{base}/stores/max_gift.json" },
+        { "type": "bundled_asset", "asset": "stores/max_gift.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "max_super_gift",
+      "names": { "en": "Max Super Gift Card", "he": "מקס סופר גיפט קארד" },
+      "aliases": ["max super", "super giftcard", "super gift card", "מקס סופר", "סופר גיפט קארד"],
+      "issuer": "Max",
+      "partialList": true,
+      "_note": "Experiences rather than retail: hotels, spa, restaurants, shows, tours. Only a handful of brands are named in the leaflet's prose; the rest of the network is logo images, so this list is a small fraction of the real one.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/max_super_gift.json" },
+        { "type": "bundled_asset", "asset": "stores/max_super_gift.json" }
       ],
       "balanceSources": []
     }

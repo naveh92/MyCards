@@ -1,0 +1,34 @@
+{
+  "cardTypeId": "max_super_gift",
+  "source": "issuer_terms_partial",
+  "partial": true,
+  "schema": "n=name, a=aliases, o=online redeemable",
+  "_provenance": [
+    "PARTIAL LIST, and thinner than most. Transcribed from the terms printed on Max's own",
+    "Super Gift Card leaflet, gc-max-super.pdf (SharedMedia/14807), fetched 2026-07-29.",
+    "",
+    "Super Gift Card is an experiences product rather than a retail one — hotels, spa,",
+    "restaurants, shows, tours, workshops, flights. The leaflet presents those merchants",
+    "purely as logo images, and its readable text is almost entirely category headings. The",
+    "handful of brands below are the only ones named in prose, each because it carries a",
+    "condition, so each is genuinely accepted.",
+    "",
+    "This is a much smaller fraction of the real network than the max_gift list is of its",
+    "own, which is why the partial flag matters more here, not less.",
+    "",
+    "Wolt, smartair, holidayfinder and YANGO DELI are marked online-redeemable: the terms",
+    "state those are bought as coupon codes through the MYGIFT app or by entering the card",
+    "as a payment method, rather than in a shop."
+  ],
+  "stores": [
+    {"n":"Wolt","a":["וולט","משלוחים"],"o":true},
+    {"n":"YANGO DELI","a":["יאנגו דלי","yango"],"o":true},
+    {"n":"smartair","a":["סמארטאייר"],"o":true},
+    {"n":"holidayfinder","a":["הולידיפיינדר"],"o":true},
+    {"n":"To Mix","a":["טו מיקס","tomix"],"o":true},
+    {"n":"TERMINAL X","a":["טרמינל איקס","טרמינל X"],"o":false},
+    {"n":"FLOW","a":["פלואו"],"o":false},
+    {"n":"AERO VIP","a":["אארו ויאיפי","ליווי נוסעים בנתב\"ג"],"o":false},
+    {"n":"עיגול לטובה","a":["Igul LeTova"],"o":false}
+  ]
+}

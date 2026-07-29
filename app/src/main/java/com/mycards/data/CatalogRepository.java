@@ -69,24 +69,57 @@ public class CatalogRepository {
     // --- reading ---
 
     /**
-     * Loads the best catalog available: the cached remote copy if it parses, otherwise the
-     * one bundled in the APK. Never returns null — an unusable catalog would leave the user
-     * with no card types to choose from at all.
+     * Loads whichever catalog declares the higher {@code catalogVersion}: the cached remote
+     * copy, or the one bundled in the APK.
+     *
+     * <p>Preferring the cache unconditionally looks right and is not. An app update ships a
+     * newer bundled catalog — new card types, repaired endpoints — while the cache still
+     * holds whatever was published before that release. Taking the cache would silently
+     * discard everything the update added, and keep discarding it until the site caught up.
+     * Comparing versions makes the newer document win whichever side it arrives from.
+     *
+     * <p>Never returns null: a missing catalog leaves the user no card types to choose from
+     * at all, which is worse than any stale one.
      */
     public Catalog loadCatalog() {
-        File cached = new File(appContext.getFilesDir(), CACHED_CATALOG_FILE);
-        if (cached.exists()) {
-            try (InputStream in = new java.io.FileInputStream(cached)) {
-                Catalog c = parseCatalog(in);
-                if (c != null && c.isUsable(MAX_SCHEMA_VERSION)) {
-                    return c;
-                }
-                Log.w(TAG, "cached catalog unusable, falling back to the bundled copy");
-            } catch (Exception e) {
-                Log.w(TAG, "could not read the cached catalog", e);
-            }
+        Catalog cached = readCachedCatalog();
+        Catalog bundled = readBundledCatalog();
+
+        if (cached != null && bundled != null) {
+            return cached.catalogVersion >= bundled.catalogVersion ? cached : bundled;
+        }
+        if (cached != null) {
+            return cached;
+        }
+        if (bundled != null) {
+            return bundled;
         }
 
+        Catalog empty = new Catalog();
+        empty.cardTypes = new ArrayList<>();
+        return empty;
+    }
+
+    /** @return the cached remote catalog, or null when absent or unusable */
+    private Catalog readCachedCatalog() {
+        File cached = new File(appContext.getFilesDir(), CACHED_CATALOG_FILE);
+        if (!cached.exists()) {
+            return null;
+        }
+        try (InputStream in = new java.io.FileInputStream(cached)) {
+            Catalog c = parseCatalog(in);
+            if (c != null && c.isUsable(MAX_SCHEMA_VERSION)) {
+                return c;
+            }
+            Log.w(TAG, "cached catalog unusable, falling back to the bundled copy");
+        } catch (Exception e) {
+            Log.w(TAG, "could not read the cached catalog", e);
+        }
+        return null;
+    }
+
+    /** @return the catalog compiled into the APK, or null when unusable */
+    private Catalog readBundledCatalog() {
         try (InputStream in = appContext.getAssets().open(RemoteConfig.BUNDLED_CATALOG_ASSET)) {
             Catalog c = parseCatalog(in);
             if (c != null && c.isUsable(MAX_SCHEMA_VERSION)) {
@@ -95,10 +128,7 @@ public class CatalogRepository {
         } catch (Exception e) {
             Log.e(TAG, "the bundled catalog could not be read", e);
         }
-
-        Catalog empty = new Catalog();
-        empty.cardTypes = new ArrayList<>();
-        return empty;
+        return null;
     }
 
     private Catalog parseCatalog(InputStream in) {
@@ -145,7 +175,8 @@ public class CatalogRepository {
                     def.aliasesOrEmpty(),
                     stores,
                     fetchedAt,
-                    source));
+                    source,
+                    def.partialList));
         }
         return indexes;
     }
@@ -179,6 +210,17 @@ public class CatalogRepository {
                 Catalog parsed = gson.fromJson(json, Catalog.class);
                 if (parsed == null || !parsed.isUsable(MAX_SCHEMA_VERSION)) {
                     Log.w(TAG, "downloaded catalog rejected (schema or empty card list)");
+                    return false;
+                }
+
+                // Never write backwards. The published catalog can legitimately be older
+                // than the one in the APK — an app release ships new card types before the
+                // site is updated — and caching it then would undo the release for every
+                // install that synced, silently and repeatedly.
+                int current = loadCatalog().catalogVersion;
+                if (parsed.catalogVersion <= current) {
+                    Log.i(TAG, "published catalog is version " + parsed.catalogVersion
+                            + ", not newer than " + current + "; keeping what we have");
                     return false;
                 }
 

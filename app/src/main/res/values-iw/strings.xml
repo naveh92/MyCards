@@ -6,6 +6,7 @@
     <string name="search_hint">שם חנות או שם כרטיס…</string>
     <string name="search_empty_prompt">הקלידו שם של חנות כדי לראות אילו כרטיסים מתקבלים בה</string>
     <string name="no_results">אף כרטיס שלכם לא מתקבל ב\"%1$s\"</string>
+    <string name="no_results_partial">אף כרטיס שלכם לא מציין את \"%1$s\" — אבל אחת מרשימות החנויות שלכם חלקית, כך שייתכן שהכרטיס בכל זאת יתקבל. שווה לשאול בקופה.</string>
     <string name="no_cards_yet">אין עדיין כרטיסים. הקישו + כדי להוסיף כרטיס מתנה.</string>
     <string name="accepted_at">מתקבל ב%1$s</string>
     <string name="and_more_stores">ועוד %1$d</string>
@@ -90,6 +91,7 @@
     <string name="updated_yesterday">אתמול</string>
     <string name="updated_days_ago">לפני %1$d ימים</string>
     <string name="store_list_stale">ייתכן שהרשימה אינה מעודכנת — כדאי לוודא בקופה</string>
+    <string name="store_list_partial">הרשימה חלקית. המנפיק מפרסם את בתי העסק כתמונות בלבד, ולכן ניתן היה לקרוא רק את הרשתות המופיעות בתנאי הכרטיס. כל מה שברשימה מתקבל; ייתכן שגם חנות שאינה מופיעה בה.</string>
 
     <!-- Reconciliation -->
     <string name="unlogged_transaction_title">זוהתה עסקה שלא נרשמה</string>

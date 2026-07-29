@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
-  "generatedAt": "2026-07-29T12:11:14Z",
+  "generatedAt": "2026-07-29T14:28:11Z",
   "catalog": {
-    "sha256": "7012a32b03a1863ae7fa9c5344155684252314bd6f187605a48eadc426b051b1",
-    "bytes": 14308
+    "sha256": "46400fdae08e7d9598c65605770ba26cee2612f1d20588bb861d577bfcb44b8c",
+    "bytes": 15340
   },
   "stores": {
     "all_in_zone": { "sha256": "810c75181f6a7d5baaec3b967aafe7354e3efbc3df2fd8305524d883a43720c3", "bytes": 71064, "count": 747 },
@@ -30,7 +30,9 @@
     "buyme_yng": { "sha256": "5e114b841896d042d9b8e8430c19a194cc678556ad7d973ac9849c9dc28d52dc", "bytes": 159753, "count": 402 },
     "chefzone": { "sha256": "a60f0447424143918cbcaddc968d7a64429e8f45eb5185f70adacb256f9edb5f", "bytes": 6272, "count": 79 },
     "giftzone": { "sha256": "e56868a11270f6a0d11d06e25a3d7efbfc05f95a9b4861f21c8aa124b2f73ef5", "bytes": 67010, "count": 737 },
-    "love_gift_card": { "sha256": "a3d4c91a3cdcf262b38cafd09b7c11abe3c54b4171dee3eb9b382075095b1b2a", "bytes": 1265, "count": 8 },
+    "love_gift_card": { "sha256": "08d4377b4c8fffb006078946537b3681ce6774a9a9a1860cb2a9c96c559b0e0a", "bytes": 1289, "count": 8 },
+    "max_gift": { "sha256": "fd2ee86cb52270c2376f47e792ac84a8922877dc5c52feafafb2bf7c9025fbd4", "bytes": 6621, "count": 84 },
+    "max_super_gift": { "sha256": "fd279e2de66ae86f5597c3480b989c61ff3b760d737bb42298edb88ca60cd936", "bytes": 1816, "count": 9 },
     "spazone": { "sha256": "4b26acb887d5b8cc87900cfd65800a8faa87439b84d6cf9c8b8a7f0df223828a", "bytes": 1738, "count": 22 },
     "superzone": { "sha256": "544f63d6b9daa6ced27e96c8b88c0d7fb3e829d09d4f7d9f33d06d907594d0a6", "bytes": 65737, "count": 752 }
   }

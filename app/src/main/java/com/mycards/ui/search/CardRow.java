@@ -32,6 +32,8 @@ public class CardRow {
     public boolean hasOnlineMatch;
 
     public int storeCount;
+    /** True when this card's merchant list is knowingly incomplete. */
+    public boolean partialStoreList;
     public long storesUpdatedAt;
     public String storeSource;
 

@@ -14,6 +14,17 @@ public class CardTypeDef {
 
     public List<String> aliases;
 
+    /**
+     * True when this card's merchant list is knowingly incomplete.
+     *
+     * <p>Set for issuers that publish their network only as images or behind a login, where
+     * the best available list is transcribed from whatever prose names brands. Everything in
+     * such a list is accepted; what is missing is unknown. The UI has to say so, because the
+     * app's whole value is being trusted at a till — silence would turn "we do not know" into
+     * "not accepted".
+     */
+    public boolean partialList;
+
     public String issuer;
 
     /** Ordered fallback chain for the merchant list. */

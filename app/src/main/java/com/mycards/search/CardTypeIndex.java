@@ -37,6 +37,9 @@ public final class CardTypeIndex {
     /** Where the list came from, surfaced in the UI so stale/curated data is visible. */
     private final String sourceLabel;
 
+    /** True when the merchant list is known to be incomplete. See {@code CardTypeDef}. */
+    private final boolean partialList;
+
     /** Treats every supplied string as one of the card's names. */
     public CardTypeIndex(String cardTypeId,
                          String displayName,
@@ -59,6 +62,20 @@ public final class CardTypeIndex {
                          List<Store> stores,
                          long storesUpdatedAt,
                          String sourceLabel) {
+        this(cardTypeId, displayName, otherNames, extraAliases, stores, storesUpdatedAt,
+                sourceLabel, false);
+    }
+
+    /** @param partialList true when the merchant list is knowingly incomplete */
+    public CardTypeIndex(String cardTypeId,
+                         String displayName,
+                         List<String> otherNames,
+                         List<String> extraAliases,
+                         List<Store> stores,
+                         long storesUpdatedAt,
+                         String sourceLabel,
+                         boolean partialList) {
+        this.partialList = partialList;
         this.cardTypeId = cardTypeId;
         this.displayName = displayName == null ? "" : displayName;
         this.stores = stores == null ? Collections.<Store>emptyList() : stores;
@@ -113,6 +130,10 @@ public final class CardTypeIndex {
 
     public String getSourceLabel() {
         return sourceLabel;
+    }
+
+    public boolean isPartialList() {
+        return partialList;
     }
 
     /** Scores the card's own names and aliases together; this is what ranking uses. */

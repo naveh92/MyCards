@@ -65,6 +65,23 @@ public class SearchViewModel extends AndroidViewModel {
         return loading;
     }
 
+    /**
+     * True when any card the user holds has a knowingly incomplete merchant list.
+     *
+     * <p>Changes what "no results" is allowed to claim. With complete lists, nothing matching
+     * means no card works there. With a partial list in the wallet it only means the app has
+     * not been told — and telling someone at a till that their card is refused, when it might
+     * not be, is the one wrong answer this app must not give.
+     */
+    public boolean anyPartialStoreList() {
+        for (CardTypeIndex index : indexes) {
+            if (index.isPartialList()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String currentQuery() {
         return currentQuery;
     }
@@ -165,6 +182,7 @@ public class SearchViewModel extends AndroidViewModel {
                     : engine.countMatchingStores(query, index);
 
             row.storeCount = index.getStores().size();
+            row.partialStoreList = index.isPartialList();
             row.storesUpdatedAt = index.getStoresUpdatedAt();
             row.storeSource = index.getSourceLabel();
             row.hasUnreconciledMismatch = card.hasUnreconciledMismatch;

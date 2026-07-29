@@ -99,9 +99,13 @@ jobs:
 
       - name: Keep the hand-maintained lists
         run: |
-          # love_gift_card is transcribed from the issuer's published terms rather than
-          # scraped, so it is copied through instead of regenerated.
-          cp app/src/main/assets/stores/love_gift_card.json .work/publish/stores/ || true
+          # These are transcribed from the issuers' published terms rather than scraped, so
+          # they are copied through instead of regenerated. Anything omitted here is deleted
+          # from the site by the rsync below — the size guard would abort the run first, but
+          # that just swaps silent data loss for a broken weekly job.
+          for list in love_gift_card max_gift max_super_gift; do
+            cp "app/src/main/assets/stores/$list.json" .work/publish/stores/ || true
+          done
 
       - name: Write the manifest
         run: bash tools/gen-manifest.sh .work/publish

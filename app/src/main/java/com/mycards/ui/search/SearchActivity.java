@@ -125,6 +125,10 @@ public class SearchActivity extends AppCompatActivity {
         if (query.trim().isEmpty()) {
             // Distinguish "you own nothing" from "nothing matched" — different next steps.
             emptyState.setText(getString(R.string.no_cards_yet));
+        } else if (viewModel.anyPartialStoreList()) {
+            // One of the wallet's lists is known to have gaps, so "not accepted" would be
+            // asserting more than is known.
+            emptyState.setText(getString(R.string.no_results_partial, query));
         } else {
             emptyState.setText(getString(R.string.no_results, query));
         }
