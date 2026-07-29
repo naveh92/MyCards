@@ -13,6 +13,9 @@ if (keystorePropsFile.exists()) {
 }
 
 android {
+    // The Java package and R class. Deliberately left as com.mycards even though the
+    // applicationId below differs: namespace is a compile-time concern and renaming it
+    // would move every source file for no benefit.
     namespace 'com.mycards'
     // API 36. Play requires new submissions to target this from 31 August 2026, and an app
     // uploaded at 35 would need re-releasing within weeks. Verified on an Android 16 device:
@@ -24,7 +27,11 @@ android {
     buildToolsVersion '36.0.0'
 
     defaultConfig {
-        applicationId "com.mycards"
+        // The identity Play knows the app by, and permanent once published — it can never
+        // be changed or reused afterwards. "com.mycards" was already taken on Play, so this
+        // is derived from naveh92.github.io, a domain actually under our control, which is
+        // what the reverse-domain convention is for and guarantees nobody else holds it.
+        applicationId "io.github.naveh92.mycards"
         minSdk 26
         targetSdk 36
         versionCode 1

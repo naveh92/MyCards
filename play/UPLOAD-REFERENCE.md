@@ -21,14 +21,18 @@ Three things catch first-time publishers, in rough order of how much time they c
    *before* creating the account, because the account type cannot be changed afterwards.
 2. **$25 one-time registration fee**, and identity verification — a government ID and
    address for a personal account.
-3. **The package name is permanent.** `com.mycards` can never be changed once anything is
-   published under it, and the name can never be reused, even by you.
+3. **The package name is permanent.** `io.github.naveh92.mycards` can never be changed once
+   anything is published under it, and the name can never be reused, even by you. Until that
+   first publish it is a one-line edit in `app/build.gradle`, so change it now if you would
+   rather have something else.
 
 ## Build identity
 
 | Field | Value |
 |---|---|
-| **Package name / Application ID** | `com.mycards` |
+| **Package name / Application ID** | `io.github.naveh92.mycards` |
+| Java package / `namespace` | `com.mycards` — a compile-time concern, deliberately left alone |
+| Launcher activity | `com.mycards.ui.search.SearchActivity` |
 | Version code | `1` |
 | Version name | `1.0` |
 | Min SDK | 26 — Android 8.0 Oreo |
@@ -44,11 +48,11 @@ Three things catch first-time publishers, in rough order of how much time they c
 
 | What | Path | Size |
 |---|---|---|
-| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,534,578 bytes |
+| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,534,613 bytes |
 | Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2.1 MB |
 | R8 mapping — **upload alongside** | `app/build/outputs/mapping/release/mapping.txt` | 16 MB |
 
-`app-release.aab` sha256: `e7a0970d40274c6ad0644f6bdc6412c327cd954173279bf2a44f685b1b55da59`
+`app-release.aab` sha256: `e3e20d60339427909689f06b51291007e94751a32ed912fa14d06e09359998de`
 
 Upload `mapping.txt` in the same release (Play accepts it on the bundle's *Downloads*
 page). Without it every crash report is an unreadable stack of `a()`, `b()`, `c()`, because
@@ -95,7 +99,7 @@ removed without dropping the feature that pulls them.
 | `WAKE_LOCK` | `androidx.work:2.9.1` | Holding the CPU during a background sync |
 | `RECEIVE_BOOT_COMPLETED` | `androidx.work:2.9.1` | Restoring scheduled work after a reboot |
 | `FOREGROUND_SERVICE` | `androidx.work:2.9.1` | WorkManager's expedited-work fallback below API 31 |
-| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | `androidx.work:2.9.1` | Internal, self-scoped |
+| `io.github.naveh92.mycards.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | `androidx.work:2.9.1` | Internal, self-scoped; prefixed with the application ID |
 
 **No `foregroundServiceType` is declared anywhere in the merged manifest**, so the Console's
 foreground-service declaration form does not apply. If it is shown anyway, the honest answer
