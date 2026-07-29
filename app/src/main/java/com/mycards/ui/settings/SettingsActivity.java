@@ -58,19 +58,17 @@ public class SettingsActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> createBackupFile;
     private ActivityResultLauncher<String[]> openBackupFile;
 
-    /** Held between choosing a passphrase and the file picker returning a destination. */
-    private char[] pendingPassphrase;
-
     private void setUpBackup() {
+        // File first, passphrase second. Asking for the passphrase first meant holding it
+        // in a field while the system file picker was in front — and if Android destroyed
+        // this activity in the meantime, that field came back null and the export silently
+        // did nothing. Nothing now has to survive the round trip.
         createBackupFile = registerForActivityResult(
                 new ActivityResultContracts.CreateDocument("application/octet-stream"),
                 uri -> {
-                    if (uri == null || pendingPassphrase == null) {
-                        pendingPassphrase = null;
-                        return;
+                    if (uri != null) {
+                        askPassphraseThenExport(uri);
                     }
-                    writeBackup(uri, pendingPassphrase);
-                    pendingPassphrase = null;
                 });
 
         openBackupFile = registerForActivityResult(
@@ -89,16 +87,28 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void startExport() {
-        PassphraseDialog.show(this, R.string.backup_export, true, passphrase -> {
-            pendingPassphrase = passphrase;
+        createBackupFile.launch("mycards-"
+                + new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date())
+                + ".mycards");
+    }
 
-            String name = "mycards-" + new SimpleDateFormat("yyyy-MM-dd", Locale.US)
-                    .format(new Date()) + ".mycards";
+    /** Runs once a destination has been chosen, so no state spans the picker. */
+    private void askPassphraseThenExport(Uri uri) {
+        // hasSecretsToExport() reads the database, so it cannot run here — this is the
+        // main thread, and Room throws rather than risking a janky query. That throw was
+        // being delivered inside the activity-result callback, which took the whole
+        // activity down and looked from outside like the app silently restarting.
+        AppExecutors.io(() -> {
+            boolean needsUnlock = new BackupManager(this).hasSecretsToExport()
+                    && new SecretVault(this).isBiometricProtectionAvailable();
 
-            BackupManager manager = new BackupManager(this);
-            if (manager.hasSecretsToExport()
-                    && new SecretVault(this).isBiometricProtectionAvailable()) {
-                // Card numbers are behind an auth-bound key, so exporting them needs an
+            AppExecutors.main(() -> {
+                if (!needsUnlock) {
+                    PassphraseDialog.show(this, R.string.backup_export, true,
+                            passphrase -> writeBackup(uri, passphrase));
+                    return;
+                }
+                // Card numbers sit behind an auth-bound key, so exporting them needs an
                 // unlock exactly as revealing them does.
                 BiometricGate.authenticate(this,
                         getString(R.string.biometric_title),
@@ -106,18 +116,17 @@ public class SettingsActivity extends AppCompatActivity {
                         new BiometricGate.Callback() {
                             @Override
                             public void onSuccess() {
-                                createBackupFile.launch(name);
+                                PassphraseDialog.show(SettingsActivity.this,
+                                        R.string.backup_export, true,
+                                        passphrase -> writeBackup(uri, passphrase));
                             }
 
                             @Override
                             public void onFailure() {
-                                pendingPassphrase = null;
                                 toast(R.string.biometric_failed);
                             }
                         });
-            } else {
-                createBackupFile.launch(name);
-            }
+            });
         });
     }
 

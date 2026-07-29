@@ -13,6 +13,12 @@
     app:cardCornerRadius="14dp"
     app:cardElevation="1dp">
 
+    <!-- Each label sets textAlignment="viewStart" individually. It cannot be set once on
+         this container: TextView defaults to gravity-based alignment rather than
+         inheriting, so a parent value is ignored. "viewStart" follows the layout direction
+         instead of the text's own, which is what keeps a Latin card name on the right in
+         an RTL screen — TextView otherwise picks direction from the first strong character
+         it finds and left-aligns it. -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,6 +43,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.CardTitle"
                     tools:text="BuyMe All" />
 
@@ -46,6 +53,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
+                    android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.Meta"
                     android:visibility="gone"
                     tools:text="BuyMe All" />
@@ -66,6 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.MyCards.Meta"
             tools:text="Expires 31/12/2026" />
 
@@ -85,6 +94,7 @@
                 android:layout_weight="1"
                 android:ellipsize="end"
                 android:maxLines="2"
+                android:textAlignment="viewStart"
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 tools:text="Accepted at Zara" />
 
@@ -109,6 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.MyCards.Meta"
             android:textColor="@color/expiry_warning"
             android:visibility="gone"

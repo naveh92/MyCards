@@ -41,12 +41,14 @@
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
+                    android:textAlignment="viewStart"
                     android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
                 <TextView
                     android:id="@+id/cardSubtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.Meta" />
 
                 <TextView
@@ -54,12 +56,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
+                    android:textAlignment="viewStart"
                     android:textAppearance="?attr/textAppearanceDisplaySmall" />
 
                 <TextView
                     android:id="@+id/balanceMeta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.Meta" />
 
                 <TextView
@@ -67,6 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:textAlignment="viewStart"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                 <com.google.android.material.card.MaterialCardView
