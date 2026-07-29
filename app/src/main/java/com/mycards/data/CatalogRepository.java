@@ -141,7 +141,8 @@ public class CatalogRepository {
             indexes.add(new CardTypeIndex(
                     id,
                     def.displayName(languageTag),
-                    def.allSearchableNames(),
+                    def.properNames(),
+                    def.aliasesOrEmpty(),
                     stores,
                     fetchedAt,
                     source));

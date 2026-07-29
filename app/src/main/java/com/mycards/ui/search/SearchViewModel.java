@@ -158,6 +158,7 @@ public class SearchViewModel extends AndroidViewModel {
 
             row.matchedStores = match.getMatchedStores();
             row.matchedByCardName = match.isMatchedByCardName();
+            row.matchedByCardProperName = match.isMatchedByCardProperName();
             row.hasOnlineMatch = match.hasOnlineMatch();
             row.totalMatchingStores = row.matchedStores.isEmpty()
                     ? 0

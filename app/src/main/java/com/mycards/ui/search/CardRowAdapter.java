@@ -113,10 +113,11 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
 
             matchReason.setText(describeMatch(ctx, row));
 
-            // The badge describes the merchants listed above it, so it only makes sense
-            // when merchants are actually what is being shown.
+            // The badge describes the merchants listed above it, so it only makes sense when
+            // merchants are actually what is being shown — the same condition describeMatch
+            // uses, or the two disagree and a named shop loses its badge.
             onlineBadge.setVisibility(
-                    row.hasOnlineMatch && !row.matchedByCardName ? View.VISIBLE : View.GONE);
+                    row.hasOnlineMatch && !row.matchedByCardProperName ? View.VISIBLE : View.GONE);
 
             if (row.hasUnreconciledMismatch) {
                 warning.setText(ctx.getString(R.string.unlogged_transaction_title));
@@ -149,10 +150,17 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
 
         /** Spells out why the card is on screen, naming the merchant that matched. */
         private String describeMatch(android.content.Context ctx, CardRow row) {
-            // Searching the card's own name is a request for that card, so report its
-            // coverage. Listing merchants whose aliases incidentally contain "buyme"
-            // would be pure noise here.
-            if (row.matchedByCardName) {
+            // Naming the card is a request for that card, so report its coverage rather than
+            // its merchants: several shops tag themselves "buyme" in their alias lists, and
+            // answering "Accepted at MIMI VAZA" to someone looking for their BuyMe card is
+            // noise.
+            //
+            // The test is the card's *name*, not its aliases, because the two are not equally
+            // good evidence. Aliases carry issuer names — love_gift_card lists "castro"
+            // because Castro Model issues it — and someone typing a shop's name is asking
+            // about the shop. Keying off aliases too made that card answer "8 stores" while
+            // the other cards on the same screen named the branch.
+            if (row.matchedByCardProperName) {
                 return row.hasStoreList()
                         ? ctx.getString(R.string.card_count_stores, row.storeCount)
                         : ctx.getString(R.string.matched_card_name);
@@ -173,11 +181,14 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
                 }
                 return text;
             }
-            if (row.matchedByCardName) {
-                return ctx.getString(R.string.matched_card_name);
-            }
+            // Reachable now that an alias-only hit no longer takes the first branch: the
+            // query matched something about the card but no merchant. Coverage is the more
+            // useful thing to say when there is a list to count.
             if (row.hasStoreList()) {
                 return ctx.getString(R.string.card_count_stores, row.storeCount);
+            }
+            if (row.matchedByCardName) {
+                return ctx.getString(R.string.matched_card_name);
             }
             return "";
         }

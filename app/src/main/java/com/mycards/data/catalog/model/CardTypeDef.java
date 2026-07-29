@@ -43,6 +43,21 @@ public class CardTypeDef {
 
     /** Every name and alias, so a card is findable in either language. */
     public List<String> allSearchableNames() {
+        List<String> out = new ArrayList<>(properNames());
+        if (aliases != null) {
+            out.addAll(aliases);
+        }
+        return out;
+    }
+
+    /**
+     * The card's names in every language it has one — and nothing else.
+     *
+     * <p>Held apart from {@link #aliases} because a name identifies the card while an alias
+     * need not: {@code love_gift_card} lists "castro" because Castro Model issues it, which
+     * is also the name of a shop the card is accepted in.
+     */
+    public List<String> properNames() {
         List<String> out = new ArrayList<>();
         if (names != null) {
             for (String n : names.values()) {
@@ -51,10 +66,11 @@ public class CardTypeDef {
                 }
             }
         }
-        if (aliases != null) {
-            out.addAll(aliases);
-        }
         return out;
+    }
+
+    public List<String> aliasesOrEmpty() {
+        return aliases == null ? new ArrayList<String>() : aliases;
     }
 
     public List<SourceDef> storeSourcesOrEmpty() {

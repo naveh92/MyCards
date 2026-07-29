@@ -15,12 +15,15 @@ public final class CardMatch {
     private final CardTypeIndex cardType;
     private final int score;
     private final boolean matchedByCardName;
+    private final boolean matchedByCardProperName;
     private final List<Store> matchedStores;
 
-    CardMatch(CardTypeIndex cardType, int score, boolean matchedByCardName, List<Store> matchedStores) {
+    CardMatch(CardTypeIndex cardType, int score, boolean matchedByCardName,
+              boolean matchedByCardProperName, List<Store> matchedStores) {
         this.cardType = cardType;
         this.score = score;
         this.matchedByCardName = matchedByCardName;
+        this.matchedByCardProperName = matchedByCardProperName;
         this.matchedStores = matchedStores == null
                 ? Collections.<Store>emptyList()
                 : Collections.unmodifiableList(matchedStores);
@@ -38,9 +41,20 @@ public final class CardMatch {
         return score;
     }
 
-    /** True when the query hit the card's own name rather than one of its merchants. */
+    /** True when the query hit the card's name or any of its aliases. Drives ranking. */
     public boolean isMatchedByCardName() {
         return matchedByCardName;
+    }
+
+    /**
+     * True when the query hit the card's actual name, not merely one of its aliases.
+     *
+     * <p>Narrower than {@link #isMatchedByCardName()} on purpose. Aliases carry issuer names
+     * and marketing phrases, some of which are also shop names — so an alias hit is not
+     * evidence that the user meant the card, whereas a name hit is.
+     */
+    public boolean isMatchedByCardProperName() {
+        return matchedByCardProperName;
     }
 
     /** The merchants that matched, best first, capped at the engine's display limit. */

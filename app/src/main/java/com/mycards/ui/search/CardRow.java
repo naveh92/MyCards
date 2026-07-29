@@ -27,6 +27,8 @@ public class CardRow {
     public List<Store> matchedStores = Collections.emptyList();
     public int totalMatchingStores;
     public boolean matchedByCardName;
+    /** Narrower than the above: the query hit the card's name, not just an alias. */
+    public boolean matchedByCardProperName;
     public boolean hasOnlineMatch;
 
     public int storeCount;

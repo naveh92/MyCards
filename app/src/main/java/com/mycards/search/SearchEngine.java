@@ -75,15 +75,18 @@ public final class SearchEngine {
         // No usable query: show everything, so the launcher screen doubles as the wallet.
         if (variants.isEmpty()) {
             for (CardTypeIndex index : indexes) {
-                results.add(new CardMatch(index, MatchScore.NONE, false, Collections.<Store>emptyList()));
+                results.add(new CardMatch(index, MatchScore.NONE, false, false,
+                        Collections.<Store>emptyList()));
             }
             return results;
         }
 
         for (CardTypeIndex index : indexes) {
             int nameScore = MatchScore.NONE;
+            int properNameScore = MatchScore.NONE;
             for (String variant : variants) {
                 nameScore = Math.max(nameScore, index.scoreName(variant));
+                properNameScore = Math.max(properNameScore, index.scoreProperName(variant));
             }
 
             List<ScoredStore> hits = new ArrayList<>();
@@ -125,7 +128,8 @@ public final class SearchEngine {
                 topStores.add(hits.get(i).store);
             }
 
-            results.add(new CardMatch(index, total, byName, topStores));
+            results.add(new CardMatch(index, total, byName,
+                    properNameScore > MatchScore.NONE, topStores));
         }
 
         Collections.sort(results, new Comparator<CardMatch>() {
