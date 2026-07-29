@@ -102,24 +102,17 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
 
             amount.setText(Formats.money(row.remaining, row.currency));
 
-            // Expiry doubles as a nudge: a card about to lapse should stand out.
-            if (row.isExpired()) {
-                expiry.setText(ctx.getString(R.string.expired));
-                expiry.setTextColor(ctx.getColor(R.color.expiry_expired));
-            } else if (row.isExpiringSoon()) {
-                expiry.setText(ctx.getString(R.string.expires_soon, (int) row.daysUntilExpiry));
-                expiry.setTextColor(ctx.getColor(R.color.expiry_warning));
-            } else if (row.expiryDate != null && !row.expiryDate.isEmpty()) {
-                expiry.setText(ctx.getString(R.string.expires_on,
-                        Formats.expiryToDisplay(row.expiryDate)));
-                expiry.setTextColor(matchReason.getCurrentTextColor());
-                expiry.setAlpha(0.75f);
+            // Nothing to say when the card has no expiry, so say nothing rather than
+            // spending a line telling the user something is absent.
+            if (row.expiryDate == null || row.expiryDate.trim().isEmpty()) {
+                expiry.setVisibility(View.GONE);
             } else {
-                expiry.setText(ctx.getString(R.string.no_expiry));
-                expiry.setAlpha(0.75f);
+                expiry.setVisibility(View.VISIBLE);
+                bindExpiry(ctx, row);
             }
 
             matchReason.setText(describeMatch(ctx, row));
+
             // The badge describes the merchants listed above it, so it only makes sense
             // when merchants are actually what is being shown.
             onlineBadge.setVisibility(
@@ -136,6 +129,22 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
             }
 
             itemView.setOnClickListener(v -> listener.onCard(row));
+        }
+
+        /** Expiry doubles as a nudge: a card about to lapse should stand out. */
+        private void bindExpiry(android.content.Context ctx, CardRow row) {
+            if (row.isExpired()) {
+                expiry.setText(ctx.getString(R.string.expired));
+                expiry.setTextColor(ctx.getColor(R.color.expiry_expired));
+            } else if (row.isExpiringSoon()) {
+                expiry.setText(ctx.getString(R.string.expires_soon, (int) row.daysUntilExpiry));
+                expiry.setTextColor(ctx.getColor(R.color.expiry_warning));
+            } else {
+                expiry.setText(ctx.getString(R.string.expires_on,
+                        Formats.expiryToDisplay(row.expiryDate)));
+                expiry.setTextColor(matchReason.getCurrentTextColor());
+                expiry.setAlpha(0.75f);
+            }
         }
 
         /** Spells out why the card is on screen, naming the merchant that matched. */

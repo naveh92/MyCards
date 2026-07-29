@@ -85,7 +85,9 @@ public class SpendAdapter extends ListAdapter<SpendEntity, SpendAdapter.VH> {
             }
             meta.setText(sub.toString());
 
-            amount.setText("-" + Formats.money(spend.amount, currency));
+            // No minus sign: everything in this list is a deduction, so the symbol adds
+            // nothing and reads oddly next to a right-to-left shekel sign.
+            amount.setText(Formats.money(spend.amount, currency));
             itemView.setOnLongClickListener(v -> {
                 listener.onLongClick(spend);
                 return true;

@@ -14,7 +14,7 @@
 
     <!-- Card summary -->
     <string name="remaining_amount">נותרו %1$s</string>
-    <string name="of_initial">מתוך %1$s</string>
+    <string name="of_initial">במקור %1$s</string>
     <string name="expires_on">בתוקף עד %1$s</string>
     <string name="no_expiry">ללא תאריך תפוגה</string>
     <string name="expired">פג תוקף</string>

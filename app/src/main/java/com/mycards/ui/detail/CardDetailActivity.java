@@ -137,8 +137,10 @@ public class CardDetailActivity extends AppCompatActivity {
         TextView expiry = findViewById(R.id.expiry);
         long days = Formats.daysUntil(card.expiryDate);
         if (days == Long.MAX_VALUE) {
-            expiry.setText(R.string.no_expiry);
+            // No expiry recorded, so drop the line rather than announcing an absence.
+            expiry.setVisibility(View.GONE);
         } else if (days < 0) {
+            expiry.setVisibility(View.VISIBLE);
             expiry.setText(R.string.expired);
             expiry.setTextColor(getColor(R.color.expiry_expired));
         } else if (days <= 30) {

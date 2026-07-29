@@ -25,7 +25,7 @@ public final class RemoteConfig {
      * credential is shipped inside the APK where it could be decompiled out.
      */
     public static final String CATALOG_BASE_URL =
-            "https://REPLACE-ME.github.io/MyCards";
+            "https://naveh92.github.io/MyCards";
 
     /** Catalog document listing every known card type and how to fetch its merchants. */
     public static final String CATALOG_URL = CATALOG_BASE_URL + "/catalog.json";
@@ -51,6 +51,10 @@ public final class RemoteConfig {
             "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 "
                     + "(KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36";
 
+    /**
+     * False while the URL is still a placeholder, in which case the app skips remote
+     * fetches entirely and runs from its bundled snapshots.
+     */
     public static boolean isCatalogUrlConfigured() {
         return !CATALOG_BASE_URL.contains("REPLACE-ME");
     }

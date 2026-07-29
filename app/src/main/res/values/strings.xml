@@ -14,7 +14,7 @@
 
     <!-- Card summary -->
     <string name="remaining_amount">%1$s left</string>
-    <string name="of_initial">of %1$s</string>
+    <string name="of_initial">Originally %1$s</string>
     <string name="expires_on">Expires %1$s</string>
     <string name="no_expiry">No expiry</string>
     <string name="expired">Expired</string>
