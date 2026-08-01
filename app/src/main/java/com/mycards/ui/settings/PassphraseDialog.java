@@ -24,11 +24,24 @@ public final class PassphraseDialog {
         void onPassphrase(char[] passphrase);
     }
 
-    /**
-     * @param confirm true when exporting — a typo in a write-once passphrase would make the
-     *                backup permanently unreadable, so it is entered twice
-     */
+    /** Backing out of the dialog, by the Cancel button or by the back gesture. */
+    public interface OnCancel {
+        void onCancel();
+    }
+
     public static void show(Activity activity, int titleRes, boolean confirm, OnPassphrase callback) {
+        show(activity, titleRes, confirm, callback, null);
+    }
+
+    /**
+     * @param confirm  true when exporting — a typo in a write-once passphrase would make the
+     *                 backup permanently unreadable, so it is entered twice
+     * @param onCancel run when the dialog closes without a passphrase. An export has already
+     *                 created its file by this point and needs to hear about it, so that an
+     *                 empty one is not left behind looking like a backup.
+     */
+    public static void show(Activity activity, int titleRes, boolean confirm,
+                            OnPassphrase callback, OnCancel onCancel) {
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_passphrase, null);
 
         TextInputLayout passLayout = view.findViewById(R.id.passphraseLayout);
@@ -50,6 +63,15 @@ public final class PassphraseDialog {
                         ? R.string.backup_export_action
                         : R.string.backup_import_action, null)
                 .create();
+
+        // Covers every way out of the dialog at once — Cancel, the back gesture, a tap
+        // outside — so no exit path can quietly skip the caller's cleanup.
+        boolean[] accepted = {false};
+        dialog.setOnDismissListener(d -> {
+            if (!accepted[0] && onCancel != null) {
+                onCancel.onCancel();
+            }
+        });
 
         dialog.show();
 
@@ -73,6 +95,7 @@ public final class PassphraseDialog {
                 return;
             }
 
+            accepted[0] = true;
             dialog.dismiss();
             callback.onPassphrase(pass.toCharArray());
         });

@@ -137,9 +137,30 @@
     <string name="backup_passphrase_explain">Encrypts the file. There is no way to recover it if you forget it — not even by reinstalling the app.</string>
     <string name="backup_passphrase_mismatch">The two passphrases do not match</string>
     <string name="backup_passphrase_too_short">Use at least 8 characters</string>
-    <string name="backup_exported">Backup saved</string>
+    <!-- Reports counts rather than a bare "saved", so an empty backup is obvious immediately
+         instead of at the moment it is needed. -->
+    <string name="backup_exported_count">Backup saved: %1$d cards, %2$d purchases</string>
     <string name="backup_export_failed">Could not create the backup</string>
-    <string name="backup_imported">Restored: %1$s</string>
+    <string name="backup_export_failed_body">Something went wrong while writing the backup, so nothing was saved.</string>
+    <string name="backup_export_needs_unlock">Unlocking is needed to include your card numbers, so nothing was saved.</string>
+    <string name="backup_export_unlock_expired">The unlock expired before the backup was ready, so nothing was saved. Please try again.</string>
+    <string name="backup_nothing_to_export">There are no cards to back up yet.</string>
+    <string name="backup_leftover_file">An empty file may be left where you chose to save it. Delete it, so it is never mistaken for a backup.</string>
+    <string name="backup_export_partial_title">Backup saved, with gaps</string>
+    <string name="backup_export_partial_body">%1$d cards and %2$d purchases were saved.\n\n%3$d of those cards could not include their card number, CVV or gift link. Those are locked to this phone\'s screen lock, and it has changed since they were saved, so the app can no longer read them. Everything else is in the file.</string>
+    <string name="backup_import_result_title">Cards restored</string>
+    <string name="backup_import_incomplete_title">Restore incomplete</string>
+    <string name="backup_import_nothing_title">Nothing was restored</string>
+    <!-- Leads the dialog when a restore applied nothing. It is stated as the outcome rather
+         than as a footnote, and it says outright that the backup remains untested, because
+         reading this screen as proof that a backup file works is what cost a wallet. -->
+    <string name="backup_import_changed_nothing">Not one card or purchase from this file was put back. Every card in it is already on this phone in a newer form, so there was nothing to restore.\n\nThis does not tell you whether the backup is any good. A backup is only proved by restoring it where the cards are missing.</string>
+    <string name="backup_import_file_holds">The file holds %1$d cards and %2$d purchases.</string>
+    <string name="backup_import_outcome">Added: %1$d\nUpdated: %2$d\nAlready on this phone: %3$d\nPurchases added: %4$d</string>
+    <string name="backup_import_some_failed">%1$d cards in the file could not be restored. Everything else was.</string>
+    <string name="backup_import_spends_dropped">%1$d purchases in the file were not restored, because the cards they belong to are not on this phone.</string>
+    <string name="backup_import_needs_unlock">Unlocking is needed to restore card numbers. Nothing was changed.</string>
+    <string name="backup_empty">This backup holds no cards at all. It was created but never filled in — do not rely on it.</string>
     <string name="backup_import_failed">Could not read that backup</string>
     <string name="backup_wrong_passphrase">Wrong passphrase, or the file has been damaged</string>
     <string name="backup_not_a_backup">That is not a MyCards backup file</string>
