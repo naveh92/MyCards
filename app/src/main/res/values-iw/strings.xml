@@ -142,9 +142,9 @@
     <string name="backup_export_needs_unlock">נדרש אימות כדי לכלול את מספרי הכרטיסים, ולכן לא נשמר דבר.</string>
     <string name="backup_export_unlock_expired">האימות פג לפני שהגיבוי היה מוכן, ולכן לא נשמר דבר. אפשר לנסות שוב.</string>
     <string name="backup_nothing_to_export">אין עדיין כרטיסים לגבות.</string>
-    <string name="backup_leftover_file">ייתכן שנשאר קובץ ריק במקום שבו בחרת לשמור. מחק אותו, כדי שלא ייחשב בטעות לגיבוי.</string>
+    <string name="backup_leftover_file">ייתכן שנשאר קובץ ריק במקום שבו בחרת לשמור. כדאי למחוק אותו, כדי שלא ייחשב בטעות לגיבוי.</string>
     <string name="backup_export_partial_title">הגיבוי נשמר, אך חלקית</string>
-    <string name="backup_export_partial_body">%1$d כרטיסים ו-%2$d רכישות נשמרו.\n\nב-%3$d מהכרטיסים לא ניתן היה לכלול את מספר הכרטיס, ה-CVV או קישור המתנה. אלה נעולים לנעילת המסך של הטלפון, וזו השתנתה מאז שנשמרו, ולכן האפליקציה כבר לא יכולה לקרוא אותם. כל השאר נמצא בקובץ.</string>
+    <string name="backup_export_partial_body">%1$d כרטיסים ו-%2$d רכישות נשמרו.\n\nב-%3$d מהכרטיסים לא ניתן היה לכלול את מספר הכרטיס, ה-CVV או קישור המתנה. אלה מוגנים בנעילת המסך של הטלפון, וזו השתנתה מאז שנשמרו, ולכן האפליקציה כבר לא יכולה לקרוא אותם. כל השאר נמצא בקובץ.</string>
     <string name="backup_check">בדיקת קובץ גיבוי</string>
     <string name="backup_check_action">בדיקה</string>
     <string name="backup_check_ok_title">הגיבוי נבדק</string>
@@ -159,7 +159,7 @@
     <string name="backup_import_result_title">הכרטיסים שוחזרו</string>
     <string name="backup_import_incomplete_title">השחזור לא הושלם</string>
     <string name="backup_import_nothing_title">שום דבר לא שוחזר</string>
-    <string name="backup_import_changed_nothing">אף כרטיס ואף רכישה מהקובץ הזה לא הוחזרו. כל כרטיס שבו כבר קיים בטלפון בגרסה עדכנית יותר, ולכן לא היה מה לשחזר.\n\nזה אינו מלמד שהגיבוי תקין. גיבוי מוכיח את עצמו רק כששוחזרים אותו במקום שבו הכרטיסים חסרים.</string>
+    <string name="backup_import_changed_nothing">אף כרטיס ואף רכישה מהקובץ הזה לא שוחזרו. כל כרטיס שבו כבר קיים בטלפון בגרסה עדכנית יותר, ולכן לא היה מה לשחזר.\n\nזה אינו מלמד שהגיבוי תקין. גיבוי מוכיח את עצמו רק כשמשחזרים אותו במקום שבו הכרטיסים חסרים.</string>
     <string name="backup_import_file_holds">הקובץ מכיל %1$d כרטיסים ו-%2$d רכישות.</string>
     <string name="backup_import_outcome">נוספו: %1$d\nעודכנו: %2$d\nכבר קיימים בטלפון: %3$d\nרכישות שנוספו: %4$d</string>
     <string name="backup_import_some_failed">%1$d כרטיסים בקובץ לא שוחזרו. כל השאר שוחזר.</string>
