@@ -145,6 +145,17 @@
     <string name="backup_leftover_file">ייתכן שנשאר קובץ ריק במקום שבו בחרת לשמור. מחק אותו, כדי שלא ייחשב בטעות לגיבוי.</string>
     <string name="backup_export_partial_title">הגיבוי נשמר, אך חלקית</string>
     <string name="backup_export_partial_body">%1$d כרטיסים ו-%2$d רכישות נשמרו.\n\nב-%3$d מהכרטיסים לא ניתן היה לכלול את מספר הכרטיס, ה-CVV או קישור המתנה. אלה נעולים לנעילת המסך של הטלפון, וזו השתנתה מאז שנשמרו, ולכן האפליקציה כבר לא יכולה לקרוא אותם. כל השאר נמצא בקובץ.</string>
+    <string name="backup_check">בדיקת קובץ גיבוי</string>
+    <string name="backup_check_action">בדיקה</string>
+    <string name="backup_check_ok_title">הגיבוי נבדק</string>
+    <string name="backup_check_bad_title">הגיבוי אינו שלם</string>
+    <string name="backup_check_covers">הגיבוי הזה יחזיר את כל %1$d הכרטיסים שבטלפון.</string>
+    <string name="backup_check_incomplete">הגיבוי הזה לא יחזיר את כל מה שבטלפון.</string>
+    <string name="backup_check_contents">הוא מכיל %1$d כרטיסים ו-%2$d רכישות. ב-%3$d מהכרטיסים יש מספר כרטיס, CVV או קישור מתנה.</string>
+    <string name="backup_check_taken">נוצר: %1$s</string>
+    <string name="backup_check_missing">%1$d כרטיסים שבטלפון אינם בקובץ כלל: %2$s. כדאי לייצא גיבוי חדש.</string>
+    <string name="backup_check_secrets_missing">%1$d כרטיסים נמצאים בקובץ ללא מספר הכרטיס, ה-CVV או קישור המתנה. אלה לא ניתנים לשחזור מהקובץ הזה.</string>
+    <string name="backup_check_stale">%1$d כרטיסים נערכו מאז שנוצר הגיבוי, ולכן הקובץ מכיל את הפרטים הישנים שלהם.</string>
     <string name="backup_import_result_title">הכרטיסים שוחזרו</string>
     <string name="backup_import_incomplete_title">השחזור לא הושלם</string>
     <string name="backup_import_nothing_title">שום דבר לא שוחזר</string>

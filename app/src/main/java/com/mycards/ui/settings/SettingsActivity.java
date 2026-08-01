@@ -60,6 +60,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<String> createBackupFile;
     private ActivityResultLauncher<String[]> openBackupFile;
+    private ActivityResultLauncher<String[]> checkBackupFile;
 
     private void setUpBackup() {
         // File first, passphrase second. Asking for the passphrase first meant holding it
@@ -84,7 +85,20 @@ public class SettingsActivity extends AppCompatActivity {
                             passphrase -> readBackup(uri, passphrase));
                 });
 
+        checkBackupFile = registerForActivityResult(
+                new ActivityResultContracts.OpenDocument(),
+                uri -> {
+                    if (uri == null) {
+                        return;
+                    }
+                    PassphraseDialog.show(this, R.string.backup_check, false,
+                            R.string.backup_check_action,
+                            passphrase -> checkBackup(uri, passphrase), null);
+                });
+
         findViewById(R.id.exportBackup).setOnClickListener(v -> startExport());
+        findViewById(R.id.checkBackup).setOnClickListener(v ->
+                checkBackupFile.launch(new String[]{"*/*"}));
         findViewById(R.id.importBackup).setOnClickListener(v ->
                 openBackupFile.launch(new String[]{"*/*"}));
     }
@@ -323,6 +337,72 @@ public class SettingsActivity extends AppCompatActivity {
                 Arrays.fill(passphrase, '\0');
             }
         });
+    }
+
+    /** Reads a backup and reports what it holds. Changes nothing, so it is safe to run any time. */
+    private void checkBackup(Uri uri, char[] passphrase) {
+        toast(R.string.backup_working);
+        AppExecutors.io(() -> {
+            try {
+                BackupManager.CheckResult result =
+                        new BackupManager(this).check(readAll(uri), passphrase);
+                AppExecutors.main(() -> announceCheck(result));
+            } catch (BackupCodec.InvalidPassphraseException wrong) {
+                AppExecutors.main(() -> toast(R.string.backup_wrong_passphrase));
+            } catch (BackupManager.EmptyBackupException empty) {
+                AppExecutors.main(() -> showImportProblem(R.string.backup_empty));
+            } catch (BackupCodec.BackupFormatException notOurs) {
+                AppExecutors.main(() -> toast(R.string.backup_not_a_backup));
+            } catch (Exception e) {
+                Log.e(TAG, "backup check failed", e);
+                AppExecutors.main(() -> toast(R.string.backup_import_failed));
+            } finally {
+                Arrays.fill(passphrase, '\0');
+            }
+        });
+    }
+
+    private void announceCheck(BackupManager.CheckResult result) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        StringBuilder message = new StringBuilder();
+        // The verdict first, in the same words either way, so it cannot be skim-read as the
+        // opposite of what it says.
+        if (result.coversEverything()) {
+            message.append(getString(R.string.backup_check_covers, result.cardsOnPhone));
+        } else {
+            message.append(getString(R.string.backup_check_incomplete));
+        }
+
+        message.append("\n\n").append(getString(R.string.backup_check_contents,
+                result.cardsInFile, result.spendsInFile, result.cardsWithSecrets));
+        if (result.exportedAt != null && !result.exportedAt.isEmpty()) {
+            message.append('\n').append(getString(R.string.backup_check_taken, result.exportedAt));
+        }
+
+        if (!result.missingFromFile.isEmpty()) {
+            message.append("\n\n").append(getString(R.string.backup_check_missing,
+                    result.missingFromFile.size(),
+                    android.text.TextUtils.join(", ", result.missingFromFile)));
+        }
+        if (result.secretsMissingFromFile > 0) {
+            message.append("\n\n").append(getString(R.string.backup_check_secrets_missing,
+                    result.secretsMissingFromFile));
+        }
+        if (result.olderInFile > 0) {
+            message.append("\n\n").append(getString(R.string.backup_check_stale,
+                    result.olderInFile));
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(result.coversEverything()
+                        ? R.string.backup_check_ok_title
+                        : R.string.backup_check_bad_title)
+                .setMessage(message.toString())
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
     }
 
     private void applyBackup(BackupPayload payload) {

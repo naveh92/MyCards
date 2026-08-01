@@ -33,14 +33,24 @@ public final class PassphraseDialog {
         show(activity, titleRes, confirm, callback, null);
     }
 
+    public static void show(Activity activity, int titleRes, boolean confirm,
+                            OnPassphrase callback, OnCancel onCancel) {
+        show(activity, titleRes, confirm,
+                confirm ? R.string.backup_export_action : R.string.backup_import_action,
+                callback, onCancel);
+    }
+
     /**
      * @param confirm  true when exporting — a typo in a write-once passphrase would make the
      *                 backup permanently unreadable, so it is entered twice
-     * @param onCancel run when the dialog closes without a passphrase. An export has already
-     *                 created its file by this point and needs to hear about it, so that an
-     *                 empty one is not left behind looking like a backup.
+     * @param actionRes what the confirming button does. Named explicitly because the check
+     *                  reads a file and changes nothing, and a button labelled "Restore" on
+     *                  an action that restores nothing is its own small lie.
+     * @param onCancel  run when the dialog closes without a passphrase. An export has already
+     *                  created its file by this point and needs to hear about it, so that an
+     *                  empty one is not left behind looking like a backup.
      */
-    public static void show(Activity activity, int titleRes, boolean confirm,
+    public static void show(Activity activity, int titleRes, boolean confirm, int actionRes,
                             OnPassphrase callback, OnCancel onCancel) {
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_passphrase, null);
 
@@ -59,9 +69,7 @@ public final class PassphraseDialog {
                 .setTitle(titleRes)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(confirm
-                        ? R.string.backup_export_action
-                        : R.string.backup_import_action, null)
+                .setPositiveButton(actionRes, null)
                 .create();
 
         // Covers every way out of the dialog at once — Cancel, the back gesture, a tap

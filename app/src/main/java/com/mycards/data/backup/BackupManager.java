@@ -10,10 +10,13 @@ import com.mycards.data.db.CardEntity;
 import com.mycards.data.db.SpendEntity;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Builds and restores passphrase-encrypted backups.
@@ -102,6 +105,35 @@ public class BackupManager {
     public static class EmptyBackupException extends Exception {
         public EmptyBackupException(String message) {
             super(message);
+        }
+    }
+
+    /**
+     * What a backup file actually contains, measured against the wallet as it stands.
+     *
+     * <p>Answers the only question worth asking of a backup: <em>if this phone died right
+     * now, would this file bring everything back?</em> Parsing is not enough — a file can
+     * decrypt perfectly and still be missing half the wallet because it was taken before
+     * those cards existed.
+     */
+    public static class CheckResult {
+        public String exportedAt;
+        public int cardsInFile;
+        public int spendsInFile;
+        /** Cards in the file that carry a card number, CVV or gift link. */
+        public int cardsWithSecrets;
+
+        public int cardsOnPhone;
+        /** Labels of cards held on this phone that the file does not contain at all. */
+        public final List<String> missingFromFile = new ArrayList<>();
+        /** Cards present in both, but recorded in the file as they were before later edits. */
+        public int olderInFile;
+        /** Cards on this phone that carry secrets the file has no copy of. */
+        public int secretsMissingFromFile;
+
+        /** True when restoring this file onto an empty phone would bring the wallet back. */
+        public boolean coversEverything() {
+            return missingFromFile.isEmpty() && secretsMissingFromFile == 0;
         }
     }
 
@@ -283,6 +315,71 @@ public class BackupManager {
             throw new EmptyBackupException("the backup decrypted cleanly but holds nothing");
         }
         return payload;
+    }
+
+    /**
+     * Decrypts a backup and reports what it holds, touching nothing.
+     *
+     * <p>This exists because there was no honest way to test a backup. Restoring it onto the
+     * phone it came from is a no-op — every card is already newer — so it proves nothing,
+     * and restoring it anywhere else means having a spare phone. Reading the file and
+     * measuring it against the wallet answers the question without a second device and
+     * without changing a single row.
+     */
+    public CheckResult check(byte[] blob, char[] passphrase) throws Exception {
+        return compare(parse(blob, passphrase), db.cardDao().getAll());
+    }
+
+    static CheckResult compare(BackupPayload payload, List<CardEntity> onPhone) {
+        CheckResult result = new CheckResult();
+        result.exportedAt = payload.exportedAt;
+        result.cardsInFile = payload.cards.size();
+        result.spendsInFile = payload.spends == null ? 0 : payload.spends.size();
+        result.cardsOnPhone = onPhone.size();
+
+        Map<String, BackupPayload.Card> inFile = new HashMap<>();
+        for (BackupPayload.Card card : payload.cards) {
+            if (card.uuid != null) {
+                inFile.put(card.uuid, card);
+            }
+            if (card.pan != null || card.cvv != null
+                    || card.cardExpiry != null || card.giftUrl != null) {
+                result.cardsWithSecrets++;
+            }
+        }
+
+        for (CardEntity card : onPhone) {
+            BackupPayload.Card backed = inFile.get(card.uuid);
+            if (backed == null) {
+                String label = card.label == null || card.label.trim().isEmpty()
+                        ? card.cardTypeId : card.label.trim();
+                result.missingFromFile.add(label);
+                continue;
+            }
+            if (backed.updatedAt < card.updatedAt) {
+                result.olderInFile++;
+            }
+            // A card can be in the file and still be missing what makes it usable — this is
+            // what a partial export leaves behind, and it is invisible from a card count.
+            //
+            // Compared field by field rather than as "does the file hold any secret for this
+            // card". A partial export drops whatever the auth-bound key could no longer read
+            // while keeping the gift link, which lives under a different key and survives —
+            // so "has something" is true for exactly the cards that have lost the most.
+            if (missing(card.encPan, backed.pan)
+                    || missing(card.encCvv, backed.cvv)
+                    || missing(card.encCardExpiry, backed.cardExpiry)
+                    || missing(card.encGiftUrl, backed.giftUrl)) {
+                result.secretsMissingFromFile++;
+            }
+        }
+
+        return result;
+    }
+
+    /** True when the phone holds this value and the file does not. */
+    private static boolean missing(String onPhone, String inFile) {
+        return onPhone != null && inFile == null;
     }
 
     /** True when restoring this file has to write through the auth-bound key. */

@@ -83,8 +83,16 @@ public class CardEntity {
      */
     public boolean hasUnreconciledMismatch;
 
+    /**
+     * True when this card holds anything behind the auth-bound key.
+     *
+     * <p>All three fields count. The card expiry was missing from this test while every
+     * other part of the app treated it as a secret — saving it demands an unlock, revealing
+     * it decrypts it, and exporting it needs the key — so a card carrying only an expiry got
+     * no "Show card number" button at all and its own data became unreachable.
+     */
     public boolean hasSensitiveData() {
-        return encPan != null || encCvv != null;
+        return encPan != null || encCvv != null || encCardExpiry != null;
     }
 
     public boolean hasGiftUrl() {

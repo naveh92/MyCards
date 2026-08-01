@@ -157,6 +157,15 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/backup_export" />
 
+            <!-- Sits directly under Export, because it is the step that belongs with it:
+                 an export you have not checked is a file, not a backup. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/checkBackup"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/backup_check" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/importBackup"
                 style="@style/Widget.Material3.Button.TextButton"
