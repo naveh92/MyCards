@@ -152,6 +152,36 @@ public final class Formats {
     }
 
     /**
+     * Renders the timestamp a backup file records for itself.
+     *
+     * <p>It is stored as ISO-8601 because the file format has to be stable and machine
+     * readable. Shown to someone deciding whether a backup is recent enough to rely on,
+     * "2026-08-01T12:36:38Z" is a string to decode rather than a date to read — and in Hebrew
+     * it is a run of Latin characters and punctuation in the middle of a sentence.
+     *
+     * @return the date and time in the reader's own format, or the raw value when it cannot
+     *         be parsed — a file written by some other version still deserves to say when
+     */
+    public static String prettyTimestamp(Context context, String iso) {
+        if (iso == null || iso.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Date when = new SimpleDateFormat(BACKUP_TIMESTAMP, Locale.US).parse(iso.trim());
+            if (when == null) {
+                return iso;
+            }
+            return android.text.format.DateFormat.getDateFormat(context).format(when)
+                    + " " + android.text.format.DateFormat.getTimeFormat(context).format(when);
+        } catch (ParseException unparseable) {
+            return iso;
+        }
+    }
+
+    /** How {@code BackupPayload.exportedAt} is written; part of the file format. */
+    private static final String BACKUP_TIMESTAMP = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+
+    /**
      * Describes how old the store data is. Age matters more than the exact timestamp: what
      * the user needs to judge is whether to trust the list at the checkout counter.
      */

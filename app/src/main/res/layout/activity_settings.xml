@@ -112,13 +112,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:textAlignment="viewStart"
                 android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+            <!-- Holds a bare URL, which is pure left-to-right and so aligned itself to the
+                 left in Hebrew while every line around it sat right. -->
             <TextView
                 android:id="@+id/catalogNote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.MyCards.Meta" />
 
             <com.google.android.material.button.MaterialButton

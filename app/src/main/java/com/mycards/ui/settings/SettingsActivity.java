@@ -378,8 +378,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         message.append("\n\n").append(getString(R.string.backup_check_contents,
                 result.cardsInFile, result.spendsInFile, result.cardsWithSecrets));
-        if (result.exportedAt != null && !result.exportedAt.isEmpty()) {
-            message.append('\n').append(getString(R.string.backup_check_taken, result.exportedAt));
+        String taken = Formats.prettyTimestamp(this, result.exportedAt);
+        if (taken != null) {
+            message.append('\n').append(getString(R.string.backup_check_taken, taken));
         }
 
         if (!result.missingFromFile.isEmpty()) {

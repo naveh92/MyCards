@@ -25,6 +25,7 @@
             android:id="@+id/cardName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
             android:textAppearance="?attr/textAppearanceTitleLarge" />
 
         <TextView
@@ -38,6 +39,7 @@
             android:id="@+id/expectedValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <TextView
@@ -51,6 +53,7 @@
             android:id="@+id/actualValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
         <View
@@ -70,6 +73,7 @@
             android:id="@+id/differenceValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
             android:textAppearance="?attr/textAppearanceDisplaySmall"
             android:textColor="@color/expiry_warning" />
 
