@@ -450,6 +450,10 @@ public class SettingsActivity extends AppCompatActivity {
             message.append("\n\n").append(getString(R.string.backup_import_spends_dropped,
                     result.spendsDropped));
         }
+        if (result.cardsKeptLocalSecrets > 0) {
+            message.append("\n\n").append(getString(R.string.backup_import_kept_secrets,
+                    result.cardsKeptLocalSecrets));
+        }
 
         int title = R.string.backup_import_result_title;
         if (result.changedNothing()) {

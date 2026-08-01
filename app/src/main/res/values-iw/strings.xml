@@ -163,6 +163,7 @@
     <string name="backup_import_file_holds">הקובץ מכיל %1$d כרטיסים ו-%2$d רכישות.</string>
     <string name="backup_import_outcome">נוספו: %1$d\nעודכנו: %2$d\nכבר קיימים בטלפון: %3$d\nרכישות שנוספו: %4$d</string>
     <string name="backup_import_some_failed">%1$d כרטיסים בקובץ לא שוחזרו. כל השאר שוחזר.</string>
+    <string name="backup_import_kept_secrets">%1$d כרטיסים עודכנו מהקובץ, אך לא היה בו עותק של מספר הכרטיס, ה-CVV או קישור המתנה שלהם, ולכן נשמר מה שכבר היה בטלפון.</string>
     <string name="backup_import_spends_dropped">%1$d רכישות בקובץ לא שוחזרו, מכיוון שהכרטיסים שאליהם הן שייכות אינם בטלפון.</string>
     <string name="backup_import_needs_unlock">נדרש אימות כדי לשחזר מספרי כרטיסים. שום דבר לא שונה.</string>
     <string name="backup_empty">הגיבוי הזה אינו מכיל כרטיסים כלל. הוא נוצר אך מעולם לא מולא — אין להסתמך עליו.</string>

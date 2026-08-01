@@ -170,6 +170,7 @@
     <string name="backup_import_file_holds">The file holds %1$d cards and %2$d purchases.</string>
     <string name="backup_import_outcome">Added: %1$d\nUpdated: %2$d\nAlready on this phone: %3$d\nPurchases added: %4$d</string>
     <string name="backup_import_some_failed">%1$d cards in the file could not be restored. Everything else was.</string>
+    <string name="backup_import_kept_secrets">%1$d cards were updated from the file, but it had no copy of their card number, CVV or gift link, so what was already on this phone was kept.</string>
     <string name="backup_import_spends_dropped">%1$d purchases in the file were not restored, because the cards they belong to are not on this phone.</string>
     <string name="backup_import_needs_unlock">Unlocking is needed to restore card numbers. Nothing was changed.</string>
     <string name="backup_empty">This backup holds no cards at all. It was created but never filled in — do not rely on it.</string>

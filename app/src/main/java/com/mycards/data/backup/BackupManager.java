@@ -80,6 +80,8 @@ public class BackupManager {
         public int spendsAdded;
         /** Purchases dropped because the card they belong to is not here. */
         public int spendsDropped;
+        /** Updated cards whose stored card number the file had no copy of, so it was kept. */
+        public int cardsKeptLocalSecrets;
 
         /** True when the file was read and not one thing in it was applied. */
         public boolean changedNothing() {
@@ -396,22 +398,69 @@ public class BackupManager {
         return apply(open(blob, passphrase));
     }
 
+    /** What an import does with one card from the file. */
+    enum CardAction {
+        /** No usable identifier, so it cannot be matched or safely inserted. */
+        UNIDENTIFIED,
+        /** Not on this phone; it gets added. */
+        INSERT,
+        /** Here already and older than the file, so the file's version wins. */
+        UPDATE,
+        /** Here already and the same age or newer, so the phone keeps what it has. */
+        SKIP
+    }
+
+    /**
+     * Decides the fate of one card in the file.
+     *
+     * <p>Cards are matched on {@code uuid} — the identity assigned when the card was created,
+     * not its name — so restoring a file cannot collide two unrelated cards that happen to
+     * share a label, and adding the same physical gift card twice genuinely produces two.
+     *
+     * <p>Ties skip. That is what makes re-importing a file onto the phone it came from do
+     * nothing at all, since equal timestamps mean neither side is newer.
+     */
+    static CardAction planFor(BackupPayload.Card incoming, CardEntity existing) {
+        if (incoming.uuid == null || incoming.uuid.trim().isEmpty()) {
+            return CardAction.UNIDENTIFIED;
+        }
+        if (existing == null) {
+            return CardAction.INSERT;
+        }
+        return existing.updatedAt >= incoming.updatedAt ? CardAction.SKIP : CardAction.UPDATE;
+    }
+
+    /**
+     * True when the value already on this phone survives because the file has no copy of it.
+     *
+     * <p>The newer record wins every ordinary field, but "newer" must not mean a card number
+     * gets replaced by the absence of one. A partial export — taken while the Keystore could
+     * no longer read a card — carries that card's original timestamp, so it can be genuinely
+     * newer than a copy held elsewhere and still arrive empty-handed. Restoring it would then
+     * destroy the very thing the backup exists to protect.
+     */
+    static boolean keepsStored(String inFile, String stored) {
+        return inFile == null && stored != null;
+    }
+
     public ImportResult apply(BackupPayload payload) throws Exception {
         ImportResult result = new ImportResult();
         result.cardsInFile = payload.cards.size();
         result.spendsInFile = payload.spends == null ? 0 : payload.spends.size();
 
         for (BackupPayload.Card incoming : payload.cards) {
-            if (incoming.uuid == null || incoming.uuid.trim().isEmpty()) {
+            CardEntity existing = incoming.uuid == null || incoming.uuid.trim().isEmpty()
+                    ? null : db.cardDao().getByUuid(incoming.uuid);
+
+            CardAction action = planFor(incoming, existing);
+            if (action == CardAction.UNIDENTIFIED) {
                 // Counted, not silently stepped over: a card in the file that never reaches
                 // the wallet is exactly the kind of loss the user has to hear about.
                 Log.w(TAG, "a card in the backup has no identifier and cannot be restored");
                 result.cardsFailed++;
                 continue;
             }
-            CardEntity existing = db.cardDao().getByUuid(incoming.uuid);
-
-            if (existing != null && existing.updatedAt >= incoming.updatedAt) {
+            if (action == CardAction.SKIP) {
                 // What is already here is the same age or newer. Overwriting would throw
                 // away edits made on this device since the backup was taken.
                 result.cardsSkipped++;
@@ -433,13 +482,35 @@ public class BackupManager {
             // refuses is counted and stepped over: aborting here would abandon the restore
             // halfway through, leaving a wallet that is neither what was on the phone nor
             // what is in the file, and no way to tell which cards made it.
+            //
+            // A secret the file does not carry leaves the stored one alone. Overwriting it
+            // with nothing would be the merge destroying data rather than combining it, and
+            // partial exports make that a live risk: a backup taken while the Keystore could
+            // no longer read a card keeps that card's original updatedAt, so it can be
+            // genuinely newer than a copy held elsewhere and still arrive with the card
+            // number missing. Everything else about the newer record still wins.
             try {
-                target.encPan = incoming.pan == null ? null : vault.encryptSecret(incoming.pan);
-                target.encCvv = incoming.cvv == null ? null : vault.encryptSecret(incoming.cvv);
-                target.encCardExpiry = incoming.cardExpiry == null
-                        ? null : vault.encryptSecret(incoming.cardExpiry);
-                target.encGiftUrl = incoming.giftUrl == null
-                        ? null : vault.encryptData(incoming.giftUrl);
+                boolean kept = keepsStored(incoming.pan, target.encPan)
+                        | keepsStored(incoming.cvv, target.encCvv)
+                        | keepsStored(incoming.cardExpiry, target.encCardExpiry)
+                        | keepsStored(incoming.giftUrl, target.encGiftUrl);
+
+                if (incoming.pan != null) {
+                    target.encPan = vault.encryptSecret(incoming.pan);
+                }
+                if (incoming.cvv != null) {
+                    target.encCvv = vault.encryptSecret(incoming.cvv);
+                }
+                if (incoming.cardExpiry != null) {
+                    target.encCardExpiry = vault.encryptSecret(incoming.cardExpiry);
+                }
+                if (incoming.giftUrl != null) {
+                    target.encGiftUrl = vault.encryptData(incoming.giftUrl);
+                }
+                if (kept) {
+                    // A card assembled from two sources is not something to discover later.
+                    result.cardsKeptLocalSecrets++;
+                }
             } catch (Exception e) {
                 Log.w(TAG, "could not store the secrets for card " + incoming.uuid, e);
                 result.cardsFailed++;
