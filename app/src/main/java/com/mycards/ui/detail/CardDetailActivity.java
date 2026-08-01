@@ -321,11 +321,49 @@ public class CardDetailActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the issuer's gift page, behind the same unlock as the card number.
+     *
+     * <p>The link is spendable. An issuer's gift page needs no login — that is the whole
+     * reason the balance checker can use it — so it shows the voucher code and balance to
+     * anyone who opens it, and anyone who opens it can spend the card. That is exactly the
+     * consequence the card number is protected against, yet this was a single tap for anyone
+     * holding the phone while the card number sat behind biometrics and auto-hid after a
+     * minute. Two actions with the same consequence should not have different protection.
+     *
+     * <p>The link stays encrypted under the non-auth key, because {@code BalanceCheckWorker}
+     * reads it from the background where no prompt can be shown. The gate belongs on the act
+     * of opening it, not on the storage.
+     */
     private void openGiftLink() {
         if (giftUrl == null) {
             Toast.makeText(this, R.string.gift_link_unusable, Toast.LENGTH_SHORT).show();
             return;
         }
+        // No secure lock screen means there is nothing for a prompt to verify, exactly as
+        // when revealing the card number.
+        if (!cardsRepo.vault().isBiometricProtectionAvailable()) {
+            launchGiftLink();
+            return;
+        }
+        BiometricGate.authenticate(this,
+                getString(R.string.biometric_title),
+                getString(R.string.biometric_gift_link),
+                new BiometricGate.Callback() {
+                    @Override
+                    public void onSuccess() {
+                        launchGiftLink();
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        Toast.makeText(CardDetailActivity.this,
+                                R.string.biometric_failed, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void launchGiftLink() {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(giftUrl)));
         } catch (android.content.ActivityNotFoundException noBrowser) {

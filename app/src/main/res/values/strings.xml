@@ -38,6 +38,7 @@
     <!-- Biometric -->
     <string name="biometric_title">Confirm it\'s you</string>
     <string name="biometric_subtitle">Unlock to reveal the card number</string>
+    <string name="biometric_gift_link">Unlock to open the gift card. Anyone with this link can spend it.</string>
     <string name="biometric_failed">Could not verify — the number stays hidden</string>
     <string name="no_secure_lock_warning">This phone has no screen lock, so card numbers cannot be protected by biometrics. Set a screen lock to enable it.</string>
 

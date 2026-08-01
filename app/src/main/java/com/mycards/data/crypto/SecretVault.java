@@ -37,10 +37,19 @@ public final class SecretVault {
 
     private static final String KEYSTORE = "AndroidKeyStore";
 
-    /** Auth-bound: guards card numbers, CVVs and gift links. */
+    /** Auth-bound: guards card numbers, CVVs and card expiry dates. */
     private static final String KEY_SECRET = "mycards_secret_v1";
 
-    /** Not auth-bound: guards cached data that is merely private, not sensitive. */
+    /**
+     * Not auth-bound: cached data, and the gift link.
+     *
+     * <p>The gift link is as spendable as a card number and would otherwise belong under the
+     * auth-bound key. It cannot go there: {@code BalanceCheckWorker} reads it from the
+     * background, where no unlock prompt can be shown, so an auth-bound gift link would
+     * disable the balance check entirely. The protection is applied where the link is
+     * <em>used</em> instead — opening it from the card screen goes through the same unlock as
+     * revealing the card number.
+     */
     private static final String KEY_DATA = "mycards_data_v1";
 
     private static final int GCM_TAG_BITS = 128;

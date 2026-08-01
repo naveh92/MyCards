@@ -38,6 +38,7 @@
     <!-- Biometric -->
     <string name="biometric_title">אימות זהות</string>
     <string name="biometric_subtitle">אימות כדי להציג את מספר הכרטיס</string>
+    <string name="biometric_gift_link">אימות כדי לפתוח את כרטיס המתנה. כל מי שיש לו את הקישור יכול לממש אותו.</string>
     <string name="biometric_failed">האימות נכשל — המספר נשאר מוסתר</string>
     <string name="no_secure_lock_warning">אין נעילת מסך במכשיר, ולכן לא ניתן להגן על מספרי הכרטיסים באמצעות ביומטריה. הגדירו נעילת מסך כדי להפעיל זאת.</string>
 
