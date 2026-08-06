@@ -132,6 +132,8 @@ jobs:
             --exclude 'privacy.html' \
             --exclude 'index.html' \
             --exclude 'CNAME' \
+            --exclude '.nojekyll' \
+            --exclude 'README.md' \
             .work/publish/ docs/
 
       - name: Commit only if a store list actually changed
