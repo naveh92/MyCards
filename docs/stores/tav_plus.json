@@ -1,0 +1,33 @@
+{
+  "cardTypeId": "tav_plus",
+  "source": "published_lists_partial",
+  "partial": true,
+  "schema": "n=name, a=aliases, o=online redeemable",
+  "_provenance": [
+    "PARTIAL LIST, and not from the issuer.",
+    "",
+    "תו פלוס is Carrefour's voucher, inherited from Yeinot Bitan when Carrefour took over",
+    "the chain. No machine-readable merchant list is published, so this was compiled on",
+    "2026-08-01 from poenta.co.il's comparison of the three Israeli supermarket vouchers,",
+    "which names headline chains rather than the whole network.",
+    "",
+    "A fraction of the real list, and flagged partial so the UI says so and never tells",
+    "anyone their card is refused.",
+    "",
+    "The leisure entries are what set this voucher apart: theatre, cinema and shows rather",
+    "than only retail."
+  ],
+  "stores": [
+    {"n":"קרפור","a":["Carrefour","קרפור סיטי","קרפור היפר"],"o":false},
+    {"n":"יינות ביתן","a":["Yeinot Bitan","יינות ביתן סניפים"],"o":false},
+    {"n":"מגה בעיר","a":["Mega BaIr","מגה"],"o":false},
+    {"n":"שוק מהדרין","a":["Shuk Mehadrin"],"o":false},
+    {"n":"FOX","a":["פוקס"],"o":false},
+    {"n":"GOLF","a":["גולף"],"o":false},
+    {"n":"MANGO","a":["מנגו"],"o":false},
+    {"n":"מחסני חשמל","a":["Machsanei Chashmal","מחסני חשמל סניפים"],"o":false},
+    {"n":"הקאמרי","a":["HaCameri","תיאטרון הקאמרי","הצגות"],"o":false},
+    {"n":"הוט סינמה","a":["Hot Cinema","סרטים","קולנוע"],"o":false},
+    {"n":"מג'יק קאס","a":["Magic Kass","מג'יק קס","קולנוע"],"o":false}
+  ]
+}

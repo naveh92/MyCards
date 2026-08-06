@@ -103,7 +103,8 @@ jobs:
           # they are copied through instead of regenerated. Anything omitted here is deleted
           # from the site by the rsync below — the size guard would abort the run first, but
           # that just swaps silent data loss for a broken weekly job.
-          for list in love_gift_card max_gift max_super_gift; do
+          for list in love_gift_card max_gift max_super_gift \
+                      tav_hazahav hatav_hamale tav_plus; do
             cp "app/src/main/assets/stores/$list.json" .work/publish/stores/ || true
           done
 

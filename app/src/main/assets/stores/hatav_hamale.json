@@ -1,0 +1,36 @@
+{
+  "cardTypeId": "hatav_hamale",
+  "source": "published_lists_partial",
+  "partial": true,
+  "schema": "n=name, a=aliases, o=online redeemable",
+  "_provenance": [
+    "PARTIAL LIST, and not from the issuer.",
+    "",
+    "התו המלא is Rami Levi's voucher. No machine-readable merchant list is published, so",
+    "this was compiled on 2026-08-01 from poenta.co.il's comparison of the three Israeli",
+    "supermarket vouchers, which names the chains it calls the headline ones rather than",
+    "the whole network.",
+    "",
+    "It is therefore a fraction of the real list and is flagged partial, so the UI says the",
+    "list is incomplete and never tells anyone their card is refused. Expect the shared",
+    "fashion chains — FOX, CASTRO, GOLF and the rest — to be joined by many more that are",
+    "simply not named in any source the app can reach.",
+    "",
+    "ישראייר is the one that makes this voucher distinctive: it is the only one of the",
+    "three that redeems against flights."
+  ],
+  "stores": [
+    {"n":"רמי לוי","a":["Rami Levi","רמי לוי שיווק השקמה","רמי לוי סניפים"],"o":false},
+    {"n":"קופיקס","a":["Cofix"],"o":false},
+    {"n":"גוד פארם","a":["Good Pharm","גודפארם"],"o":false},
+    {"n":"המשביר לצרכן","a":["Hamashbir","המשביר"],"o":false},
+    {"n":"FOX","a":["פוקס"],"o":false},
+    {"n":"CASTRO","a":["קסטרו"],"o":false},
+    {"n":"GOLF","a":["גולף"],"o":false},
+    {"n":"דובל'ה","a":["Doubla","דובלה"],"o":false},
+    {"n":"מגה ספורט","a":["Mega Sport","מגה-ספורט"],"o":false},
+    {"n":"ALDO","a":["אלדו"],"o":false},
+    {"n":"Gali","a":["גלי"],"o":false},
+    {"n":"ישראייר","a":["Israir","טיסות","חופשות"],"o":true}
+  ]
+}

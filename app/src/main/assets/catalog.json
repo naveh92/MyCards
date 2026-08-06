@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "catalogVersion": 3,
+  "catalogVersion": 4,
   "updatedAt": "2026-07-29T14:00:00Z",
 
   "_readme": [
@@ -340,6 +340,45 @@
       "storeSources": [
         { "type": "static_list", "url": "{base}/stores/max_super_gift.json" },
         { "type": "bundled_asset", "asset": "stores/max_super_gift.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "tav_hazahav",
+      "names": { "en": "Tav HaZahav", "he": "תו הזהב" },
+      "aliases": ["tav hazahav", "tav zahav", "gold voucher", "תו זהב", "התו הזהב", "שופרסל תו"],
+      "issuer": "Shufersal",
+      "partialList": true,
+      "_note": "Issued by Shufersal but accepted at 90+ chains, not only Shufersal. No issuer list is published any more — the old partners page 301s to the shop homepage — so this is compiled from published third-party lists and is partial.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/tav_hazahav.json" },
+        { "type": "bundled_asset", "asset": "stores/tav_hazahav.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "hatav_hamale",
+      "names": { "en": "HaTav HaMale", "he": "התו המלא" },
+      "aliases": ["hatav hamale", "tav male", "התו מלא", "תו מלא", "רמי לוי תו"],
+      "issuer": "Rami Levi",
+      "partialList": true,
+      "_note": "Rami Levi's voucher. Only the headline chains are named in any reachable source, so the list is a fraction of the real network.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/hatav_hamale.json" },
+        { "type": "bundled_asset", "asset": "stores/hatav_hamale.json" }
+      ],
+      "balanceSources": []
+    },
+    {
+      "id": "tav_plus",
+      "names": { "en": "Tav Plus", "he": "תו פלוס" },
+      "aliases": ["tav plus", "tavplus", "תו+", "קרפור תו", "יינות ביתן תו"],
+      "issuer": "Carrefour",
+      "partialList": true,
+      "_note": "Carrefour's voucher, inherited from Yeinot Bitan. Only the headline chains are named in any reachable source, so the list is a fraction of the real network.",
+      "storeSources": [
+        { "type": "static_list", "url": "{base}/stores/tav_plus.json" },
+        { "type": "bundled_asset", "asset": "stores/tav_plus.json" }
       ],
       "balanceSources": []
     }

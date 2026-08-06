@@ -1,9 +1,9 @@
 {
   "manifestVersion": 1,
-  "generatedAt": "2026-08-03T06:38:47Z",
+  "generatedAt": "2026-08-06T16:14:46Z",
   "catalog": {
-    "sha256": "46400fdae08e7d9598c65605770ba26cee2612f1d20588bb861d577bfcb44b8c",
-    "bytes": 15340
+    "sha256": "2883c3bd4354ca894f7dbdd9567abcb37aa40fc54022581d6c61df30043168cc",
+    "bytes": 17321
   },
   "stores": {
     "all_in_zone": { "sha256": "d4298ea52008276ad3b12c066df0532e6d2d217fde6de7e1f27eca9522492d95", "bytes": 71120, "count": 748 },
@@ -30,10 +30,13 @@
     "buyme_yng": { "sha256": "7db3b337cf9d369a92051e7d56814ca20a32748417661196e9e3b36a45f3d5d0", "bytes": 161598, "count": 406 },
     "chefzone": { "sha256": "e308de86d01d78095e91041d2864999d639c9afaab2fa3235b068b02c1618327", "bytes": 6252, "count": 79 },
     "giftzone": { "sha256": "ade2559ee2a23d54f348b58f0313619469542bce97f4fe71ce028122a9075af8", "bytes": 67081, "count": 738 },
-    "love_gift_card": { "sha256": "a3d4c91a3cdcf262b38cafd09b7c11abe3c54b4171dee3eb9b382075095b1b2a", "bytes": 1265, "count": 8 },
+    "hatav_hamale": { "sha256": "10764ee4c0ee85e6e530d0992bb87e9a4a4f04a5e57fc62a5e83f931cd4d88ce", "bytes": 1816, "count": 12 },
+    "love_gift_card": { "sha256": "08d4377b4c8fffb006078946537b3681ce6774a9a9a1860cb2a9c96c559b0e0a", "bytes": 1289, "count": 8 },
     "max_gift": { "sha256": "fd2ee86cb52270c2376f47e792ac84a8922877dc5c52feafafb2bf7c9025fbd4", "bytes": 6621, "count": 84 },
     "max_super_gift": { "sha256": "fd279e2de66ae86f5597c3480b989c61ff3b760d737bb42298edb88ca60cd936", "bytes": 1816, "count": 9 },
     "spazone": { "sha256": "4b26acb887d5b8cc87900cfd65800a8faa87439b84d6cf9c8b8a7f0df223828a", "bytes": 1738, "count": 22 },
-    "superzone": { "sha256": "fc91ab52ac60e675ff7e98cef7a7b0bcacb13ad675a54b74a905d777a6c82ca4", "bytes": 65793, "count": 753 }
+    "superzone": { "sha256": "fc91ab52ac60e675ff7e98cef7a7b0bcacb13ad675a54b74a905d777a6c82ca4", "bytes": 65793, "count": 753 },
+    "tav_hazahav": { "sha256": "377f91e210ab78629cc81879fddba795ee9be867e11680bb0b484b7580e06090", "bytes": 8734, "count": 113 },
+    "tav_plus": { "sha256": "9b81750b3918b2e58ea79524f1e086b0614dbf0808c348b0bd81b7606ae40dba", "bytes": 1686, "count": 11 }
   }
 }
