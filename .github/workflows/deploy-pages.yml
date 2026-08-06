@@ -1,0 +1,65 @@
+# Publishes docs/ to GitHub Pages.
+#
+# Replaces the implicit "pages build and deployment" that GitHub runs for a branch-based
+# site. That builder rebuilds the whole site on every push to main regardless of what
+# changed, runs it through Jekyll, and offers no way to see or influence any of it — which
+# is how a 2.6 MB folder of static JSON ended up taking sixteen minutes and failing on an
+# action it could not download.
+#
+# This runs only when the published files actually change, uploads the directory as-is with
+# no site build, and finishes in well under a minute.
+name: Deploy the data site
+
+on:
+  push:
+    branches: [main]
+    # The whole point: a code-only commit does not redeploy the site, and a catalog edit
+    # does. Nothing else on main can trigger this.
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-pages.yml'
+  # So a deploy can be retried from the Actions tab without an empty commit, which is what
+  # you want when the failure was GitHub's rather than ours.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Queue rather than cancel. The published catalog is data phones depend on, and dropping a
+# deploy because a later one arrived is how a version bump silently fails to reach anyone.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Cheap, and it fails the deploy instead of publishing a catalog no phone can parse.
+      # Every install fetches this file, so a malformed one breaks all of them at once.
+      - name: Check the published JSON parses
+        run: |
+          for f in docs/catalog.json docs/manifest.json docs/stores/*.json; do
+            python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$f" \
+              || { echo "::error file=$f::not valid JSON"; exit 1; }
+          done
+          echo "$(ls docs/stores/*.json | wc -l) store lists and the catalog all parse"
+
+      - name: Report what is being published
+        run: |
+          echo "catalogVersion: $(grep -o '\"catalogVersion\": *[0-9]*' docs/catalog.json)"
+          echo "card types:     $(grep -c '\"id\"' docs/catalog.json)"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4
