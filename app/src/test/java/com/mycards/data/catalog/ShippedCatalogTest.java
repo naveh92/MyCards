@@ -166,6 +166,34 @@ public class ShippedCatalogTest {
         assertTrue(matches(indexFor("tav_plus"), "יינות ביתן"));
     }
 
+    /**
+     * The Hebrew name has to find the card even when the phone is running in English.
+     *
+     * <p>Worth pinning rather than assuming. The index is built with one display name, chosen
+     * by the phone's language, and it would be an easy and invisible mistake to index only
+     * that one — at which point someone with an English phone could no longer find a card
+     * whose name they only know in Hebrew. What saves it is that properNames() contributes
+     * the card's name in every language it has one.
+     */
+    @Test
+    public void theHebrewNameFindsTheCardOnAnEnglishPhone() throws Exception {
+        CardTypeDef def = catalog().findById("tav_hazahav");
+        CardTypeIndex englishPhone = new CardTypeIndex("tav_hazahav",
+                def.displayName("en"), def.properNames(), def.aliasesOrEmpty(),
+                stores("stores/tav_hazahav.json"), 0L, "test", def.partialList);
+
+        assertEquals("Tav HaZahav", englishPhone.getDisplayName());
+        assertFalse("typing תו הזהב must find it regardless of the phone's language",
+                new SearchEngine().search("תו הזהב", Collections.singletonList(englishPhone))
+                        .isEmpty());
+        assertFalse("without the leading ה too",
+                new SearchEngine().search("תו זהב", Collections.singletonList(englishPhone))
+                        .isEmpty());
+        assertFalse("and a partial word, since results update as you type",
+                new SearchEngine().search("הזהב", Collections.singletonList(englishPhone))
+                        .isEmpty());
+    }
+
     /** Typing the card's own name has to find it, not just the shops inside it. */
     @Test
     public void theVouchersAreFoundByCardNameIncludingWrongKeyboardLayout() throws Exception {
