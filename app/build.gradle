@@ -37,8 +37,8 @@ android {
         // Play burns a version code permanently on first upload, across every track and
         // even for a draft that is never published, so a rejected or replaced bundle still
         // consumes one. Increment this for every upload; it can never be reused or lowered.
-        versionCode 8
-        versionName "1.1.2"
+        versionCode 9
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
