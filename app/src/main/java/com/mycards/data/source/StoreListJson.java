@@ -85,26 +85,52 @@ public final class StoreListJson {
     }
 
     /**
+     * Receives each merchant as it is read, before anything decides what to keep of it.
+     *
+     * <p>Exists because the two callers want different things from the same bytes. Search
+     * wants a {@link Store}, which normalizes the aliases and discards the originals — the
+     * right trade when a wallet holds several card types at once and the strings would be
+     * retained for as long as the app is open. The store-list screen wants the aliases as
+     * written, so it can tell someone that "Zara" is on the list under "זארה".
+     *
+     * <p>The alias list handed over is freshly built for each merchant and belongs to
+     * the visitor: keeping it is safe, and copying it is waste.
+     */
+    public interface StoreVisitor {
+        void onStore(String name, List<String> aliases, boolean onlineRedeem);
+    }
+
+    /**
      * Parses the compact snapshot format used by bundled assets and hosted static lists:
      * {@code {"stores":[{"n":"Zara","a":["זארה"],"o":true}]}}.
      */
     public static List<Store> parseCompactList(InputStream in) throws IOException {
         List<Store> stores = new ArrayList<>();
+        readCompactList(in, (name, aliases, online) -> stores.add(new Store(name, aliases, online)));
+        return stores;
+    }
+
+    /**
+     * Streams the compact snapshot format, handing every merchant to {@code visitor}.
+     *
+     * <p>Nothing is accumulated here, so a caller keeping only part of each entry never
+     * pays for the rest.
+     */
+    public static void readCompactList(InputStream in, StoreVisitor visitor) throws IOException {
         try (JsonReader r = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             r.beginObject();
             while (r.hasNext()) {
                 if ("stores".equals(r.nextName())) {
-                    readCompactArray(r, stores);
+                    readCompactArray(r, visitor);
                 } else {
                     r.skipValue();
                 }
             }
             r.endObject();
         }
-        return stores;
     }
 
-    private static void readCompactArray(JsonReader r, List<Store> out) throws IOException {
+    private static void readCompactArray(JsonReader r, StoreVisitor visitor) throws IOException {
         r.beginArray();
         while (r.hasNext()) {
             String name = null;
@@ -141,7 +167,7 @@ public final class StoreListJson {
             r.endObject();
 
             if (name != null && !name.trim().isEmpty()) {
-                out.add(new Store(name.trim(), aliases, online));
+                visitor.onStore(name.trim(), aliases, online);
             }
         }
         r.endArray();

@@ -35,6 +35,7 @@ import com.mycards.ui.EdgeToEdge;
 import com.mycards.ui.Formats;
 import com.mycards.ui.edit.AddEditCardActivity;
 import com.mycards.ui.reconcile.ReconcileActivity;
+import com.mycards.ui.stores.StoreListActivity;
 
 import java.util.Locale;
 
@@ -160,10 +161,8 @@ public class CardDetailActivity extends AppCompatActivity {
                     Formats.expiryToDisplay(card.expiryDate)));
         }
 
-        // Provenance matters, but not while standing at a checkout counter — it lives behind a tap on
-        // the card name rather than taking up a permanent line.
         storeCache = cache;
-        findViewById(R.id.cardTitle).setOnClickListener(v -> showStoreListDialog());
+        renderStoreListRow();
 
         MaterialCardView mismatch = findViewById(R.id.mismatchCard);
         mismatch.setVisibility(card.hasUnreconciledMismatch ? View.VISIBLE : View.GONE);
@@ -374,31 +373,48 @@ public class CardDetailActivity extends AppCompatActivity {
 
     // --- spending ---
 
-    /** Where this card's merchant list came from and how old it is. */
-    private void showStoreListDialog() {
-        String message;
-        if (storeCache == null || storeCache.storeCount == 0) {
-            message = getString(R.string.store_list_unavailable_explain);
-        } else {
-            StringBuilder sb = new StringBuilder()
-                    .append(getString(R.string.card_count_stores, storeCache.storeCount))
-                    .append('\n')
-                    .append(Formats.updatedAgo(this, storeCache.fetchedAt));
-            if (storeCache.sourceType != null) {
-                sb.append('\n')
-                        .append(getString(R.string.store_list_source, storeCache.sourceType));
-            }
-            if (cardType != null && cardType.partialList) {
-                sb.append("\n\n").append(getString(R.string.store_list_partial));
-            }
-            message = sb.toString();
+    /**
+     * Draws the way in to "where does this card work?".
+     *
+     * <p>This used to be a tap on the card's name, with no hint that it was one — reference
+     * information hidden behind an affordance nobody could see. Given a row of its own it
+     * states the number of shops outright, which is both the label that makes the row
+     * obviously tappable and, on its own, the most useful thing the screen can say about
+     * what a card is worth.
+     *
+     * <p>When there is no list at all the row stays put but stops being a door: it explains
+     * why instead. A tappable row leading to an empty screen is worse than a plain sentence.
+     */
+    private void renderStoreListRow() {
+        MaterialCardView card = findViewById(R.id.storeListCard);
+        TextView title = findViewById(R.id.storeListTitle);
+        TextView meta = findViewById(R.id.storeListMeta);
+        View chevron = findViewById(R.id.storeListChevron);
+
+        boolean haveList = storeCache != null && storeCache.storeCount > 0;
+        if (!haveList) {
+            title.setText(R.string.store_list_unavailable);
+            meta.setText(R.string.store_list_unavailable_explain);
+            chevron.setVisibility(View.GONE);
+            card.setClickable(false);
+            card.setFocusable(false);
+            card.setOnClickListener(null);
+            return;
         }
 
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.store_list_title)
-                .setMessage(message)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+        title.setText(getResources().getQuantityString(
+                R.plurals.store_accepted_at, storeCache.storeCount, storeCache.storeCount));
+        meta.setText(Formats.updatedAgo(this, storeCache.fetchedAt));
+        chevron.setVisibility(View.VISIBLE);
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setOnClickListener(v -> openStoreList());
+    }
+
+    private void openStoreList() {
+        Intent intent = new Intent(this, StoreListActivity.class);
+        intent.putExtra(StoreListActivity.EXTRA_CARD_ID, cardId);
+        startActivity(intent);
     }
 
     private void showAddSpendDialog() {

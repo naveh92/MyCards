@@ -20,7 +20,6 @@
     <string name="no_expiry">ללא תאריך תפוגה</string>
     <string name="expired">פג תוקף</string>
     <string name="expires_soon">פג תוקף בעוד %1$d ימים</string>
-    <string name="card_count_stores">%1$d חנויות</string>
 
     <!-- Card detail -->
     <string name="card_details">פרטי הכרטיס</string>
@@ -84,7 +83,7 @@
     <!-- Store list provenance -->
     <string name="store_list_title">רשימת החנויות</string>
     <string name="store_list_updated">רשימת החנויות עודכנה %1$s</string>
-    <string name="store_list_never_updated">רשימת החנויות מעולם לא עודכנה</string>
+    <string name="store_list_shipped">רשימת החנויות כלולה באפליקציה</string>
     <string name="store_list_unavailable">אין עדיין רשימת חנויות לכרטיס זה</string>
     <string name="store_list_unavailable_explain">לא נמצא מקור ציבורי למנפיק הזה, והמצאת רשימה הייתה גרועה מהצגת כלום. עדיין אפשר לעקוב אחרי היתרה והתוקף.</string>
     <string name="store_list_source">מקור: %1$s</string>
@@ -93,6 +92,27 @@
     <string name="updated_days_ago">לפני %1$d ימים</string>
     <string name="store_list_stale">ייתכן שהרשימה אינה מעודכנת — כדאי לוודא בקופה</string>
     <string name="store_list_partial">הרשימה חלקית. המנפיק מפרסם את בתי העסק כתמונות בלבד, ולכן ניתן היה לקרוא רק את הרשתות המופיעות בתנאי הכרטיס. כל מה שברשימה מתקבל; ייתכן שגם חנות שאינה מופיעה בה.</string>
+
+    <!-- Store list screen: the inverse lookup, "where does this card work?" -->
+    <plurals name="store_accepted_at">
+        <item quantity="one">מתקבל בחנות אחת</item>
+        <item quantity="two">מתקבל בשתי חנויות</item>
+        <item quantity="other">מתקבל ב-%1$,d חנויות</item>
+    </plurals>
+    <plurals name="store_count">
+        <item quantity="one">חנות אחת</item>
+        <item quantity="two">שתי חנויות</item>
+        <item quantity="other">%1$,d חנויות</item>
+    </plurals>
+    <string name="store_search_hint">חיפוש בין החנויות…</string>
+    <string name="store_count_filtered">מוצגות %1$,d מתוך %2$,d</string>
+    <string name="store_online_only">אונליין בלבד</string>
+    <string name="store_also_called">מופיעה גם כ\"%1$s\"</string>
+    <string name="store_no_match">שום דבר בכרטיס הזה לא תואם ל\"%1$s\"</string>
+    <string name="store_no_match_partial">שום דבר בכרטיס הזה לא תואם ל\"%1$s\" — אבל רשימת החנויות של הכרטיס חלקית, כך שייתכן שהוא בכל זאת יתקבל. שווה לשאול בקופה.</string>
+    <string name="store_no_online">אף חנות בכרטיס הזה אינה זמינה לרכישה אונליין</string>
+    <string name="store_search_all_cards">חיפוש \"%1$s\" בכל הכרטיסים</string>
+    <string name="store_about_list">על הרשימה הזו</string>
 
     <!-- Reconciliation -->
     <string name="unlogged_transaction_title">זוהתה עסקה שלא נרשמה</string>

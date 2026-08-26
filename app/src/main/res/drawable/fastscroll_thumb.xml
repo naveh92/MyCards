@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The scrollbar thumb.
+
+    It has to be a StateListDrawable rather than a bare shape: RecyclerView's fast scroller
+    casts the thumb to one in its constructor, so a plain <shape> here takes the whole screen
+    down with a ClassCastException before a single row is drawn.
+
+    The pressed state is not decoration either. RecyclerView draws the thumb only a few dp
+    tall on a list this long, so the colour change is most of what tells you that you caught
+    it rather than the list behind it.
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <size
+                android:width="8dp"
+                android:height="52dp" />
+            <solid android:color="@color/fastscroll_thumb_active" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="4dp" />
+            <size
+                android:width="8dp"
+                android:height="52dp" />
+            <solid android:color="@color/fastscroll_thumb" />
+        </shape>
+    </item>
+</selector>

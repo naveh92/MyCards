@@ -133,4 +133,99 @@ public class SearchEngineTest {
         // The cap is display-only; the true count stays available for "+17 more".
         assertEquals(20, engine.countMatchingStores("store", big));
     }
+
+    // --- the reverse lookup: which shops does one card work in? ---
+
+    private static List<Store> oneCardsStores() {
+        // Deliberately not in alphabetical order, so a test that expects ordering is
+        // testing the sort rather than the fixture.
+        return Arrays.asList(
+                new Store("Zara", Arrays.asList("זארה"), false),
+                new Store("adidas", Arrays.asList("אדידס", "ריבוק"), true),
+                new Store("Pizza Hut", Arrays.asList("פיצה האט"), false),
+                new Store("Aroma", Arrays.asList("ארומה", "בתי קפה"), false));
+    }
+
+    @Test
+    public void matchingStoresReturnsEverythingForAnEmptyQuery() {
+        // The screen opens with no query, and it has to show the whole list rather than
+        // nothing at all.
+        assertEquals(4, engine.matchingStores("", oneCardsStores()).size());
+        assertEquals(4, engine.matchingStores("   ", oneCardsStores()).size());
+    }
+
+    @Test
+    public void matchingStoresRanksWholeNamesAboveFragments() {
+        // "za" is the whole of nothing, the start of "Zara" and buried inside "Pizza Hut".
+        List<Store> hits = engine.matchingStores("za", oneCardsStores());
+        assertEquals(2, hits.size());
+        assertEquals("Zara", hits.get(0).getName());
+        assertEquals("Pizza Hut", hits.get(1).getName());
+    }
+
+    @Test
+    public void matchingStoresKeepsTheGivenOrderWithinOneRelevanceBand() {
+        // The screen sorts once, alphabetically, and relies on this to hold that ordering
+        // inside each band. Both of these match only as a substring.
+        List<Store> alphabetical = Arrays.asList(
+                new Store("Aroma", Collections.<String>emptyList(), false),
+                new Store("Zaroma", Collections.<String>emptyList(), false));
+        List<Store> hits = engine.matchingStores("rom", alphabetical);
+        assertEquals(2, hits.size());
+        assertEquals("Aroma", hits.get(0).getName());
+        assertEquals("Zaroma", hits.get(1).getName());
+    }
+
+    @Test
+    public void matchingStoresFindsAShopThroughItsAlias() {
+        List<Store> hits = engine.matchingStores("ריבוק", oneCardsStores());
+        assertEquals(1, hits.size());
+        assertEquals("adidas", hits.get(0).getName());
+    }
+
+    @Test
+    public void matchingStoresSurvivesTheWrongKeyboardLayout() {
+        // The same forgiveness the wallet search gives. "tshsx" is "אדידס" typed with the
+        // layout in the wrong language, and it has to find adidas here too.
+        List<Store> hits = engine.matchingStores("tshsx", oneCardsStores());
+        assertEquals(1, hits.size());
+        assertEquals("adidas", hits.get(0).getName());
+    }
+
+    @Test
+    public void matchingStoresReturnsNothingRatherThanEverythingWhenNothingMatches() {
+        // The empty-query shortcut must not swallow a real query that simply misses.
+        assertTrue(engine.matchingStores("nosuchshop", oneCardsStores()).isEmpty());
+        assertTrue(engine.matchingStores("za", Collections.<Store>emptyList()).isEmpty());
+    }
+
+    @Test
+    public void matchingStoresPutsANameHitAboveAnAliasHit() {
+        // "cafe" is the whole of one shop's search terms and only part of another's name.
+        // The higher raw score belongs to the search term, but the shop actually called
+        // Cafe Mayer is the one a person scanning the list expects to see first.
+        List<Store> stores = Arrays.asList(
+                new Store("סילו תרבות", Arrays.asList("cafe"), false),
+                new Store("CAFE MAYER", Collections.<String>emptyList(), false));
+
+        List<Store> hits = engine.matchingStores("cafe", stores);
+        assertEquals(2, hits.size());
+        assertEquals("CAFE MAYER", hits.get(0).getName());
+        assertEquals("סילו תרבות", hits.get(1).getName());
+    }
+
+    @Test
+    public void matchingStoresStillRanksNameHitsAmongThemselves() {
+        // Within the shops named for the query, the ordinary tiers still apply.
+        List<Store> stores = Arrays.asList(
+                new Store("Coffee Cafe Bar", Collections.<String>emptyList(), false),
+                new Store("Cafe Mayer", Collections.<String>emptyList(), false),
+                new Store("Tagged Only", Arrays.asList("cafe"), false));
+
+        List<Store> hits = engine.matchingStores("cafe", stores);
+        assertEquals(3, hits.size());
+        assertEquals("Cafe Mayer", hits.get(0).getName());
+        assertEquals("Coffee Cafe Bar", hits.get(1).getName());
+        assertEquals("Tagged Only", hits.get(2).getName());
+    }
 }

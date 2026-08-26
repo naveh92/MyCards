@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    No background and no click listener: this is a reference list, and a ripple would promise
+    somewhere to go. A long press copies the name, which is the one thing worth taking away.
+
+    textAlignment="viewStart" is set per label rather than on the container — TextView
+    resolves alignment from its own text direction unless told otherwise, which is what would
+    otherwise strand a Latin shop name on the left of an RTL screen.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/storeName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            tools:text="Zara" />
+
+        <!-- Only present when the name does not itself show why the row is here. -->
+        <TextView
+            android:id="@+id/storeAlias"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            android:visibility="gone"
+            tools:text="Also listed as zara" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/storeOnlineBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@drawable/bg_badge"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="@string/online_badge"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:textColor="@color/online_badge"
+        android:visibility="gone" />
+</LinearLayout>

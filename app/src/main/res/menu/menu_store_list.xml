@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- Provenance: where the list came from and how old it is. Reference material about the
+         reference material, so it belongs in the overflow rather than on the bar. -->
+    <item
+        android:id="@+id/action_about_list"
+        android:title="@string/store_about_list"
+        app:showAsAction="never" />
+</menu>

@@ -33,15 +33,10 @@
                 android:padding="16dp"
                 android:paddingBottom="96dp">
 
-                <!-- Tapping the name opens the store-list details, which are reference
-                     information rather than something needed at a checkout counter. -->
                 <TextView
                     android:id="@+id/cardTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:textAlignment="viewStart"
                     android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
@@ -104,6 +99,62 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/reconcile_add" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- The doorway to the merchant list. It used to be a tap on the card name
+                     above, which nobody discovers; a row of its own makes the affordance
+                     plain, and stating the count puts a fact worth knowing on the screen
+                     instead of leaving it buried in a dialog. -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/storeListCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:baselineAligned="false"
+                        android:gravity="center_vertical"
+                        android:minHeight="56dp"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/storeListTitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+                            <TextView
+                                android:id="@+id/storeListMeta"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.MyCards.Meta" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/storeListChevron"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="8dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_chevron_end" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

@@ -32,6 +32,18 @@
             android:name=".ui.detail.CardDetailActivity"
             android:parentActivityName=".ui.search.SearchActivity" />
 
+        <!--
+            The reverse lookup: every shop one card is accepted in.
+
+            stateHidden because this screen is opened to read, not to type. The search field
+            is right there, but raising the keyboard on arrival would cover half the list
+            someone just asked to see.
+        -->
+        <activity
+            android:name=".ui.stores.StoreListActivity"
+            android:parentActivityName=".ui.detail.CardDetailActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
         <activity
             android:name=".ui.edit.AddEditCardActivity"
             android:parentActivityName=".ui.search.SearchActivity" />

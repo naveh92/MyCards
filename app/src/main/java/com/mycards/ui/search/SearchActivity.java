@@ -42,6 +42,15 @@ import com.mycards.ui.settings.SettingsActivity;
  */
 public class SearchActivity extends AppCompatActivity {
 
+    /**
+     * A query handed over by another screen.
+     *
+     * <p>Sent by the store list when a card turns out not to cover the shop someone was
+     * looking for: the next question is always "then which of my cards does?", and this is
+     * what carries it here instead of making them type it twice.
+     */
+    public static final String EXTRA_QUERY = "query";
+
     /** Long enough to avoid re-querying mid-word, short enough to feel instant. */
     private static final long SEARCH_DEBOUNCE_MS = 120L;
 
@@ -106,6 +115,41 @@ public class SearchActivity extends AppCompatActivity {
             }
         });
 
+        applyIncomingQuery(getIntent());
+    }
+
+    /**
+     * Adopts a query passed in by another screen.
+     *
+     * <p>Removed from the intent once used. It is a one-time handover, and leaving it in
+     * place would have a rotation — or a return from the card screen — silently retype it
+     * over whatever has been searched for since.
+     *
+     * <p>The view model is told directly as well as through the field. The text watcher gets
+     * there eventually, but only after the debounce, and {@code onResume} rebuilds the list
+     * in between — from the query the model still thinks is current.
+     */
+    private void applyIncomingQuery(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+        String query = intent.getStringExtra(EXTRA_QUERY);
+        if (query == null || query.trim().isEmpty()) {
+            return;
+        }
+        intent.removeExtra(EXTRA_QUERY);
+        searchInput.setText(query);
+        searchInput.setSelection(query.length());
+        viewModel.search(query);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        // This activity is singleTop and the handover clears back to it, so it arrives here
+        // rather than as a second wallet stacked on top of the first.
+        setIntent(intent);
+        applyIncomingQuery(intent);
     }
 
     private void scheduleSearch(String query) {
