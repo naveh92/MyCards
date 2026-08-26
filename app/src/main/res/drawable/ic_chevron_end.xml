@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- autoMirrored so it points the way the screen reads: right in English, left in Hebrew.
+     A chevron stuck pointing right on an RTL screen points back the way you came. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:autoMirrored="true"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M9.4,6 L15.4,12 L9.4,18 L8,16.6 L12.6,12 L8,7.4 Z" />
+</vector>

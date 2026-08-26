@@ -187,7 +187,11 @@ public final class Formats {
      */
     public static String updatedAgo(Context context, long fetchedAt) {
         if (fetchedAt <= 0L) {
-            return context.getString(R.string.store_list_never_updated);
+            // Zero is not "we have never managed to fetch this" — it is the marker
+            // seedCacheIfEmpty writes for a list that shipped inside the APK. Reporting a
+            // failure for data that arrived with the app reads as a warning about a list
+            // that is in fact exactly as published on the day of release.
+            return context.getString(R.string.store_list_shipped);
         }
         long days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - fetchedAt);
         String when;

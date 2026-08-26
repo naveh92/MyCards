@@ -162,7 +162,8 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
             // the other cards on the same screen named the branch.
             if (row.matchedByCardProperName) {
                 return row.hasStoreList()
-                        ? ctx.getString(R.string.card_count_stores, row.storeCount)
+                        ? ctx.getResources().getQuantityString(
+                                R.plurals.store_count, row.storeCount, row.storeCount)
                         : ctx.getString(R.string.matched_card_name);
             }
             if (!row.matchedStores.isEmpty()) {
@@ -185,7 +186,8 @@ public class CardRowAdapter extends ListAdapter<CardRow, CardRowAdapter.VH> {
             // query matched something about the card but no merchant. Coverage is the more
             // useful thing to say when there is a list to count.
             if (row.hasStoreList()) {
-                return ctx.getString(R.string.card_count_stores, row.storeCount);
+                return ctx.getResources().getQuantityString(
+                        R.plurals.store_count, row.storeCount, row.storeCount);
             }
             if (row.matchedByCardName) {
                 return ctx.getString(R.string.matched_card_name);

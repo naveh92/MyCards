@@ -20,5 +20,11 @@
     <color name="expiry_expired">#B3261E</color>
     <color name="online_badge">#2E7D5B</color>
 
+    <!-- The store list scrollbar. Tinted rather than grey so it reads as part of the app,
+         and translucent so a thousand-row list is not divided by a bar down its side. -->
+    <color name="fastscroll_thumb">#661B5E9C</color>
+    <color name="fastscroll_thumb_active">#1B5E9C</color>
+    <color name="fastscroll_track">#0D000000</color>
+
     <color name="ic_launcher_background">#1B5E9C</color>
 </resources>

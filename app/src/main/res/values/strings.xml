@@ -20,7 +20,6 @@
     <string name="no_expiry">No expiry</string>
     <string name="expired">Expired</string>
     <string name="expires_soon">Expires in %1$d days</string>
-    <string name="card_count_stores">%1$d stores</string>
 
     <!-- Card detail -->
     <string name="card_details">Card details</string>
@@ -84,7 +83,7 @@
     <!-- Store list provenance -->
     <string name="store_list_title">Store list</string>
     <string name="store_list_updated">Store list updated %1$s</string>
-    <string name="store_list_never_updated">Store list has never been updated</string>
+    <string name="store_list_shipped">Store list shipped with the app</string>
     <string name="store_list_unavailable">No store list available for this card yet</string>
     <string name="store_list_unavailable_explain">No public source for this issuer was found, and inventing one would be worse than showing nothing. You can still track the balance and expiry.</string>
     <string name="store_list_source">Source: %1$s</string>
@@ -93,6 +92,25 @@
     <string name="updated_days_ago">%1$d days ago</string>
     <string name="store_list_stale">This list may be out of date — check at the checkout counter</string>
     <string name="store_list_partial">This list is incomplete. The issuer publishes its shops only as pictures, so the app could read just the chains named in the card\'s written terms. Everything listed is accepted; a shop that is missing may be too.</string>
+
+    <!-- Store list screen: the inverse lookup, "where does this card work?" -->
+    <plurals name="store_accepted_at">
+        <item quantity="one">Accepted at %1$d store</item>
+        <item quantity="other">Accepted at %1$,d stores</item>
+    </plurals>
+    <plurals name="store_count">
+        <item quantity="one">%1$d store</item>
+        <item quantity="other">%1$,d stores</item>
+    </plurals>
+    <string name="store_search_hint">Search these stores…</string>
+    <string name="store_count_filtered">Showing %1$,d of %2$,d</string>
+    <string name="store_online_only">Online only</string>
+    <string name="store_also_called">Also listed as \"%1$s\"</string>
+    <string name="store_no_match">Nothing on this card matches \"%1$s\"</string>
+    <string name="store_no_match_partial">Nothing on this card matches \"%1$s\" — but this card\'s list is incomplete, so it may still be accepted. Worth asking at the checkout counter.</string>
+    <string name="store_no_online">None of this card\'s shops can be used online</string>
+    <string name="store_search_all_cards">Search all your cards for \"%1$s\"</string>
+    <string name="store_about_list">About this list</string>
 
     <!-- Reconciliation -->
     <string name="unlogged_transaction_title">Detected an unlogged transaction</string>

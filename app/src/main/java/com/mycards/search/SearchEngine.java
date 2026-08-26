@@ -164,6 +164,105 @@ public final class SearchEngine {
         return count;
     }
 
+
+    /**
+     * Every merchant on one card that matches the query, best match first.
+     *
+     * <p>The inverse of {@link #search}: that one asks "which of my cards works in this
+     * shop?", this one asks "which shops does this card work in?". Both run the same
+     * scoring, so a wrong-keyboard-layout query finds the same merchant either way.
+     *
+     * <p>Ties are left in the order they arrived, so a caller that hands over an
+     * alphabetically sorted list gets alphabetical order back within each relevance band.
+     *
+     * @return matching merchants; the list unchanged when the query has nothing to match on
+     */
+    public List<Store> matchingStores(String rawQuery, List<Store> stores) {
+        if (stores == null || stores.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> variants = queryVariants(rawQuery);
+        if (variants.isEmpty()) {
+            return new ArrayList<>(stores);
+        }
+
+        List<NamedHit> hits = new ArrayList<>();
+        for (Store store : stores) {
+            int best = MatchScore.NONE;
+            for (String variant : variants) {
+                best = Math.max(best, store.score(variant));
+            }
+            if (best == MatchScore.NONE) {
+                continue;
+            }
+            int nameScore = scoreName(store.getName(), variants);
+            hits.add(new NamedHit(store, nameScore > MatchScore.NONE ? nameScore : best,
+                    nameScore > MatchScore.NONE));
+        }
+
+        // A hit on the shop's own name comes before a hit on one of its search terms, the
+        // same distinction CardTypeIndex draws between a card's name and its aliases.
+        // Searching "cafe" otherwise puts three restaurants tagged with the word above the
+        // one actually called Cafe Mayer — every row correct, and the list still wrong.
+        //
+        // Stable, so equal ranks keep the caller's ordering rather than being reshuffled.
+        Collections.sort(hits, new Comparator<NamedHit>() {
+            @Override
+            public int compare(NamedHit a, NamedHit b) {
+                if (a.byName != b.byName) {
+                    return a.byName ? -1 : 1;
+                }
+                return Integer.compare(b.rank, a.rank);
+            }
+        });
+
+        List<Store> out = new ArrayList<>(hits.size());
+        for (NamedHit hit : hits) {
+            out.add(hit.store);
+        }
+        return out;
+    }
+
+    /**
+     * Scores a merchant's name on its own, ignoring everything it is also findable by.
+     *
+     * <p>{@link Store#score} cannot answer this: it scans the name and the aliases together
+     * and reports the best of them, which is the right answer for "does this match?" and the
+     * wrong one for "is the name why?".
+     */
+    private static int scoreName(String name, List<String> variants) {
+        String hay = SearchNormalizer.normalize(name);
+        int best = MatchScore.NONE;
+        for (String variant : variants) {
+            if (!SearchNormalizer.containsNormalized(hay, variant)) {
+                continue;
+            }
+            int score;
+            if (hay.equals(variant)) {
+                score = MatchScore.EXACT;
+            } else if (hay.startsWith(variant)) {
+                score = MatchScore.PREFIX;
+            } else {
+                score = MatchScore.SUBSTRING;
+            }
+            best = Math.max(best, score);
+        }
+        return best;
+    }
+
+    /** A matching merchant, and whether its own name is the reason. */
+    private static final class NamedHit {
+        final Store store;
+        final int rank;
+        final boolean byName;
+
+        NamedHit(Store store, int rank, boolean byName) {
+            this.store = store;
+            this.rank = rank;
+            this.byName = byName;
+        }
+    }
     private static final class ScoredStore {
         final Store store;
         final int score;

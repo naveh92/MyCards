@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The mirror of the search screen, and built from the same parts on purpose: toolbar,
+    field, list. Someone who has used one has already learned this one.
+
+    The root takes focus in touch mode so the field does not. Android hands initial focus to
+    the first focusable view, which would otherwise put a blinking cursor in the search box
+    on a screen people open in order to read.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/toolbar_background"
+        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/store_list_title"
+        app:titleTextColor="@color/toolbar_on_background" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchLayout"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="12dp"
+        app:endIconMode="clear_text"
+        app:startIconDrawable="@android:drawable/ic_menu_search">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/store_search_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Filter on one side, count on the other. The count is the feedback that turns
+         "did my typing register?" into "7 of 1,276". -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="10dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/onlineChip"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/store_online_only"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/resultCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:textAlignment="viewEnd"
+            android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            tools:text="1,276 stores" />
+    </LinearLayout>
+
+    <!-- Said out loud, not tucked into the overflow menu: a reader who does not know the
+         list has gaps will take a missing shop for a refusal. -->
+    <TextView
+        android:id="@+id/partialNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/store_list_partial"
+        android:textAlignment="viewStart"
+        android:textAppearance="@style/TextAppearance.MyCards.Meta"
+        android:textColor="@color/expiry_warning"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1">
+
+        <!--
+            The scrollbar is a position indicator, not a handle, and that is RecyclerView's
+            decision rather than a choice made here: FastScroller sizes the thumb as
+            visible² / content with no floor, and hit-tests touches against that same height.
+            At 1,276 rows it works out at about 6dp — far too small to aim at, and there is
+            no attribute that raises it. It still earns its place by showing how far down a
+            very long list you are; the field above is what actually gets you somewhere.
+        -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/storeList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="24dp"
+            app:fastScrollEnabled="true"
+            app:fastScrollHorizontalThumbDrawable="@drawable/fastscroll_thumb"
+            app:fastScrollHorizontalTrackDrawable="@drawable/fastscroll_track"
+            app:fastScrollVerticalThumbDrawable="@drawable/fastscroll_thumb"
+            app:fastScrollVerticalTrackDrawable="@drawable/fastscroll_track" />
+
+        <LinearLayout
+            android:id="@+id/emptyBlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="40dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/emptyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                tools:text="Nothing on this card matches &quot;zara&quot;" />
+
+            <!-- The way out of a dead end. This card cannot help, so offer the wallet. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/searchAllCards"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                tools:text="Search all your cards for &quot;zara&quot;" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>
