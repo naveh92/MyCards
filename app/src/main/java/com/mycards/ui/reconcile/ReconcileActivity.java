@@ -13,6 +13,7 @@ import com.mycards.data.catalog.model.Catalog;
 import com.mycards.data.catalog.model.CardTypeDef;
 import com.mycards.data.db.CardEntity;
 import com.mycards.data.db.SpendEntity;
+import com.mycards.search.StoreNameIndex;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.Formats;
 import com.mycards.ui.detail.AddSpendDialog;
@@ -34,6 +35,7 @@ public class ReconcileActivity extends AppCompatActivity {
     private long cardId;
     private CardEntity card;
     private double difference;
+    private StoreNameIndex storeSuggestions = StoreNameIndex.empty();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,8 @@ public class ReconcileActivity extends AppCompatActivity {
             double actual = card.lastFetchedBalance == null ? expected : card.lastFetchedBalance;
             difference = Math.max(0d, expected - actual);
 
-            Catalog catalog = new CatalogRepository(this).loadCatalog();
+            CatalogRepository catalogRepo = new CatalogRepository(this);
+            Catalog catalog = catalogRepo.loadCatalog();
             CardTypeDef def = catalog.findById(card.cardTypeId);
             String lang = Locale.getDefault().getLanguage();
             String tag = ("he".equals(lang) || "iw".equals(lang)) ? "he" : "en";
@@ -72,7 +75,13 @@ public class ReconcileActivity extends AppCompatActivity {
                     ? card.label
                     : (def != null ? def.displayName(tag) : card.cardTypeId);
 
+            // Read here, on the thread that is already doing the reading, so the shop
+            // names are ready by the time the purchase dialog opens.
+            StoreNameIndex names = StoreNameIndex.of(
+                    catalogRepo.loadStoreNames(card.cardTypeId));
+
             AppExecutors.main(() -> {
+                storeSuggestions = names;
                 ((TextView) findViewById(R.id.cardName)).setText(name);
                 ((TextView) findViewById(R.id.expectedValue))
                         .setText(Formats.money(expected, card.currency));
@@ -86,7 +95,8 @@ public class ReconcileActivity extends AppCompatActivity {
 
     private void addMissingSpend() {
         // The gap can never exceed what the log says is left, so the balance is the cap.
-        AddSpendDialog.show(this, card.currency, cardsRepo.remainingBalance(cardId), null, difference,
+        AddSpendDialog.show(this, card.currency, cardsRepo.remainingBalance(cardId),
+                null, difference, storeSuggestions,
                 (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
                     // Recorded as RECONCILIATION so the log stays honest about which entries
                     // were observed and which were inferred from a balance gap.

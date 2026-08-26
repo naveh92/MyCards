@@ -29,6 +29,7 @@ import com.mycards.data.catalog.model.CardTypeDef;
 import com.mycards.data.crypto.SecretVault;
 import com.mycards.data.db.CardEntity;
 import com.mycards.data.db.StoreCacheEntity;
+import com.mycards.search.StoreNameIndex;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.BiometricGate;
 import com.mycards.ui.EdgeToEdge;
@@ -58,6 +59,16 @@ public class CardDetailActivity extends AppCompatActivity {
 
     private SpendAdapter spendAdapter;
     private StoreCacheEntity storeCache;
+
+    /**
+     * Shops this card is accepted in, for suggesting one while logging a purchase.
+     *
+     * <p>Built once and kept, because the load runs on every resume and
+     * re-parsing half a megabyte of merchant list to reach the same names would be
+     * paid for on the way back from every screen. Null until the first load finishes;
+     * a dialog opened before then simply offers nothing.
+     */
+    private StoreNameIndex storeSuggestions;
     private double remainingBalance;
     /** Decrypted and scheme-corrected gift link; null when nothing usable is stored. */
     private String giftUrl;
@@ -122,7 +133,16 @@ public class CardDetailActivity extends AppCompatActivity {
             java.util.List<com.mycards.data.db.SpendEntity> spends =
                     cardsRepo.spends().getForCard(cardId);
 
-            AppExecutors.main(() -> render(remaining, cache, spends));
+            // Already on the IO thread and already holding the card type, so this is the
+            // cheapest place to have the shop names ready before anyone asks for them.
+            StoreNameIndex names = storeSuggestions != null
+                    ? storeSuggestions
+                    : StoreNameIndex.of(catalogRepo.loadStoreNames(card.cardTypeId));
+
+            AppExecutors.main(() -> {
+                storeSuggestions = names;
+                render(remaining, cache, spends);
+            });
         });
     }
 
@@ -423,6 +443,7 @@ public class CardDetailActivity extends AppCompatActivity {
         // zero so a card already in the red — from entries made before this check existed —
         // reports "0 left" rather than a nonsensical negative remainder.
         AddSpendDialog.show(this, card.currency, Math.max(0d, remainingBalance),
+                suggestions(),
                 (title, amount, storeName, spentAt) ->
                 AppExecutors.io(() -> {
                     cardsRepo.addSpend(cardId, title, amount, storeName, spentAt,
@@ -436,7 +457,7 @@ public class CardDetailActivity extends AppCompatActivity {
         // balance it would actually leave rather than a total it is already part of.
         double available = Math.max(0d, remainingBalance + spend.amount);
 
-        AddSpendDialog.showEdit(this, card.currency, available, spend,
+        AddSpendDialog.showEdit(this, card.currency, available, spend, suggestions(),
                 (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
                     spend.title = title;
                     spend.amount = amount;
@@ -445,6 +466,11 @@ public class CardDetailActivity extends AppCompatActivity {
                     cardsRepo.spends().update(spend);
                     AppExecutors.main(this::load);
                 }));
+    }
+
+    /** Never null, so a dialog opened before the first load simply offers nothing. */
+    private StoreNameIndex suggestions() {
+        return storeSuggestions == null ? StoreNameIndex.empty() : storeSuggestions;
     }
 
     private void confirmDeleteCard() {

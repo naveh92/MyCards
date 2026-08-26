@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A suggested shop name. Inflated rather than constructed, which is the only way a Chip
+    picks up a Material style.
+
+    Not focusable on purpose: tapping one must not pull focus out of the field being typed
+    into, or the keyboard closes and the caret moves at the exact moment someone is still
+    mid-thought. Capped in width so one long merchant name cannot push the others off.
+-->
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.Material3.Chip.Suggestion"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:ellipsize="end"
+    android:focusable="false"
+    android:maxLines="1"
+    android:maxWidth="200dp"
+    android:textAlignment="viewStart" />
