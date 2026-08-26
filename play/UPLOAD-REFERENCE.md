@@ -4,7 +4,8 @@ Every technical value the Console asks for, read off the built artifact rather t
 from memory. Listing prose (descriptions, form answers, review risks) is in
 [STORE-LISTING.md](STORE-LISTING.md).
 
-Generated against the build of 29 July 2026.
+Generated against the build of 27 August 2026 — version **1.2 (9)**, built from `main`
+at `cd9eaed` with `./gradlew clean test bundleRelease`.
 
 ---
 
@@ -33,8 +34,8 @@ Three things catch first-time publishers, in rough order of how much time they c
 | **Package name / Application ID** | `io.github.naveh92.mycards` |
 | Java package / `namespace` | `com.mycards` — a compile-time concern, deliberately left alone |
 | Launcher activity | `com.mycards.ui.search.SearchActivity` |
-| Version code | `1` |
-| Version name | `1.0` |
+| **Version code** | `9` |
+| Version name | `1.2` |
 | Min SDK | 26 — Android 8.0 Oreo |
 | Target SDK | 36 — Android 16 |
 | Compile SDK | 36 |
@@ -48,9 +49,9 @@ Three things catch first-time publishers, in rough order of how much time they c
 
 | What | Path | Size |
 |---|---|---|
-| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,534,613 bytes |
-| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2.1 MB |
-| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 16 MB |
+| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,592,079 bytes |
+| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,164,839 bytes |
+| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 16,494,689 bytes |
 
 The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
 every rebuild even with identical sources, and a recorded hash would be stale immediately.
@@ -152,6 +153,11 @@ WorkManager.
 Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. These are
 composited onto a 16:9 canvas by `tools/ShotFramer.java`; nothing is cropped.
 
+**The five screenshots predate 1.2.** They are correctly sized and still show the app
+honestly, but none of them shows the store list — the screen this version added, and the
+one most worth showing after search itself. Play allows eight; two more captures framed
+by `tools/ShotFramer.java` would cover it. Nothing blocks the upload either way.
+
 Minimum 2 phone screenshots, maximum 8. Upload them in the numbered order — Play shows the
 first few most prominently, and `01-search` is the one that explains the app.
 
@@ -191,7 +197,7 @@ filename, the certificate's `OU`/`O` fields, the `com.mycards` Java namespace an
   useless elsewhere; a narrow launch also keeps the first reviews relevant.
 - **Rollout:** 100% — with no server and no backend to overload, a staged rollout buys
   nothing at this scale.
-- **Release name:** `1.0 (1)`.
+- **Release name:** `1.2 (9)`.
 - **Release notes:** first release.
 
 For every subsequent upload, `versionCode` must increase. Play rejects a bundle whose
