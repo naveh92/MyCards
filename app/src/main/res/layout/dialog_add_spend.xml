@@ -55,6 +55,28 @@
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!--
+        Shops this card is accepted in, offered once there is enough typed to narrow them
+        down. It sits under the field rather than over it: a dropdown would cover the amount
+        and the date, and the whole point is that this can be ignored. Gone entirely when
+        there is nothing to suggest, so an unrecognised shop costs no space at all.
+    -->
+    <HorizontalScrollView
+        android:id="@+id/storeSuggestionRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:scrollbars="none"
+        android:visibility="gone">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/storeSuggestions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="6dp"
+            app:singleLine="true" />
+    </HorizontalScrollView>
+
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"

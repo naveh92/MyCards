@@ -181,6 +181,31 @@ public class CatalogRepository {
         return indexes;
     }
 
+    /**
+     * Just the merchant names for one card type, in the order the list holds them.
+     *
+     * <p>A fraction of the memory of a full index, and all that suggesting a shop while
+     * logging a purchase needs — the aliases would only widen what matches, and what the
+     * cache holds for those is normalized text rather than anything a person wrote.
+     *
+     * @return the names, or an empty list when this type has no cached list
+     */
+    public List<String> loadStoreNames(String cardTypeId) {
+        StoreCacheEntity cache = db.storeCacheDao().getByCardType(cardTypeId);
+        if (cache == null || cache.storesJson == null) {
+            return Collections.emptyList();
+        }
+        List<String> names = new ArrayList<>();
+        try (InputStream in = new ByteArrayInputStream(
+                cache.storesJson.getBytes(StandardCharsets.UTF_8))) {
+            StoreListJson.readCompactList(in, (name, aliases, online) -> names.add(name));
+        } catch (Exception e) {
+            // Suggestions are a convenience; a damaged cache costs them, not the purchase.
+            Log.w(TAG, "could not read store names for " + cardTypeId, e);
+        }
+        return names;
+    }
+
     // --- refreshing ---
 
     /**
