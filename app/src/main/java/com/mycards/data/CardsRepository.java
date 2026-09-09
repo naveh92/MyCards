@@ -1,7 +1,9 @@
 package com.mycards.data;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.mycards.cards.GiftLink;
 import com.mycards.data.crypto.SecretVault;
 import com.mycards.data.db.AppDatabase;
 import com.mycards.data.db.CardDao;
@@ -9,6 +11,7 @@ import com.mycards.data.db.CardEntity;
 import com.mycards.data.db.SpendDao;
 import com.mycards.data.db.SpendEntity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +24,8 @@ import java.util.Map;
  * deriving it means the log and the balance can never disagree.
  */
 public class CardsRepository {
+
+    private static final String TAG = "CardsRepository";
 
     private final CardDao cardDao;
     private final SpendDao spendDao;
@@ -35,6 +40,47 @@ public class CardsRepository {
 
     public SecretVault vault() {
         return vault;
+    }
+
+    /**
+     * The cards already holding this gift link, so a duplicate can be spotted before it is
+     * saved.
+     *
+     * @param exceptId the card being edited, excluded so it does not report itself; 0 when
+     *                 adding a new one
+     * @return the matching cards, newest id last; empty when the link is new or absent
+     */
+    public List<CardEntity> cardsSharingGiftLink(String giftUrl, long exceptId) {
+        String fingerprint = GiftLink.fingerprint(giftUrl);
+        if (fingerprint == null) {
+            // No link is not a match with every other card that also has no link.
+            return Collections.emptyList();
+        }
+        return cardDao.findByGiftFingerprint(fingerprint, exceptId);
+    }
+
+    /**
+     * Fills in fingerprints for cards added before the column existed.
+     *
+     * <p>The migration could not do this: the value is a hash of the decrypted link, and a
+     * migration has no vault. Here there is one — and gift links are held under the non-auth
+     * key precisely so they can be read with nobody present, which is what makes an
+     * unattended pass possible at all.
+     *
+     * <p>A card whose link will not decrypt is skipped rather than retried for ever. It
+     * keeps a null fingerprint, which costs only the duplicate warning for that one card.
+     */
+    public void backfillGiftFingerprints() {
+        for (CardEntity card : cardDao.getCardsMissingGiftFingerprint()) {
+            try {
+                String fingerprint = GiftLink.fingerprint(vault.decryptData(card.encGiftUrl));
+                if (fingerprint != null) {
+                    cardDao.setGiftFingerprint(card.id, fingerprint);
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "could not fingerprint the gift link for card " + card.id, e);
+            }
+        }
     }
 
     public CardDao cards() {

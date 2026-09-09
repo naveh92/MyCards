@@ -30,6 +30,26 @@ public interface CardDao {
     @Query("SELECT * FROM cards WHERE id = :id")
     CardEntity getById(long id);
 
+    /**
+     * Cards already holding this gift link.
+     *
+     * <p>A list rather than a single row: duplicates are warned about, not blocked, so the
+     * wallet can legitimately end up with more than one. Excludes the card being edited, or
+     * saving an unchanged card would report it as its own duplicate. Pass 0 when adding.
+     */
+    @Query("SELECT * FROM cards WHERE giftUrlFingerprint = :fingerprint AND id != :exceptId")
+    List<CardEntity> findByGiftFingerprint(String fingerprint, long exceptId);
+
+    /**
+     * Cards that have a link but no fingerprint for it yet — everything added before the
+     * column existed. Filled in by CardsRepository#backfillGiftFingerprints.
+     */
+    @Query("SELECT * FROM cards WHERE enc_gift_url IS NOT NULL AND giftUrlFingerprint IS NULL")
+    List<CardEntity> getCardsMissingGiftFingerprint();
+
+    @Query("UPDATE cards SET giftUrlFingerprint = :fingerprint WHERE id = :cardId")
+    void setGiftFingerprint(long cardId, String fingerprint);
+
     /** Lookup by the stable cross-device identity, used when merging a backup. */
     @Query("SELECT * FROM cards WHERE uuid = :uuid LIMIT 1")
     CardEntity getByUuid(String uuid);

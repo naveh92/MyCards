@@ -95,6 +95,15 @@
     <string name="card_expiry">Card expiry</string>
     <string name="gift_link">Gift card link</string>
     <string name="open_gift_link">Open gift card</string>
+
+    <!-- Asked after the user has been to the issuer page and come back. The app never reads
+         that page itself; see CardDetailActivity#askIssuerBalance. -->
+    <string name="issuer_balance_title">What does the issuer say?</string>
+    <string name="issuer_balance_explain">Read the balance on the page you just opened and type it here. Nothing is sent anywhere — the app only compares it with your log.</string>
+    <string name="issuer_balance_label">Balance on the issuer’s page</string>
+    <string name="issuer_balance_confirm">Record</string>
+    <string name="issuer_balance_matches">That matches your log.</string>
+    <string name="issuer_balance_more">The issuer says %1$s, which is more than your log expects. Nothing was changed.</string>
     <string name="copied_to_clipboard">Copied</string>
     <string name="auto_hidden">Hidden again for safety</string>
     <string name="no_sensitive_data">No card number saved for this card</string>
@@ -144,6 +153,12 @@
 
     <!-- Add / edit card -->
     <string name="add_card">Add card</string>
+
+    <!-- Shown when the gift link being saved is already on another card. A warning, not a
+         refusal: the check is a good answer rather than a certain one. -->
+    <string name="duplicate_link_title">You already have this link</string>
+    <string name="duplicate_link_message">The same gift link is already saved on “%1$s”. Adding it again will show one card as two.</string>
+    <string name="duplicate_link_add_anyway">Add anyway</string>
     <string name="edit_card">Edit card</string>
     <string name="card_type">Card type</string>
     <string name="card_label">Card Name (optional)</string>

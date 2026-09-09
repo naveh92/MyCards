@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(
         entities = {CardEntity.class, SpendEntity.class, StoreCacheEntity.class},
-        version = 2,
+        version = 3,
         exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -39,8 +39,31 @@ public abstract class AppDatabase extends RoomDatabase {
     };
 
     /** Every migration this build knows, in order. Shared with the migration test. */
+    /**
+     * Adds {@link CardEntity#giftUrlFingerprint} and its index, so a gift link already in the
+     * wallet can be recognised before it is added a second time.
+     *
+     * <p>Nullable with no default, and left null for every existing row: the value is a hash
+     * of the <em>decrypted</em> link, and a migration has no vault to decrypt with. The rows
+     * are filled in afterwards by {@code CardsRepository#backfillGiftFingerprints}, which
+     * runs where the vault is available.
+     *
+     * <p>The index name is the one Room generates for {@code @Index("giftUrlFingerprint")}.
+     * It has to match exactly, or the schema validation Room runs on open fails and the app
+     * will not start.
+     */
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE cards ADD COLUMN giftUrlFingerprint TEXT");
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_cards_giftUrlFingerprint "
+                    + "ON cards (giftUrlFingerprint)");
+        }
+    };
+
+    /** Every migration this build knows, in order. Shared with the migration test. */
     public static Migration[] migrations() {
-        return new Migration[]{MIGRATION_1_2};
+        return new Migration[]{MIGRATION_1_2, MIGRATION_2_3};
     }
 
     public static AppDatabase get(Context context) {

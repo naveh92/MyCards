@@ -68,6 +68,13 @@
     <string name="card_expiry">תוקף הכרטיס</string>
     <string name="gift_link">קישור לכרטיס המתנה</string>
     <string name="open_gift_link">פתיחת כרטיס המתנה</string>
+
+    <string name="issuer_balance_title">מה כתוב אצל המנפיק?</string>
+    <string name="issuer_balance_explain">קראו את היתרה בעמוד שנפתח והקלידו אותה כאן. שום דבר לא נשלח לשום מקום — האפליקציה רק משווה מול היומן שלכם.</string>
+    <string name="issuer_balance_label">היתרה בעמוד המנפיק</string>
+    <string name="issuer_balance_confirm">שמירה</string>
+    <string name="issuer_balance_matches">תואם ליומן שלכם.</string>
+    <string name="issuer_balance_more">אצל המנפיק רשום %1$s, יותר ממה שהיומן מצפה לו. לא בוצע שינוי.</string>
     <string name="copied_to_clipboard">הועתק</string>
     <string name="auto_hidden">הוסתר שוב מטעמי בטיחות</string>
     <string name="no_sensitive_data">לא נשמר מספר כרטיס עבור כרטיס זה</string>
@@ -115,6 +122,10 @@
 
     <!-- Add / edit card -->
     <string name="add_card">הוספת כרטיס</string>
+
+    <string name="duplicate_link_title">הקישור הזה כבר קיים</string>
+    <string name="duplicate_link_message">אותו קישור מתנה כבר שמור בכרטיס „%1$s”. הוספה נוספת תציג כרטיס אחד כשניים.</string>
+    <string name="duplicate_link_add_anyway">הוספה בכל זאת</string>
     <string name="edit_card">עריכת כרטיס</string>
     <string name="card_type">סוג הכרטיס</string>
     <string name="card_label">שם הכרטיס (לא חובה)</string>

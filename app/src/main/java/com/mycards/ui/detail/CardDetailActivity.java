@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +26,8 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mycards.R;
 import com.mycards.cards.CardFace;
 import com.mycards.cards.CardStatus;
@@ -58,6 +61,13 @@ public class CardDetailActivity extends AppCompatActivity {
     /** Revealed numbers re-hide themselves, in case the phone is put down still unlocked. */
     private static final long AUTO_HIDE_MS = 60_000L;
 
+    /**
+     * Sub-agora differences are rounding, not a missing purchase. The same value
+     * {@code BalanceCheckWorker} uses, so the unattended check and the hand-entered one
+     * cannot disagree about whether the same pair of numbers match.
+     */
+    private static final double BALANCE_MISMATCH_TOLERANCE = 0.5d;
+
     private CardsRepository cardsRepo;
     private CatalogRepository catalogRepo;
     private long cardId;
@@ -79,6 +89,12 @@ public class CardDetailActivity extends AppCompatActivity {
     private double remainingBalance;
     /** Decrypted and scheme-corrected gift link; null when nothing usable is stored. */
     private String giftUrl;
+
+    /**
+     * Set while the user is away at the issuer's page, and consumed by the first render
+     * after they return — which is when there is a balance on screen to compare against.
+     */
+    private boolean awaitingIssuerBalance;
     private View secretBlock;
     private MaterialButton revealButton;
     private final Handler autoHide = new Handler(Looper.getMainLooper());
@@ -240,6 +256,14 @@ public class CardDetailActivity extends AppCompatActivity {
         // The overflow is built before the card is loaded, so its Archive/Bring back wording
         // is only knowable once we are here.
         invalidateOptionsMenu();
+
+        // Back from the issuer's page. Asked here rather than in onResume because the
+        // comparison needs the balance this render was given, and consumed so that leaving
+        // and returning for any other reason does not ask again.
+        if (awaitingIssuerBalance) {
+            awaitingIssuerBalance = false;
+            askIssuerBalance(remaining);
+        }
 
         storeCache = cache;
         renderStoreListRow();
@@ -576,10 +600,88 @@ public class CardDetailActivity extends AppCompatActivity {
     private void launchGiftLink() {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(giftUrl)));
+            // Noticed on the way back, so the balance on that page can be put to use.
+            awaitingIssuerBalance = true;
         } catch (android.content.ActivityNotFoundException noBrowser) {
             // A device with nothing registered for http(s) is unusual but not impossible.
             Toast.makeText(this, R.string.gift_link_no_app, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Asks what the issuer's page said, having sent the user to read it.
+     *
+     * <p>This is the whole of the "check my balance" story for a card behind a sign-in. The
+     * app deliberately does not read that page itself: doing so would mean driving an
+     * authenticated session, which means holding somebody's issuer credentials or cookies,
+     * and the value on offer — one number — does not come close to justifying that. The
+     * user's own browser already has the session, the password manager and an address bar
+     * showing the real domain; the app takes it from there and does the arithmetic.
+     *
+     * <p>The unattended {@code BalanceCheckWorker} still covers the cards it can read
+     * without a login. This is the path for the ones it cannot, and the way to ask early
+     * rather than waiting for the next daily run.
+     */
+    private void askIssuerBalance(double expected) {
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_issuer_balance, null);
+        TextInputLayout layout = view.findViewById(R.id.issuerBalanceLayout);
+        TextInputEditText input = view.findViewById(R.id.issuerBalanceInput);
+        input.setText(Formats.plainAmount(expected));
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.issuer_balance_title)
+                .setView(view)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.issuer_balance_confirm, null)
+                .create();
+        dialog.show();
+
+        // Wired after show() so a bad number leaves the dialog open with the typing intact.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            double reported;
+            try {
+                reported = Double.parseDouble(input.getText() == null
+                        ? "" : input.getText().toString().trim());
+            } catch (NumberFormatException e) {
+                layout.setError(getString(R.string.spend_required_amount));
+                return;
+            }
+            if (reported < 0) {
+                layout.setError(getString(R.string.spend_required_amount));
+                return;
+            }
+            dialog.dismiss();
+            recordIssuerBalance(expected, reported);
+        });
+    }
+
+    /**
+     * Files what the issuer said, and acts on the gap.
+     *
+     * <p>The same threshold and the same one-sided test the background worker uses: only a
+     * card holding <em>less</em> than the log accounts for is a missing purchase. More than
+     * expected is reported and nothing is invented from it — a top-up, a refund or a
+     * mistyped figure all look identical from here, and none of them is a purchase.
+     */
+    private void recordIssuerBalance(double expected, double reported) {
+        boolean isShort = expected - reported > BALANCE_MISMATCH_TOLERANCE;
+        AppExecutors.io(() -> {
+            cardsRepo.cards().recordBalanceCheck(
+                    cardId, System.currentTimeMillis(), reported, isShort);
+            AppExecutors.main(() -> {
+                if (isShort) {
+                    // Straight to the screen built for exactly this gap.
+                    startActivity(new Intent(this, ReconcileActivity.class)
+                            .putExtra(ReconcileActivity.EXTRA_CARD_ID, cardId));
+                } else if (reported - expected > BALANCE_MISMATCH_TOLERANCE) {
+                    Toast.makeText(this, getString(R.string.issuer_balance_more,
+                            Formats.money(reported, card.currency)), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, R.string.issuer_balance_matches,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
     // --- spending ---
