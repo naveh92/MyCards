@@ -1,7 +1,10 @@
 package com.mycards.ui.edit;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,8 +23,14 @@ import com.mycards.data.CatalogRepository;
 import com.mycards.cards.GiftLink;
 import com.mycards.data.catalog.model.Catalog;
 import com.mycards.data.catalog.model.CardTypeDef;
+import com.mycards.data.RemoteConfig;
 import com.mycards.data.crypto.SecretVault;
 import com.mycards.data.db.CardEntity;
+import com.mycards.data.AndroidAssetLoader;
+import com.mycards.data.source.GiftPageDetails;
+import com.mycards.data.source.GiftPageReader;
+import com.mycards.data.source.Http;
+import com.mycards.data.source.SourceEnv;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.BiometricGate;
 import com.mycards.ui.ExpiryTextWatcher;
@@ -34,6 +43,8 @@ import java.util.Locale;
 /** Adds or edits a card, including the optional encrypted payment details. */
 public class AddEditCardActivity extends AppCompatActivity {
 
+    private static final String TAG = "AddEditCardActivity";
+
     public static final String EXTRA_CARD_ID = "card_id";
 
     private CardsRepository cardsRepo;
@@ -43,6 +54,7 @@ public class AddEditCardActivity extends AppCompatActivity {
     private TextInputLayout cardTypeLayout;
     private TextInputLayout amountLayout;
     private TextInputLayout expiryLayout;
+    private TextInputLayout giftUrlLayout;
     private TextInputEditText labelInput;
     private TextInputEditText amountInput;
     private TextInputEditText expiryInput;
@@ -77,6 +89,7 @@ public class AddEditCardActivity extends AppCompatActivity {
         cardTypeInput = findViewById(R.id.cardTypeInput);
         amountLayout = findViewById(R.id.amountLayout);
         expiryLayout = findViewById(R.id.expiryLayout);
+        giftUrlLayout = findViewById(R.id.giftUrlLayout);
         labelInput = findViewById(R.id.labelInput);
         amountInput = findViewById(R.id.amountInput);
         expiryInput = findViewById(R.id.expiryInput);
@@ -85,6 +98,8 @@ public class AddEditCardActivity extends AppCompatActivity {
         cardExpiryInput = findViewById(R.id.cardExpiryInput);
         giftUrlInput = findViewById(R.id.giftUrlInput);
         notesInput = findViewById(R.id.notesInput);
+
+        wireFillFromLink();
 
         editingCardId = getIntent().getLongExtra(EXTRA_CARD_ID, 0L);
         toolbar.setTitle(editingCardId > 0 ? R.string.edit_card : R.string.add_card);
@@ -192,6 +207,126 @@ public class AddEditCardActivity extends AppCompatActivity {
             panInput.setHint(getString(R.string.card_number));
             panInput.setText("");
         }
+    }
+
+    /**
+     * Turns a pasted link into a filled-in form.
+     *
+     * <p>The button is dead until there is something link-shaped in the field, so it never
+     * offers to do work it cannot do.
+     */
+    private void wireFillFromLink() {
+        MaterialButton fill = findViewById(R.id.fillFromLink);
+        fill.setEnabled(looksLikeALink(text(giftUrlInput)));
+        giftUrlInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                fill.setEnabled(looksLikeALink(s == null ? "" : s.toString()));
+                giftUrlLayout.setError(null);
+            }
+        });
+        fill.setOnClickListener(v -> fillFromLink(fill));
+    }
+
+    /**
+     * Loose on purpose: a host with a dot in it is enough.
+     *
+     * <p>Anything stricter rejects the links people actually paste — copied without a
+     * scheme, or with a stray character on the end — and the fetch is a better judge of
+     * whether a link works than a pattern is.
+     */
+    private static boolean looksLikeALink(String value) {
+        String trimmed = value == null ? "" : value.trim();
+        return trimmed.length() > 3 && trimmed.contains(".") && !trimmed.contains(" ");
+    }
+
+    /**
+     * Reads the issuer's page and fills in whatever it states.
+     *
+     * <p>Only empty fields are written. Someone who typed an amount and then pasted a link
+     * meant the amount they typed, and a page that disagrees is more likely to be showing
+     * the face value than the balance. The same rule makes the button safe to press twice.
+     *
+     * <p>Nothing is saved here — the fields are filled and the user still presses Save. That
+     * is deliberate: this is scraping an undocumented page, and every value it produces
+     * should be looked at by somebody before it becomes a card.
+     */
+    private void fillFromLink(MaterialButton fill) {
+        String url = text(giftUrlInput).trim();
+        if (!looksLikeALink(url)) {
+            giftUrlLayout.setError(getString(R.string.gift_link_invalid));
+            return;
+        }
+        if (!url.matches("(?i)^[a-z][a-z0-9+.-]*://.*")) {
+            // "buyme.co.il/..." is a reasonable thing to paste; nothing will fetch it.
+            url = "https://" + url;
+            giftUrlInput.setText(url);
+        }
+
+        giftUrlLayout.setError(null);
+        fill.setEnabled(false);
+        fill.setText(R.string.gift_link_fetching);
+
+        String target = url;
+        AppExecutors.io(() -> {
+            GiftPageDetails details;
+            try {
+                details = GiftPageReader.read(target, new SourceEnv(
+                        Http.client(), new AndroidAssetLoader(this),
+                        RemoteConfig.CATALOG_BASE_URL));
+            } catch (Exception e) {
+                Log.w(TAG, "could not read the gift page", e);
+                AppExecutors.main(() -> {
+                    fill.setEnabled(true);
+                    fill.setText(R.string.gift_link_fill);
+                    giftUrlLayout.setError(getString(R.string.gift_link_unreachable));
+                });
+                return;
+            }
+            AppExecutors.main(() -> {
+                fill.setEnabled(true);
+                fill.setText(R.string.gift_link_fill);
+                applyDetails(details);
+            });
+        });
+    }
+
+    /** Writes the fields the page gave up, leaving anything already typed alone. */
+    private void applyDetails(GiftPageDetails details) {
+        int filled = 0;
+        if (details.amount != null && text(amountInput).isEmpty()) {
+            amountInput.setText(Formats.plainAmount(details.amount));
+            filled++;
+        }
+        if (details.expiryMonth != null && text(expiryInput).isEmpty()) {
+            expiryInput.setText(Formats.expiryToDisplay(details.expiryMonth));
+            filled++;
+        }
+        if (details.pan != null && text(panInput).isEmpty()) {
+            panInput.setText(details.pan);
+            filled++;
+        }
+        if (details.cvv != null && text(cvvInput).isEmpty()) {
+            cvvInput.setText(details.cvv);
+            filled++;
+        }
+
+        if (filled == 0) {
+            // Either the page said nothing readable, or it said only things already typed.
+            // Both mean the same thing to the user: there is nothing more to be had here.
+            Toast.makeText(this, R.string.gift_link_nothing_found, Toast.LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(this, getResources().getQuantityString(
+                R.plurals.gift_link_filled, filled, filled), Toast.LENGTH_LONG).show();
     }
 
     private void save() {

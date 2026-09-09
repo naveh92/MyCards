@@ -67,14 +67,18 @@
     <string name="cvv">CVV</string>
     <string name="card_expiry">תוקף הכרטיס</string>
     <string name="gift_link">קישור לכרטיס המתנה</string>
+    <string name="gift_link_helper">הדביקו את הקישור שהגיע עם הכרטיס, ומלאו ממנו את השאר.</string>
+    <string name="gift_link_fill">מילוי מהקישור</string>
+    <string name="gift_link_fetching">קורא את עמוד הכרטיס…</string>
+    <plurals name="gift_link_filled">
+        <item quantity="one">מולא שדה אחד מהקישור. בדקו אותו לפני השמירה.</item>
+        <item quantity="two">מולאו שני שדות מהקישור. בדקו אותם לפני השמירה.</item>
+        <item quantity="other">מולאו %1$d שדות מהקישור. בדקו אותם לפני השמירה.</item>
+    </plurals>
+    <string name="gift_link_nothing_found">בעמוד הזה לא נמצאו פרטי כרטיס שהאפליקציה יכולה לקרוא. מלאו את השדות ידנית.</string>
+    <string name="gift_link_unreachable">לא הצלחנו לפתוח את העמוד. בדקו את הקישור ואת החיבור לרשת.</string>
+    <string name="gift_link_invalid">זה לא נראה כמו קישור.</string>
     <string name="open_gift_link">פתיחת כרטיס המתנה</string>
-
-    <string name="issuer_balance_title">מה כתוב אצל המנפיק?</string>
-    <string name="issuer_balance_explain">קראו את היתרה בעמוד שנפתח והקלידו אותה כאן. שום דבר לא נשלח לשום מקום — האפליקציה רק משווה מול היומן שלכם.</string>
-    <string name="issuer_balance_label">היתרה בעמוד המנפיק</string>
-    <string name="issuer_balance_confirm">שמירה</string>
-    <string name="issuer_balance_matches">תואם ליומן שלכם.</string>
-    <string name="issuer_balance_more">אצל המנפיק רשום %1$s, יותר ממה שהיומן מצפה לו. לא בוצע שינוי.</string>
     <string name="copied_to_clipboard">הועתק</string>
     <string name="auto_hidden">הוסתר שוב מטעמי בטיחות</string>
     <string name="no_sensitive_data">לא נשמר מספר כרטיס עבור כרטיס זה</string>

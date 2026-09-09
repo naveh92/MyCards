@@ -94,16 +94,19 @@
     <string name="cvv">CVV</string>
     <string name="card_expiry">Card expiry</string>
     <string name="gift_link">Gift card link</string>
+    <string name="gift_link_helper">Paste the link the card came with, then fill the rest in from it.</string>
+    <string name="gift_link_fill">Fill in from the link</string>
+    <string name="gift_link_fetching">Reading the card’s page…</string>
+    <!-- %1$d is how many fields were filled. The count matters: the page decides how much
+         it gives up, and the user needs to know what is still theirs to type. -->
+    <plurals name="gift_link_filled">
+        <item quantity="one">Filled in %1$d field from the link. Check it before saving.</item>
+        <item quantity="other">Filled in %1$d fields from the link. Check them before saving.</item>
+    </plurals>
+    <string name="gift_link_nothing_found">That page did not show any card details the app could read. Fill the fields in by hand.</string>
+    <string name="gift_link_unreachable">Could not open that page. Check the link and your connection.</string>
+    <string name="gift_link_invalid">That does not look like a link.</string>
     <string name="open_gift_link">Open gift card</string>
-
-    <!-- Asked after the user has been to the issuer page and come back. The app never reads
-         that page itself; see CardDetailActivity#askIssuerBalance. -->
-    <string name="issuer_balance_title">What does the issuer say?</string>
-    <string name="issuer_balance_explain">Read the balance on the page you just opened and type it here. Nothing is sent anywhere — the app only compares it with your log.</string>
-    <string name="issuer_balance_label">Balance on the issuer’s page</string>
-    <string name="issuer_balance_confirm">Record</string>
-    <string name="issuer_balance_matches">That matches your log.</string>
-    <string name="issuer_balance_more">The issuer says %1$s, which is more than your log expects. Nothing was changed.</string>
     <string name="copied_to_clipboard">Copied</string>
     <string name="auto_hidden">Hidden again for safety</string>
     <string name="no_sensitive_data">No card number saved for this card</string>
