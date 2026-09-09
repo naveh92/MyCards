@@ -21,7 +21,9 @@ import com.mycards.search.StoreNameIndex;
 import com.mycards.ui.Formats;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Collects or edits a purchase.
@@ -194,6 +196,10 @@ public final class AddSpendDialog {
      * shop the issuer has never heard of is never told so. And having offered a shop that
      * was taken, it stops: the row stays down until the next keystroke, instead of following
      * the choice with more of them.
+     *
+     * <p>The fourth rule is about not moving. See {@link #showSuggestions}: once the row has
+     * appeared it keeps its height for the rest of the dialog, because collapsing it resizes
+     * a centred dialog and every field jumps.
      */
     private static void wireStoreSuggestions(Activity activity,
                                              View root,
@@ -212,6 +218,15 @@ public final class AddSpendDialog {
         // the conversation rather than starting another one.
         final boolean[] justPicked = {false};
 
+        // Whether the row has ever been on screen in this dialog; see showSuggestions.
+        final boolean[] everShown = {false};
+
+        // What the chips currently say, so an unchanged list is left alone rather than torn
+        // down and rebuilt on every keystroke. A holder rather than a generic array, which
+        // cannot be created without an unchecked warning.
+        final AtomicReference<List<String>> onScreen =
+                new AtomicReference<>(Collections.emptyList());
+
         storeInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -227,24 +242,58 @@ public final class AddSpendDialog {
                     justPicked[0] = false;
                     return;
                 }
-                showSuggestions(activity, row, group, storeInput, suggestions, justPicked);
+                showSuggestions(activity, row, group, storeInput, suggestions,
+                        justPicked, everShown, onScreen);
             }
         });
     }
 
+    /**
+     * Redraws the chip row for what has been typed so far.
+     *
+     * <p>Two things here are about the row holding still rather than about what it offers.
+     *
+     * <p><b>It stops collapsing once it has appeared.</b> Hiding it with GONE takes its
+     * height out of the layout, and this row sits inside a dialog that is centred on screen —
+     * so every appearance and disappearance resized the dialog and jumped every field in it,
+     * including the ones above. Typing a shop name crosses the "something matches" line
+     * repeatedly ("adid" matches, "adidas " does not), so the jump landed on almost every
+     * keystroke. After the first time the row is shown it goes INVISIBLE instead, keeping its
+     * height. A card whose shops never match still costs nothing: the row has not appeared, so
+     * it is still GONE.
+     *
+     * <p><b>An unchanged list is left alone.</b> Rebuilding the chips means removing and
+     * re-inflating views under the user's finger, which flickers even when the row does not
+     * move. Most keystrokes narrow the text without changing the answer.
+     *
+     * <p>Neither works if the chips are emptied on the way out: an INVISIBLE row holding no
+     * children measures zero high, which collapses the dialog exactly as GONE did. So hiding
+     * only changes visibility, and the chips stay where they are until a different list
+     * replaces them.
+     */
     private static void showSuggestions(Activity activity,
                                         View row,
                                         ChipGroup group,
                                         TextInputEditText storeInput,
                                         StoreNameIndex suggestions,
-                                        boolean[] justPicked) {
+                                        boolean[] justPicked,
+                                        boolean[] everShown,
+                                        AtomicReference<List<String>> onScreen) {
         List<String> matches = suggestions.suggest(text(storeInput), MAX_SUGGESTIONS);
-        group.removeAllViews();
+
         if (matches.isEmpty()) {
-            row.setVisibility(View.GONE);
+            // Chips deliberately left in place; see the note above about zero height.
+            row.setVisibility(everShown[0] ? View.INVISIBLE : View.GONE);
             return;
         }
 
+        if (matches.equals(onScreen.get())) {
+            // Same answer as the last keystroke: leave the chips exactly where they are.
+            row.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        group.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(activity);
         for (String name : matches) {
             Chip chip = (Chip) inflater.inflate(R.layout.item_suggestion_chip, group, false);
@@ -253,10 +302,12 @@ public final class AddSpendDialog {
                 justPicked[0] = true;
                 storeInput.setText(name);
                 storeInput.setSelection(name.length());
-                row.setVisibility(View.GONE);
+                row.setVisibility(View.INVISIBLE);
             });
             group.addView(chip);
         }
+        onScreen.set(matches);
+        everShown[0] = true;
         row.setVisibility(View.VISIBLE);
         // A narrowed list is a new list; leaving it scrolled hides the best match off-screen.
         row.scrollTo(0, 0);

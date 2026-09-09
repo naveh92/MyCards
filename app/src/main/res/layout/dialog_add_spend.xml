@@ -58,8 +58,14 @@
     <!--
         Shops this card is accepted in, offered once there is enough typed to narrow them
         down. It sits under the field rather than over it: a dropdown would cover the amount
-        and the date, and the whole point is that this can be ignored. Gone entirely when
-        there is nothing to suggest, so an unrecognised shop costs no space at all.
+        and the date, and the whole point is that this can be ignored.
+
+        Gone — not merely hidden — until the first time it has something to say, so a card
+        with no merchant list, or a shop the issuer has never heard of, costs no space at
+        all. After that it holds its height for the rest of the dialog even when empty. See
+        AddSpendDialog.showSuggestions: this row is inside a centred dialog, so collapsing it
+        resizes the dialog and jumps every field in it, and typing a shop name crosses the
+        "something matches" line often enough to do that on almost every keystroke.
     -->
     <HorizontalScrollView
         android:id="@+id/storeSuggestionRow"
