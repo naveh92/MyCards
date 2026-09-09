@@ -92,17 +92,30 @@ public class ReconcileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Opens the purchase dialog, primed with the gap.
+     *
+     * <p>The balance is read on the IO thread and the dialog opened once it lands. Reading it
+     * inline crashed the app outright: Room refuses a query on the main thread, and this is a
+     * click handler. The call has been here since the first commit and never fired, because
+     * reaching this screen needs a card with a gift link, a balance source behind it, and a
+     * real discrepancy between the two — a combination no test and no amount of ordinary use
+     * had produced.
+     */
     private void addMissingSpend() {
-        // The gap can never exceed what the log says is left, so the balance is the cap.
-        AddSpendDialog.show(this, card.currency, cardsRepo.remainingBalance(cardId),
-                null, difference, storeSuggestions,
-                (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
-                    // Recorded as RECONCILIATION so the log stays honest about which entries
-                    // were observed and which were inferred from a balance gap.
-                    cardsRepo.addSpend(cardId, title, amount, storeName, spentAt,
-                            SpendEntity.SOURCE_RECONCILIATION);
-                    AppExecutors.main(this::finish);
-                }));
+        AppExecutors.io(() -> {
+            // The gap can never exceed what the log says is left, so the balance is the cap.
+            double remaining = cardsRepo.remainingBalance(cardId);
+            AppExecutors.main(() -> AddSpendDialog.show(this, card.currency, remaining,
+                    null, difference, storeSuggestions,
+                    (title, amount, storeName, spentAt) -> AppExecutors.io(() -> {
+                        // Recorded as RECONCILIATION so the log stays honest about which
+                        // entries were observed and which were inferred from a balance gap.
+                        cardsRepo.addSpend(cardId, title, amount, storeName, spentAt,
+                                SpendEntity.SOURCE_RECONCILIATION);
+                        AppExecutors.main(this::finish);
+                    })));
+        });
     }
 
     private void dismiss() {
