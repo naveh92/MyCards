@@ -141,9 +141,11 @@ public final class Store {
                 continue;
             }
             // How far this spelling strayed from what was typed, measured before folding —
-            // after it every candidate is the same four letters by definition. See
-            // StoreMatch#compare.
-            int slack = Math.abs(normalized[i].length() - query.exact().length());
+            // after it every candidate is the same skeleton by definition. Edits rather than
+            // a length difference: "אירוקה" and "אירוכה" are both one letter longer than
+            // "ארוקה", so length calls them equally good, when the first is a yod away and
+            // the second a yod plus a kuf/kaf swap. See StoreMatch#compare.
+            int slack = EditDistance.between(query.exact(), normalized[i]);
             if (s > bestScore || (s == bestScore && slack < bestSlack)) {
                 bestScore = s;
                 bestSlack = slack;

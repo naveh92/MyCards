@@ -84,9 +84,9 @@ public final class StoreMatch {
         }
         // Inside the fuzzy band the score has run out of things to say: skeletons are equal
         // by construction, so every candidate ties. Searching "ארוקה" reaches אירוקה, אירוכה
-        // and אאוריקה, all of which fold to the same four letters, and leaving them in list
-        // order buried the shop that was asked for. Nothing separates them except how far
-        // each strayed from what was typed, so that is what separates them.
+        // and אאוריקה, all of which fold to the same four letters. What separates them is how
+        // far each strayed from what was actually typed, counted in edits — one inserted yod
+        // for אירוקה, that plus a kuf/kaf swap for אירוכה — so the closest spelling leads.
         if (a.fuzzy && b.fuzzy) {
             return Integer.compare(a.slack, b.slack);
         }

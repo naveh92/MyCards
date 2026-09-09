@@ -159,6 +159,32 @@ public class SpellingVariantSearchTest {
         assertFalse(shopsFor("ארוקה", store("אירוקה בסופר פארם")).isEmpty());
     }
 
+    /**
+     * Among spellings that all fold together, the one nearest what was typed leads.
+     *
+     * <p>Reported from the app: searching <em>ארוקה</em> listed the shop matched by
+     * <em>אירוכה</em> before the one matched by <em>אירוקה</em>, which is a letter closer.
+     * Both candidates are the same length, so the length comparison this used to do called
+     * them equal and left the order to chance.
+     */
+    @Test
+    public void theClosestSpellingComesFirst() {
+        Store swapped = store("Swapped", "אירוכה");
+        Store nearest = store("Nearest", "אירוקה");
+        Store furthest = store("Furthest", "אאוריקה");
+        assertEquals(Arrays.asList("Nearest", "Swapped", "Furthest"),
+                shopsFor("ארוקה", swapped, nearest, furthest));
+    }
+
+    @Test
+    public void aShopShowsTheClosestOfItsOwnSpellings() {
+        // The row names one spelling out of however many the shop carries, and it should be
+        // the one that best explains why the row is there.
+        Store many = store("Erroca", "אאוריקה", "אירוקה", "אירוכה");
+        assertEquals("אירוקה",
+                engine.matchingStores("ארוקה", Arrays.asList(many)).get(0).getMatchedForm());
+    }
+
     @Test
     public void aTooShortQueryDoesNotFuzzyMatchEverything() {
         // With vowels and homophones folded away, a two-letter skeleton matches a sizeable
