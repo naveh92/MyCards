@@ -13,6 +13,12 @@ import java.util.List;
 /**
  * Turns raw device screenshots into captioned Play Store artwork.
  *
+ * <p><b>Superseded by {@link StoreShots}</b>, which is what the shipped listing art is built
+ * with. This laid a caption above a shrunken device frame, which spent roughly half the canvas
+ * on background and left the app's own text unreadable at the size Play actually shows these.
+ * Kept because the layout is still the right one if a screenshot ever has to show a whole tall
+ * screen without cropping -- StoreShots crops to 9:16 instead.
+ *
  * <p>Two reasons this exists rather than uploading the screenshots directly:
  *
  * <ol>

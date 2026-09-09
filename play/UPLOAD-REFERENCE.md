@@ -144,22 +144,28 @@ WorkManager.
 |---|---|---|---|
 | `play/icon-512.png` | 512×512 | exactly 512×512, 32-bit PNG, no alpha | ok |
 | `play/feature-graphic-1024x500.png` | 1024×500 | exactly 1024×500 | ok |
-| `play/screenshots/01-search.png` | 1080×1920 | 320–3840px per side, long side ≤ 2× short | ok |
-| `play/screenshots/02-list.png` | 1080×1920 | " | ok |
-| `play/screenshots/03-detail.png` | 1080×1920 | " | ok |
-| `play/screenshots/04-hebrew.png` | 1080×1920 | " | ok |
-| `play/screenshots/05-light.png` | 1080×1920 | " | ok |
+| `play/screenshots/01-search-store.png` | 1080×1920 | 320–3840px per side, long side ≤ 2× short | ok |
+| `play/screenshots/02-store-list.png` | 1080×1920 | " | ok |
+| `play/screenshots/03-hebrew.png` | 1080×1920 | " | ok |
+| `play/screenshots/04-card-types.png` | 1080×1920 | " | ok |
+| `play/screenshots/05-detail.png` | 1080×1920 | " | ok |
+| `play/screenshots/06-wallet.png` | 1080×1920 | " | ok |
+| `play/screenshots/07-refresh.png` | 1080×1920 | " | ok |
+| `play/screenshots/08-dark.png` | 1080×1920 | " | ok |
+| `play/promo-video.mp4` | 1920x1080, 37.4s | 30-120s, uploaded to YouTube | ok |
 
-Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. These are
-composited onto a 16:9 canvas by `tools/ShotFramer.java`; nothing is cropped.
-
-**The five screenshots predate 1.2.** They are correctly sized and still show the app
-honestly, but none of them shows the store list — the screen this version added, and the
-one most worth showing after search itself. Play allows eight; two more captures framed
-by `tools/ShotFramer.java` would cover it. Nothing blocks the upload either way.
+Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. `StoreShots`
+crops them to 9:16 rather than letterboxing, and lays the wavy brand banner over the top.
 
 Minimum 2 phone screenshots, maximum 8. Upload them in the numbered order — Play shows the
-first few most prominently, and `01-search` is the one that explains the app.
+first two or three most prominently in search results, which is why the two halves of the
+app's one idea (shop→card, card→shop) hold slots 1 and 2 and the reassurance sits at the end.
+
+**The tablet slots are marked required and are not enforced at save.** Reusing these 9:16
+phone images there is valid — they satisfy both the 7-inch and 10-inch size ranges.
+
+**Screenshots can be replaced at any time with no re-review.** Worth knowing when the choice
+is between shipping a slightly stale image and holding a submission.
 
 ## Short fields, ready to paste
 
