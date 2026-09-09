@@ -13,6 +13,7 @@ import com.mycards.R;
 import com.mycards.cards.CardStatus;
 import com.mycards.cards.RetiredAt;
 import com.mycards.cards.RetirementNotice;
+import com.mycards.cards.WalletTotal;
 import com.mycards.data.CardsRepository;
 import com.mycards.data.CatalogRepository;
 import com.mycards.data.catalog.model.Catalog;
@@ -53,6 +54,7 @@ public class SearchViewModel extends AndroidViewModel {
     private final MutableLiveData<List<CardRow>> rows = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<RetiredNotice> retiredNotice = new MutableLiveData<>();
+    private final MutableLiveData<WalletTotal> total = new MutableLiveData<>();
 
     /** Shared with SearchActivity, which keeps its own flags in the same file. */
     private static final String PREFS = "mycards_ui";
@@ -105,6 +107,17 @@ public class SearchViewModel extends AndroidViewModel {
 
     public LiveData<List<CardRow>> rows() {
         return rows;
+    }
+
+    /**
+     * What the wallet is worth, independent of whatever is typed in the search box.
+     *
+     * <p>Published from {@link #reload()} rather than derived from {@link #rows()}, because
+     * the rows are the query's answer: totalling them would make the figure fall as a
+     * search narrowed, which reads as money disappearing.
+     */
+    public LiveData<WalletTotal> total() {
+        return total;
     }
 
     public LiveData<Boolean> loading() {
@@ -299,9 +312,20 @@ public class SearchViewModel extends AndroidViewModel {
             }
             RetiredNotice notice = findNewlyRetired(indexByType);
 
+            // Over every card the wallet holds, not over the rows about to be published:
+            // see total().
+            WalletTotal walletTotal = new WalletTotal();
+            for (CardEntity card : cards) {
+                Double left = balances.get(card.id);
+                double amount = left == null ? card.initialAmount : left;
+                walletTotal.add(amount, CardStatus.of(
+                        amount, Formats.daysUntil(card.expiryDate), card.archivedAt));
+            }
+
             List<CardRow> result = buildRows(currentQuery);
             AppExecutors.main(() -> {
                 rows.setValue(result);
+                total.setValue(walletTotal);
                 loading.setValue(false);
                 if (notice != null) {
                     retiredNotice.setValue(notice);

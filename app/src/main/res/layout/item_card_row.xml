@@ -5,13 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="12dp"
-    android:layout_marginEnd="12dp"
-    android:layout_marginBottom="10dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    android:layout_marginBottom="12dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="14dp"
-    app:cardElevation="1dp">
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@android:color/transparent">
 
     <!-- Each label sets textAlignment="viewStart" individually. It cannot be set once on
          this container: TextView defaults to gravity-based alignment rather than
@@ -19,13 +21,19 @@
          instead of the text's own, which is what keeps a Latin card name on the right in
          an RTL screen — TextView otherwise picks direction from the first strong character
          it finds and left-aligns it. -->
-    <!-- Carries the dimming for a retired card, rather than the card itself: RecyclerView's
-         item animator owns itemView's alpha and resets it to 1 at the end of every add and
-         change animation, so a value set here from onBindViewHolder is silently undone. -->
+    <!-- The face is set from code, per card type, by CardRowAdapter; the value here is only
+         what the layout preview and the very first frame show. It is set on this child
+         rather than on the MaterialCardView itself so the card keeps its own elevation and
+         ripple, and so a retired row can be repainted grey without touching the card's
+         shape. -->
+    <!-- ⚠️ Do not express a retired card as alpha on itemView. RecyclerView's item animator
+         treats itemView's alpha as its own and resets it to 1 at the end of every add and
+         change animation, so the dimming disappears with no trace in the code. -->
     <LinearLayout
         android:id="@+id/cardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/card_face_slate"
         android:orientation="vertical"
         android:padding="14dp">
 
@@ -49,7 +57,8 @@
                     android:maxLines="1"
                     android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.CardTitle"
-                    tools:text="BuyMe All" />
+                    android:textColor="@color/on_face"
+                    tools:text="Holiday gift 2026" />
 
                 <TextView
                     android:id="@+id/cardSubtitle"
@@ -59,96 +68,160 @@
                     android:maxLines="1"
                     android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                    android:textColor="@color/on_face_variant"
                     android:visibility="gone"
-                    tools:text="BuyMe All" />
+                    tools:text="BuyMe All"
+                    tools:visibility="visible" />
             </LinearLayout>
 
-            <!-- Why this card is in the archive, when nothing else on the row would say.
-                 A word rather than a shade of grey: colour alone is unreadable to a good
-                 number of people and invisible to a screen reader.
+            <!--
+                One badge slot, carrying whichever single fact most needs saying about this
+                card: why it is in the archive, or that it is about to lapse. The two cannot
+                both apply — an expiring card is by definition still live — so they share
+                the corner rather than each claiming one.
 
-                 Not shown for an expired card — the expiry line below already says
-                 "Expired", in red, with the month it happened. -->
+                A word rather than a shade: colour alone is unreadable to a good number of
+                people and invisible to a screen reader, and on a wallet of eight different
+                hues there is no colour that would mean the same thing on all of them
+                anyway.
+            -->
             <TextView
                 android:id="@+id/statusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_badge_muted"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
+                android:background="@drawable/bg_face_badge"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:textAppearance="?attr/textAppearanceLabelSmall"
-                android:textColor="@color/card_status"
+                android:textColor="@color/on_face"
                 android:visibility="gone"
-                tools:text="Used up" />
-
-            <!-- The number you actually need at the counter. -->
-            <TextView
-                android:id="@+id/amount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:textAppearance="@style/TextAppearance.MyCards.Amount"
-                tools:text="₪250" />
+                tools:text="Archived"
+                tools:visibility="visible" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/expiry"
+        <!-- The number you actually need at the counter, and what it started as. Baselines
+             are aligned so the small figure sits on the big one's line rather than floating
+             beside it. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MyCards.Meta"
-            tools:text="Expires 31/12/2026" />
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
-        <!-- Why this card matched: the difference between a useful answer and a guess. -->
+            <TextView
+                android:id="@+id/amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.MyCards.Balance"
+                android:textColor="@color/on_face"
+                tools:text="₪252" />
+
+            <TextView
+                android:id="@+id/initialAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                android:textColor="@color/on_face_variant"
+                android:visibility="gone"
+                tools:text="of ₪700"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <!--
+            How much of the card is gone. A balance on its own does not say whether ₪252 is
+            most of the card or the last of it, and that is the thing that decides whether
+            you reach for this card or another one.
+
+            Hidden entirely when the starting amount is unknown, which is common — people
+            often only ever know what is left. An empty track in that case would be a claim
+            that the card is spent.
+        -->
+        <ProgressBar
+            android:id="@+id/depletion"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="8dp"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_depletion"
+            android:visibility="gone"
+            tools:progress="36"
+            tools:visibility="visible" />
+
         <LinearLayout
-            android:id="@+id/matchRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/matchReason"
+                android:id="@+id/expiry"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="2"
                 android:textAlignment="viewStart"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                tools:text="Accepted at Zara" />
+                android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                android:textColor="@color/on_face_variant"
+                tools:text="Expires 04/27" />
 
             <TextView
                 android:id="@+id/onlineBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_badge"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp"
+                android:background="@drawable/bg_face_badge"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:text="@string/online_badge"
                 android:textAppearance="?attr/textAppearanceLabelSmall"
-                android:textColor="@color/online_badge"
+                android:textColor="@color/on_face"
                 android:visibility="gone" />
         </LinearLayout>
 
+        <!-- Why this card matched: the difference between a useful answer and a guess. -->
         <TextView
-            android:id="@+id/warning"
+            android:id="@+id/matchReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textAlignment="viewStart"
-            android:textAppearance="@style/TextAppearance.MyCards.Meta"
-            android:textColor="@color/expiry_warning"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="@color/on_face_variant"
+            tools:text="Accepted at Castro" />
+
+        <!--
+            Drawn as a pill rather than as coloured text. The amber this used to use is
+            unreadable on the amber face and invisible on the rose one; a lighter patch of
+            the card's own colour reads identically on all eight.
+        -->
+        <TextView
+            android:id="@+id/warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_face_badge"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:textAlignment="viewStart"
+            android:textAppearance="?attr/textAppearanceLabelMedium"
+            android:textColor="@color/on_face"
             android:visibility="gone"
-            tools:text="Detected an unlogged transaction" />
+            tools:text="Unlogged transaction"
+            tools:visibility="visible" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

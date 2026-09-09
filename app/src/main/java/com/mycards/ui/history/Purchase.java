@@ -15,6 +15,9 @@ public final class Purchase {
     /** The card's own label, or its type name — whichever the wallet shows for it. */
     public final String cardName;
 
+    /** The catalog id of the card that paid, which is what picks the row's colour. */
+    public final String cardTypeId;
+
     public final String currency;
 
     /**
@@ -39,9 +42,10 @@ public final class Purchase {
     private final String storeFolded;
     private final String cardFolded;
 
-    public Purchase(SpendEntity spend, String cardName, String currency) {
+    public Purchase(SpendEntity spend, String cardName, String cardTypeId, String currency) {
         this.spend = spend;
         this.cardName = cardName;
+        this.cardTypeId = cardTypeId;
         this.currency = currency;
         this.title = SearchNormalizer.normalize(spend.title);
         this.store = SearchNormalizer.normalize(spend.storeName);

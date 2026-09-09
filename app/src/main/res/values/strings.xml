@@ -4,6 +4,18 @@
 
     <!-- Search -->
     <string name="search_hint">Store or card name…</string>
+
+    <!-- The wallet total, above the card list. "Available" rather than "Total" or
+         "Balance": what the figure means is the money you could actually spend right now,
+         which excludes everything in the archive, and neither of the other two words says
+         so. -->
+    <string name="wallet_total_label">Available</string>
+    <plurals name="wallet_total_subtitle">
+        <item quantity="one">across %1$,d card</item>
+        <item quantity="other">across %1$,d cards</item>
+    </plurals>
+    <!-- Shown in place of the total when every card is archived, empty or lapsed. -->
+    <string name="wallet_total_none">Nothing to spend</string>
     <string name="search_empty_prompt">Type a store name to see which cards work there</string>
     <string name="no_results">No card of yours is accepted at \"%1$s\"</string>
     <string name="no_results_partial">No card of yours lists \"%1$s\" — but one of your shop lists is incomplete, so it may still be accepted. Worth asking at the checkout counter.</string>
@@ -28,6 +40,8 @@
          most of what there is to know about a card once it is in the archive. -->
     <string name="expired_on">Expired %1$s</string>
     <string name="expires_soon">Expires in %1$d days</string>
+    <!-- Sits beside the balance on a card face: "₪252" then "of ₪700". -->
+    <string name="of_initial_amount">of %1$s</string>
 
     <!-- Retired cards: empty, expired, or put away by hand.
 
@@ -42,6 +56,10 @@
     <string name="status_empty">Empty</string>
     <string name="status_expired">Expired</string>
     <string name="status_archived">Archived</string>
+    <!-- The badge on a card that is still usable but about to lapse. Deliberately not a
+         day count: the line below the balance already gives the exact number, and a badge
+         is for the glance that happens before anything is read. -->
+    <string name="status_expiring_soon">Expiring soon</string>
     <string name="status_archived_explain">Kept out of your wallet list, and never offered as an answer when you search for a shop. Everything on it is still here.</string>
     <string name="archive_card">Archive card</string>
     <string name="unarchive_card">Unarchive card</string>

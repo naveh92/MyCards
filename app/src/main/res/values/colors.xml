@@ -2,40 +2,126 @@
 <resources>
     <!-- Accent used for text and controls (dialog buttons, links, focused fields).
          In light mode this must be dark enough to read on white. -->
-    <color name="brand_primary">#1B5E9C</color>
+    <color name="brand_primary">#2C5FA8</color>
     <color name="brand_on_primary">#FFFFFF</color>
 
-    <color name="brand_primary_container">#D3E4F7</color>
-    <color name="brand_on_primary_container">#0B2A45</color>
+    <color name="brand_primary_container">#D7E3F8</color>
+    <color name="brand_on_primary_container">#0C2949</color>
 
     <color name="brand_secondary">#2E7D5B</color>
 
-    <!-- Toolbar fill is kept separate from the accent on purpose. The accent has to flip
-         light in dark mode to stay legible as text, but the toolbar should stay a solid
-         brand blue in both themes. Tying them together forces one to be wrong. -->
-    <color name="toolbar_background">#1B5E9C</color>
-    <color name="toolbar_on_background">#FFFFFF</color>
+    <!--
+        The secondary container, which Material 3 paints tonal buttons and chips with.
 
-    <!-- Text inside the overflow menu, which drops onto the ordinary light surface rather
-         than onto the blue bar, and so must not follow toolbar_on_background. Material 3's
-         on-surface tones. -->
-    <color name="popup_on_surface">#1C1B1F</color>
-    <color name="popup_on_surface_variant">#49454F</color>
+        Stated because the baseline value is a lavender, and it is not decorative: the
+        "Update store data now" button came out lilac on a screen whose every other accent
+        is blue, which reads as an unfinished theme rather than a second colour. Derived
+        from the brand blue so a tonal control is recognisably the quiet version of a
+        filled one.
+    -->
+    <color name="brand_secondary_container">#DBE3F2</color>
+    <color name="brand_on_secondary_container">#16304E</color>
+    <color name="brand_tertiary">#4A5A78</color>
+    <color name="brand_tertiary_container">#DCE2EC</color>
+    <color name="brand_on_tertiary_container">#1B2432</color>
+
+    <!--
+        Surfaces are stated rather than inherited. Material 3's baseline palette is tinted
+        towards lavender (#FFFBFE), which read as a faint pink cast against the blue and was
+        one of the things that made the old screens look accidental rather than chosen.
+        These are neutral greys with a barely perceptible cool tilt.
+    -->
+    <color name="surface">#FBFBFD</color>
+    <color name="surface_container">#F1F3F7</color>
+    <color name="surface_container_high">#E9ECF2</color>
+    <color name="on_surface">#1A1C1E</color>
+    <color name="on_surface_variant">#43474E</color>
+    <color name="outline_variant">#D9DCE3</color>
 
     <color name="expiry_warning">#B26A00</color>
     <color name="expiry_expired">#B3261E</color>
     <color name="online_badge">#2E7D5B</color>
 
-    <!-- "Used up" / "Archived". Deliberately grey: a card being finished is not a warning
+    <!-- "Empty" / "Archived". Deliberately grey: a card being finished is not a warning
          and not an error, and painting it in either tone would make a wallet in perfectly
          normal order look like it needed attention. 4.6:1 on white. -->
     <color name="card_status">#5B6670</color>
 
+    <!--
+        ══ Card faces ══
+
+        Eight schemes, assigned per card type by CardFace. Every one carries white text at
+        WCAG AA or better — the balance sits directly on this fill, so a face that fails
+        contrast is a face nobody can read at a counter. Worst pair here is 5.60:1 against
+        white; the checker that established that lives in the commit that added them.
+
+        Each face is a two-stop gradient. The end stop is the darker of the pair so the
+        bottom of a card is always the anchored edge, which is what stops eight different
+        hues from reading as eight different apps.
+
+        These do NOT vary by night mode. A card's colour is its identity, and an issuer
+        whose card is teal by day and something else by night is not identifiable — the one
+        property the whole scheme depends on. Legibility is already guaranteed by the white
+        text, which does not change either.
+    -->
+    <color name="face_indigo_start">#3B5BC0</color>
+    <color name="face_indigo_end">#2A428A</color>
+
+    <color name="face_teal_start">#0F746E</color>
+    <color name="face_teal_end">#0B544F</color>
+
+    <color name="face_plum_start">#7A3E96</color>
+    <color name="face_plum_end">#582D6C</color>
+
+    <color name="face_rose_start">#B4325C</color>
+    <color name="face_rose_end">#822442</color>
+
+    <color name="face_amber_start">#96590C</color>
+    <color name="face_amber_end">#6C4009</color>
+
+    <color name="face_forest_start">#2C754B</color>
+    <color name="face_forest_end">#205436</color>
+
+    <color name="face_slate_start">#4A5A78</color>
+    <color name="face_slate_end">#354156</color>
+
+    <color name="face_magenta_start">#9C2F76</color>
+    <color name="face_magenta_end">#702255</color>
+
+    <!--
+        The face an archived, empty or expired card wears instead of its colour.
+
+        Retiring a card takes its identity away deliberately: the wallet’s colours are for
+        picking a card you are about to spend, and a card you cannot spend should not
+        compete for that attention. Grey rather than a dimmed version of its own hue,
+        because a washed-out teal still reads as "the teal one" and would keep drawing the
+        eye it is meant to release.
+    -->
+    <color name="face_retired_start">#64696F</color>
+    <color name="face_retired_end">#4E5257</color>
+
+    <!-- Drawn on every face. Held as names rather than literal #FFFFFF at each use so the
+         relationship to the faces above is stated once. -->
+    <color name="on_face">#FFFFFF</color>
+    <!--
+         Secondary text on a face: white at 85%.
+
+         The alpha and the fills were chosen together, by measurement, and neither moves on
+         its own. Compositing is not linear, so a translucent white does not keep the
+         contrast its opaque parent had: at 78% the teal face fell to 3.72:1 and failed AA
+         outright. 85% is the softest alpha that clears 4.5:1 on all eight faces, and teal
+         and forest were darkened two percent to meet it there.
+    -->
+    <color name="on_face_variant">#D9FFFFFF</color>
+    <!-- The unspent part of the depletion bar. White at 28% reads as "the rest of the
+         track" on every one of the eight fills without becoming a second bright element. -->
+    <color name="on_face_track">#47FFFFFF</color>
+
     <!-- The store list scrollbar. Tinted rather than grey so it reads as part of the app,
          and translucent so a thousand-row list is not divided by a bar down its side. -->
-    <color name="fastscroll_thumb">#661B5E9C</color>
-    <color name="fastscroll_thumb_active">#1B5E9C</color>
+    <color name="fastscroll_thumb">#662C5FA8</color>
+    <color name="fastscroll_thumb_active">#2C5FA8</color>
     <color name="fastscroll_track">#0D000000</color>
 
-    <color name="ic_launcher_background">#1B5E9C</color>
+    <color name="ic_launcher_background">#2C5FA8</color>
 </resources>

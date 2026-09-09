@@ -5,42 +5,69 @@
 
     It is a plain section header rather than a card, and that is the point. The rows above it
     are answers to "what can I spend?"; this is a lid on things that are not answers. Giving
-    it the same card treatment would put it back in the running.
+    it the same treatment would put it back in the running — which matters more now that the
+    rows above wear eight saturated colours, and anything sharing that treatment would read
+    as another card to spend.
+
+    clickable, focusable and the ripple all sit on this root rather than on the inner row,
+    because CardRowAdapter binds the click listener and the expanded/collapsed state
+    description to itemView. Splitting them would leave the ripple on a view nobody presses
+    and the accessibility node on a view that does not describe itself.
 
     minHeight is 48dp — the smallest comfortable touch target — because the whole row is the
     control, not just the chevron.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:baselineAligned="false"
     android:clickable="true"
     android:focusable="true"
-    android:gravity="center_vertical"
-    android:minHeight="48dp"
-    android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp">
+    android:orientation="vertical"
+    android:paddingTop="4dp">
 
-    <ImageView
-        android:id="@+id/groupChevron"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="10dp"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_expand_more" />
+    <!-- Marks where the spendable wallet ends. A hairline rather than a gap: the cards
+         above already sit in space, so more space would not have read as a boundary. -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="4dp"
+        android:background="?attr/colorOutlineVariant" />
 
-    <TextView
-        android:id="@+id/groupLabel"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAlignment="viewStart"
-        android:textAppearance="?attr/textAppearanceTitleSmall"
-        tools:text="Archive (4)" />
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp">
+
+        <ImageView
+            android:id="@+id/groupChevron"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_expand_more"
+            app:tint="?attr/colorOnSurfaceVariant" />
+
+        <TextView
+            android:id="@+id/groupLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Archive (4)" />
+    </LinearLayout>
 
 </LinearLayout>

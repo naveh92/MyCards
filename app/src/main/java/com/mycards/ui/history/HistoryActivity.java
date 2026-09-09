@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mycards.R;
 import com.mycards.data.CardsRepository;
@@ -240,7 +241,7 @@ public class HistoryActivity extends AppCompatActivity {
     }
 
     private void confirmDelete(HistoryRow row) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(row.spend.title)
                 // Named here and not on the card screen's log, where there is only one card
                 // it could belong to. Here there are many, and deleting from the wrong one

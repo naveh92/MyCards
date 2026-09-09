@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mycards.R;
 import com.mycards.data.db.SpendEntity;
+import com.mycards.ui.CardFaces;
 import com.mycards.ui.Formats;
 
 import java.text.SimpleDateFormat;
@@ -139,6 +140,7 @@ public class HistoryAdapter extends ListAdapter<HistoryRow, RecyclerView.ViewHol
         private final TextView meta;
         private final TextView card;
         private final TextView amount;
+        private final View cardMarker;
 
         PurchaseVH(@NonNull View itemView) {
             super(itemView);
@@ -146,6 +148,7 @@ public class HistoryAdapter extends ListAdapter<HistoryRow, RecyclerView.ViewHol
             meta = itemView.findViewById(R.id.entryMeta);
             card = itemView.findViewById(R.id.entryCard);
             amount = itemView.findViewById(R.id.entryAmount);
+            cardMarker = itemView.findViewById(R.id.entryCardMarker);
         }
 
         void bind(HistoryRow row, OnPurchaseAction listener) {
@@ -153,6 +156,12 @@ public class HistoryAdapter extends ListAdapter<HistoryRow, RecyclerView.ViewHol
             SpendEntity spend = row.spend;
 
             title.setText(spend.title);
+
+            // The paying card’s colour, so a run of purchases off one card is visible
+            // before a word of it is read. Decorative: the card is named in full below, and
+            // this is not the only way to tell one row from another.
+            cardMarker.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ctx.getColor(CardFaces.accentFor(row.cardTypeId))));
 
             StringBuilder sub = new StringBuilder(Formats.prettyDate(ctx, spend.spentAt));
             if (spend.storeName != null && !spend.storeName.trim().isEmpty()) {

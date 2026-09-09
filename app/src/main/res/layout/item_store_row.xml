@@ -14,7 +14,7 @@
     android:layout_height="wrap_content"
     android:baselineAligned="false"
     android:gravity="center_vertical"
-    android:minHeight="52dp"
+    android:minHeight="56dp"
     android:orientation="horizontal"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
@@ -45,6 +45,7 @@
             android:maxLines="1"
             android:textAlignment="viewStart"
             android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:visibility="gone"
             tools:text="Also listed as zara" />
     </LinearLayout>

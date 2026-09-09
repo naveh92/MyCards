@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The stripe down the start edge of a purchase, painted in the colour of the card that
+    paid for it. Left white here and tinted at bind time, so one drawable serves all eight
+    faces instead of eight near-identical files.
+
+    It exists because the history mixes cards together: the card's name is already on the
+    row, but a name has to be read, and a colour tells you the run of purchases you are
+    looking at all came off the same card before you read anything.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="2dp" />
+    <solid android:color="@android:color/white" />
+</shape>

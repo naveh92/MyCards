@@ -18,34 +18,35 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.MyCards.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/toolbar_background"
-        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
-        app:popupTheme="@style/ThemeOverlay.MyCards.Popup"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/spending_history"
-        app:titleTextColor="@color/toolbar_on_background" />
+        app:title="@string/spending_history" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MyCards.SearchField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
         app:endIconMode="clear_text"
-        app:startIconDrawable="@android:drawable/ic_menu_search">
+        app:startIconDrawable="@drawable/ic_search">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/searchInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:hint="@string/history_search_hint"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:textAlignment="viewStart" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- The answer to "where did my gift money actually go?", and the feedback that turns
@@ -56,9 +57,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="4dp"
         android:textAlignment="viewStart"
-        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textAppearance="@style/TextAppearance.MyCards.Amount"
         tools:text="₪1,240 across 23 purchases" />
 
     <FrameLayout
@@ -88,6 +90,7 @@
             android:layout_marginTop="40dp"
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:visibility="gone"
             tools:text="Nothing logged yet" />
     </FrameLayout>

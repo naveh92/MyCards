@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mycards.R;
@@ -129,7 +130,7 @@ public final class AddSpendDialog {
                     cal.get(Calendar.DAY_OF_MONTH)).show();
         });
 
-        AlertDialog dialog = new AlertDialog.Builder(activity)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(activity)
                 .setTitle(titleRes)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)

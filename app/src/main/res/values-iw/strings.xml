@@ -4,6 +4,14 @@
 
     <!-- Search -->
     <string name="search_hint">שם חנות או שם כרטיס…</string>
+
+    <string name="wallet_total_label">זמין</string>
+    <plurals name="wallet_total_subtitle">
+        <item quantity="one">בכרטיס אחד</item>
+        <item quantity="two">בשני כרטיסים</item>
+        <item quantity="other">ב־%1$,d כרטיסים</item>
+    </plurals>
+    <string name="wallet_total_none">אין מה לנצל</string>
     <string name="search_empty_prompt">הקלידו שם של חנות כדי לראות אילו כרטיסים מתקבלים בה</string>
     <string name="no_results">אף כרטיס שלכם לא מתקבל ב\"%1$s\"</string>
     <string name="no_results_partial">אף כרטיס שלכם לא מציין את \"%1$s\" — אבל אחת מרשימות החנויות שלכם חלקית, כך שייתכן שהכרטיס בכל זאת יתקבל. שווה לשאול בקופה.</string>
@@ -21,6 +29,7 @@
     <string name="no_expiry">ללא תאריך תפוגה</string>
     <string name="expired">פג תוקף</string>
     <string name="expires_soon">פג תוקף בעוד %1$d ימים</string>
+    <string name="of_initial_amount">מתוך %1$s</string>
     <string name="expired_on">פג תוקף ב-%1$s</string>
 
     <!-- Retired cards: used up, expired, or put away by hand -->
@@ -29,6 +38,7 @@
     <string name="status_empty">ריק</string>
     <string name="status_expired">פג תוקף</string>
     <string name="status_archived">בארכיון</string>
+    <string name="status_expiring_soon">עומד לפוג</string>
     <string name="status_archived_explain">לא מופיע ברשימת הכרטיסים ולא מוצע כתשובה בחיפוש חנות. כל המידע עליו נשמר.</string>
     <string name="archive_card">העברה לארכיון</string>
     <string name="unarchive_card">הוצאה מהארכיון</string>

@@ -2,7 +2,6 @@ package com.mycards.ui;
 
 import android.app.Activity;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,27 +37,22 @@ public final class EdgeToEdge {
     /**
      * Darkens the clock and status icons when what sits behind them is light.
      *
-     * <p>Which colour is correct depends on the platform version, because the two draw the
-     * status bar from different things:
+     * <p>What the bar shows is now the same on every version we support: the theme sets
+     * {@code statusBarColor} to transparent, so the <em>window background</em> shows
+     * through — near-white in light mode, near-black in dark. The icons therefore follow
+     * night mode and nothing else.
      *
-     * <ul>
-     *   <li>Up to Android 14, {@code android:statusBarColor} in the theme is honoured, so the
-     *       bar is filled with the toolbar blue and the icons must stay light.
-     *   <li>From Android 15 that attribute is ignored for an app targeting SDK 35 — the bar
-     *       is transparent and shows the <em>window background</em> through it, not the
-     *       toolbar. In dark mode that is nearly black and the light icons still read, which
-     *       is why this went unnoticed; in light mode they land on near-white and vanish.
-     * </ul>
+     * <p>This used to return early below Android 15, and that was correct only while the
+     * theme filled the bar with a solid blue: light icons on blue read at any version, and
+     * the flip was needed only where the attribute stopped being honoured. Moving the
+     * toolbar onto the ordinary surface removed the blue, and with it the reason for the
+     * early return — leaving it in place would have put light icons on a near-white bar for
+     * every device on Android 14 and below, which is the whole of minSdk 26 to 34.
      *
-     * <p>So the icons flip only where the background actually flips. The flag is set per
-     * activity rather than in the theme because it belongs to the window's insets
-     * controller, and each activity has its own window.
+     * <p>The flag is set per activity rather than in the theme because it belongs to the
+     * window's insets controller, and each activity has its own window.
      */
     private static void applySystemBarIconColour(Activity activity) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            // Bars are painted with the theme colours; the defaults are already right.
-            return;
-        }
         boolean night = (activity.getResources().getConfiguration().uiMode
                 & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
 

@@ -36,7 +36,7 @@ public class HistoryGroupingTest {
         spend.amount = amount;
         spend.spentAt = when;
         spend.storeName = store;
-        return new Purchase(spend, cardName, currency);
+        return new Purchase(spend, cardName, "buyme_all", currency);
     }
 
     private static List<String> shape(List<HistoryRow> rows) {

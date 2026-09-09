@@ -23,15 +23,16 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.color.MaterialColors;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mycards.R;
 import com.mycards.cards.CardStatus;
+import com.mycards.cards.WalletTotal;
 import com.mycards.data.db.AppDatabase;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.EdgeToEdge;
+import com.mycards.ui.Formats;
 import com.mycards.ui.detail.CardDetailActivity;
 import com.mycards.ui.edit.AddEditCardActivity;
 import com.mycards.ui.history.HistoryActivity;
@@ -91,19 +92,26 @@ public class SearchActivity extends AppCompatActivity {
 
         RecyclerView results = findViewById(R.id.results);
         results.setLayoutManager(new LinearLayoutManager(this));
-        // Resolved from the theme rather than named as a colour, so the matched words stay
-        // legible against both the light and the dark surface.
+        // White, not the theme accent. The matched words are drawn on a card face, which is
+        // one of eight saturated fills — the accent blue that read well on the old grey rows
+        // is nearly invisible on the indigo face and fights the rose one. White is the only
+        // value that lifts off all eight, and it is already the colour the rest of the card
+        // is set in, so the highlight reads as emphasis rather than as a second palette.
+        // Bolding, which the adapter applies alongside this, is what carries the distinction
+        // for anyone who does not receive the colour at all.
         adapter = new CardRowAdapter(
-                MaterialColors.getColor(results, androidx.appcompat.R.attr.colorPrimary),
+                getColor(R.color.on_face),
                 this::openCard,
                 () -> viewModel.toggleArchive());
         results.setAdapter(adapter);
 
-        FloatingActionButton addCard = findViewById(R.id.addCard);
+        ExtendedFloatingActionButton addCard = findViewById(R.id.addCard);
         addCard.setOnClickListener(v ->
                 startActivity(new Intent(this, AddEditCardActivity.class)));
+        shrinkWhileScrolling(results, addCard);
 
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+        viewModel.total().observe(this, this::showTotal);
         viewModel.rows().observe(this, rows -> {
             adapter.submitList(rows);
             updateEmptyState(rows);
@@ -168,6 +176,59 @@ public class SearchActivity extends AppCompatActivity {
         }
         pendingSearch = () -> viewModel.search(query);
         debounce.postDelayed(pendingSearch, SEARCH_DEBOUNCE_MS);
+    }
+
+    /**
+     * Collapses the add button to its icon while the list is being scrolled.
+     *
+     * <p>An extended button says what it does, which is worth the width on arrival and not
+     * worth it afterwards: at full size it covers most of a card, and the wallet is a list
+     * you read. Scrolling is the signal that reading has started.
+     *
+     * <p>It comes back at the top of the list rather than after a pause, so the label is
+     * tied to a place rather than to a timer — the same gesture always returns it, and it
+     * never expands under a thumb that is still moving.
+     */
+    private static void shrinkWhileScrolling(RecyclerView list,
+                                             ExtendedFloatingActionButton button) {
+        list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView view, int dx, int dy) {
+                // canScrollVertically(-1) is false only at the very top, which is the one
+                // state the label belongs in. Testing dy instead would expand it mid-flick
+                // on the first upward pixel.
+                if (view.canScrollVertically(-1)) {
+                    button.shrink();
+                } else {
+                    button.extend();
+                }
+            }
+        });
+    }
+
+    /**
+     * Shows what the wallet is worth, above the cards.
+     *
+     * <p>A wallet with nothing spendable says so in words rather than showing "₪0". Zero is
+     * a balance — it invites the reader to wonder which card lost its money. "Nothing to
+     * spend" is a state, and it is the true one when every card is archived, lapsed or run
+     * out.
+     */
+    private void showTotal(WalletTotal total) {
+        TextView amount = findViewById(R.id.totalAmount);
+        TextView subtitle = findViewById(R.id.totalSubtitle);
+        if (total == null || total.isEmpty()) {
+            amount.setText(R.string.wallet_total_none);
+            subtitle.setVisibility(View.GONE);
+            return;
+        }
+        // Currency is left to Formats: every card is ILS — the column exists but nothing in
+        // the app ever sets it to anything else — so there is no wallet-level currency to
+        // pass and no mixed-currency total to get wrong.
+        amount.setText(Formats.money(total.amount(), null));
+        subtitle.setText(getResources().getQuantityString(
+                R.plurals.wallet_total_subtitle, total.cardCount(), total.cardCount()));
+        subtitle.setVisibility(View.VISIBLE);
     }
 
     /**

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One of the eight card faces; see CardFace and the palette note in values/colors.xml.
+
+    The corner radius is repeated here rather than left to the MaterialCardView that hosts
+    it. The card does clip to its own shape, but only once it has been laid out, and a face
+    without corners of its own flashes as a square behind the rounded card on the first
+    frame of a RecyclerView bind.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="20dp" />
+    <gradient
+        android:angle="315"
+        android:startColor="@color/face_slate_start"
+        android:endColor="@color/face_slate_end"
+        android:type="linear" />
+</shape>

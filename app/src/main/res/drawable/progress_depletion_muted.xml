@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The depletion bar on a retired card, which sits on the page rather than on a colour.
+    Same geometry as progress_depletion; only the two fills differ, because white on white
+    would be nothing at all.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="?attr/colorOutlineVariant" />
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress">
+        <clip
+            android:clipOrientation="horizontal"
+            android:gravity="start">
+            <shape android:shape="rectangle">
+                <corners android:radius="3dp" />
+                <solid android:color="@color/card_status" />
+            </shape>
+        </clip>
+    </item>
+
+</layer-list>

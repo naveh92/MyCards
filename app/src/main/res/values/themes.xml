@@ -1,75 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- NoActionBar: every screen supplies its own MaterialToolbar, and a decor-provided
-         action bar would collide with setSupportActionBar at runtime. -->
-    <style name="Theme.MyCards" parent="Theme.Material3.DayNight.NoActionBar">
+    <!--
+        NoActionBar: every screen supplies its own MaterialToolbar, and a decor-provided
+        action bar would collide with setSupportActionBar at runtime.
+
+        Material3Expressive rather than Material3. It is the 1.14.0 baseline and brings the
+        spring-based motion, the larger and heavier type scale, and the shape system the
+        rest of this file leans on. The View widgets are all present — this is not a
+        Compose-only track.
+    -->
+    <style name="Theme.MyCards" parent="Theme.Material3Expressive.DayNight.NoActionBar">
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorOnPrimary">@color/brand_on_primary</item>
         <item name="colorPrimaryContainer">@color/brand_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/brand_on_primary_container</item>
         <item name="colorSecondary">@color/brand_secondary</item>
-        <!-- Matches the toolbar rather than the accent, which is light in dark mode. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/toolbar_background</item>
+        <item name="colorSecondaryContainer">@color/brand_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/brand_on_secondary_container</item>
+        <item name="colorTertiary">@color/brand_tertiary</item>
+        <item name="colorTertiaryContainer">@color/brand_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/brand_on_tertiary_container</item>
+
+        <!--
+            Surfaces are stated rather than inherited, so the neutral greys in colors.xml
+            actually take effect. Material 3's own baseline is lavender-tinted and would
+            otherwise win here.
+        -->
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface_container</item>
+        <item name="colorSurfaceContainerLow">@color/surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container_high</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <!--
+            Transparent, not a colour. From API 35 the platform draws the app behind the
+            system bars and ignores a status bar colour outright; setting one here would be
+            a value that silently does nothing on the versions we target. The bar's contents
+            are made legible by the light/dark appearance flag instead, which EdgeToEdge
+            sets from the current night mode.
+        -->
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:navigationBarColor" tools:targetApi="l">@android:color/transparent</item>
+
+        <!-- Every transient surface the app puts on screen, pointed at the styles below.
+             Left unset, the overflow menu and the alert dialogs keep the platform defaults:
+             square corners on the menu and a dialog that does not match the rest of the app. -->
+        <item name="popupMenuStyle">@style/Widget.MyCards.PopupMenu</item>
+        <item name="android:popupMenuStyle">@style/Widget.MyCards.PopupMenu</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.MyCards.Dialog</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.MyCards.BottomSheet</item>
+        <item name="snackbarStyle">@style/Widget.MyCards.Snackbar</item>
     </style>
 
     <!--
-        The toolbar is a solid brand blue in both themes, so everything drawn on it has to be
-        light in both themes. Only the title took its colour from titleTextColor; the
-        navigation arrow and the overflow dots inherited colorOnSurface/colorOnSurfaceVariant
-        from the app theme, which is near-white in dark mode but near-black in light mode —
-        so in light mode they turned dark on dark blue and all but disappeared.
-
-        Applied as android:theme on each toolbar rather than in the app theme, so it recolours
-        the toolbar's own contents and nothing else on the screen.
+        ══ Transient surfaces ══
     -->
-    <style name="ThemeOverlay.MyCards.Toolbar" parent="">
-        <item name="colorOnSurface">@color/toolbar_on_background</item>
-        <item name="colorOnSurfaceVariant">@color/toolbar_on_background</item>
-        <item name="android:textColorPrimary">@color/toolbar_on_background</item>
-        <item name="android:textColorSecondary">@color/toolbar_on_background</item>
+
+    <!-- The overflow menu. Rounded and lifted onto its own container tone, which is what
+         separates it from the screen now that the toolbar behind it is the same surface the
+         body is. A square menu was tolerable over a solid blue bar; over the page it just
+         looks like a panel that failed to load. -->
+    <style name="Widget.MyCards.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup_menu</item>
+        <item name="android:popupElevation">3dp</item>
+    </style>
+
+    <style name="ThemeOverlay.MyCards.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MyCards.Dialog</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_container</item>
+    </style>
+
+    <style name="ShapeAppearance.MyCards.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="ThemeOverlay.MyCards.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.MyCards.BottomSheet</item>
+    </style>
+
+    <style name="Widget.MyCards.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MyCards.BottomSheet</item>
+        <item name="backgroundTint">?attr/colorSurfaceContainer</item>
+    </style>
+
+    <style name="ShapeAppearance.MyCards.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- Snackbars float clear of the bottom edge rather than butting against it, which is
+         the Material 3 arrangement and keeps them off the gesture bar. -->
+    <style name="Widget.MyCards.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MyCards.Snackbar</item>
+    </style>
+
+    <style name="ShapeAppearance.MyCards.Snackbar" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
     </style>
 
     <!--
-        The overflow menu's own theme, and it has to be stated separately or the overlay
-        above swallows it.
+        ══ Type ══
 
-        A Toolbar hands its android:theme down to the popup it opens, which is reasonable
-        for a toolbar whose popup shares its background and catastrophic for one whose does
-        not. Ours is the second kind: the overlay paints every foreground white so it can sit
-        on solid blue, and the popup then drew white text on the light popup surface. The
-        items were still there, still tappable, entirely invisible — and only in light mode,
-        because a dark popup surface hid the fault completely.
-
-        "Delete card" was the exception that disguised it: CardDetailActivity tints that one
-        item red in code, so the menu always had exactly one readable row and looked more
-        like a deliberate style than a bug.
-
-        Kept as explicit day/night colours rather than inherited, because inheriting is what
-        went wrong in the first place.
+        Balances are the thing you scan for at a checkout counter, so they get their own
+        scale rather than a body style with a size override.
     -->
-    <style name="ThemeOverlay.MyCards.Popup" parent="">
-        <item name="colorOnSurface">@color/popup_on_surface</item>
-        <item name="colorOnSurfaceVariant">@color/popup_on_surface_variant</item>
-        <item name="android:textColorPrimary">@color/popup_on_surface</item>
-        <item name="android:textColorSecondary">@color/popup_on_surface_variant</item>
+
+    <!-- The balance on a card face. Sized for reading at arm's length across a counter. -->
+    <style name="TextAppearance.MyCards.Balance" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textStyle">bold</item>
+        <!-- Digits stop shifting width as a balance changes, so a column of amounts lines
+             up and a live-updating figure does not jitter. -->
+        <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
-    <!-- Balances are the thing you scan for at a checkout counter, so they get their own scale. -->
-    <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.HeadlineSmall">
+    <!-- The total across the whole wallet: the first thing on the screen and the largest. -->
+    <style name="TextAppearance.MyCards.WalletTotal" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.MyCards.CardTitle" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.MyCards.CardTitle" parent="TextAppearance.Material3.TitleMedium" />
-
-    <style name="TextAppearance.MyCards.Meta" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:alpha">0.75</item>
-    </style>
+    <style name="TextAppearance.MyCards.Meta" parent="TextAppearance.Material3.BodySmall" />
 
     <!-- Monospace keeps a 16-digit number readable while typing it into a terminal. -->
     <style name="TextAppearance.MyCards.Secret" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:fontFamily">monospace</item>
         <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <!--
+        ══ Components ══
+    -->
+
+    <!--
+        Toolbars sit on the ordinary surface, matching the body and the status bar behind
+        it, which is the Material 3 arrangement. The two theme overlays this file used to
+        carry existed only to paint white text onto a solid blue bar and then to undo that
+        for the overflow popup, which is where the invisible light-mode menu came from.
+        A surface bar needs neither, so both are gone rather than kept and worked around.
+    -->
+    <style name="Widget.MyCards.Toolbar" parent="Widget.Material3.Toolbar.Surface">
+        <item name="android:background">?attr/colorSurface</item>
+        <item name="android:elevation">0dp</item>
+        <item name="titleTextAppearance">@style/TextAppearance.MyCards.ToolbarTitle</item>
+    </style>
+
+    <style name="TextAppearance.MyCards.ToolbarTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!--
+        The wallet's search field.
+
+        A filled, fully rounded container with no stroke — the shape Material 3 gives its
+        SearchBar. The outlined box this replaces is the Material 2 form field, and a
+        rectangle with a hairline border reads as a form to fill in rather than as somewhere
+        to start typing.
+
+        hintEnabled is off so the hint stays where it is instead of shrinking into a
+        floating label over the border, which a container with no border has nowhere to put.
+    -->
+    <style name="Widget.MyCards.SearchField" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundColor">?attr/colorSurfaceContainerHigh</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="hintEnabled">false</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MyCards.SearchField</item>
+    </style>
+
+    <style name="ShapeAppearance.MyCards.SearchField" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!--
+        ══ Settings ══
+
+        One group of related controls. Flat and filled rather than raised: these are not
+        objects to pick up, and an elevated card would make a radio group look tappable as a
+        whole. The container is doing one job, which is saying where the group ends.
+    -->
+    <style name="Widget.MyCards.SettingsGroup" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+        <item name="android:layout_marginBottom">20dp</item>
+    </style>
+
+    <!-- The heading above a group. Set in the accent so the four groups can be found by
+         scanning rather than read, and the accent is the one colour on this screen that is
+         not carrying another meaning. -->
+    <style name="TextAppearance.MyCards.SettingsHeading" parent="">
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <!-- A single choice inside a group. The 52dp floor is the touch target; the default
+         radio button is 48dp of which only the dot is comfortably hittable, and these rows
+         are full-width controls. -->
+    <style name="Widget.MyCards.SettingsChoice" parent="Widget.Material3.CompoundButton.RadioButton">
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <!-- Without this the Hebrew option aligns itself to the opposite edge of the group
+             from the two Latin ones, because a TextView takes its alignment from the script
+             of its own text rather than from the layout it sits in. -->
+        <item name="android:textAlignment">viewStart</item>
     </style>
 
 </resources>

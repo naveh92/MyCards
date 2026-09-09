@@ -43,6 +43,14 @@ public class HistoryRow {
     /** The card's own label, or its type name — whichever the wallet shows for it. */
     public String cardName;
 
+    /**
+     * The catalog id of the card that paid.
+     *
+     * <p>Carried only so the row can be marked in that card's colour, which is what lets
+     * you follow one card down a mixed list without reading a name on every line.
+     */
+    public String cardTypeId;
+
     public String currency;
 
     private HistoryRow(int type, long id) {
@@ -58,10 +66,12 @@ public class HistoryRow {
         return row;
     }
 
-    public static HistoryRow purchase(SpendEntity spend, String cardName, String currency) {
+    public static HistoryRow purchase(SpendEntity spend, String cardName, String cardTypeId,
+                                      String currency) {
         HistoryRow row = new HistoryRow(TYPE_PURCHASE, spend.id);
         row.spend = spend;
         row.cardName = cardName;
+        row.cardTypeId = cardTypeId;
         row.currency = currency;
         return row;
     }
