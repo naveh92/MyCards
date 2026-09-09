@@ -28,12 +28,20 @@
         app:elevation="0dp"
         app:liftOnScroll="true">
 
+        <!--
+            snap is not decoration. Without it the bar rests wherever the finger let go, and
+            the total is a block of three lines being slid up behind a toolbar: at half way
+            the subtitle is gone, the balance is cut off part-way down its digits, and the
+            result reads as a rendering fault rather than a scroll position. snap sends it to
+            whichever end is nearer when the gesture stops, so the only two states it comes
+            to rest in are the two that were designed.
+        -->
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/collapsing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:titleEnabled="false"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
             <!--
                 The wallet's total, and the first thing on the screen.

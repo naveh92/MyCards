@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -109,6 +110,7 @@ public class SearchActivity extends AppCompatActivity {
         addCard.setOnClickListener(v ->
                 startActivity(new Intent(this, AddEditCardActivity.class)));
         shrinkWhileScrolling(results, addCard);
+        fadeTotalOnCollapse();
 
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         viewModel.total().observe(this, this::showTotal);
@@ -203,6 +205,35 @@ public class SearchActivity extends AppCompatActivity {
                     button.extend();
                 }
             }
+        });
+    }
+
+    /**
+     * Fades the total out as the header collapses, rather than letting it be sliced.
+     *
+     * <p>The block is three lines being drawn behind a pinned toolbar, so as the bar closes
+     * the toolbar crops it — first the subtitle, then a horizontal cut through the digits of
+     * the balance. Cropped text does not read as motion, it reads as a bug.
+     *
+     * <p>The snap flag on the app bar means it never comes to <em>rest</em> mid-way, so this
+     * is only about the frames under the user's finger. It is gone by 60% closed, which is
+     * before the crop reaches the balance — the top 40% of the travel only eats the padding
+     * below it, and fading during that would make a small scroll look like a fault of its
+     * own.
+     */
+    private void fadeTotalOnCollapse() {
+        AppBarLayout appBar = findViewById(R.id.appBar);
+        View totalBlock = findViewById(R.id.totalBlock);
+        appBar.addOnOffsetChangedListener((bar, verticalOffset) -> {
+            int range = bar.getTotalScrollRange();
+            if (range == 0) {
+                // Nothing to collapse: too few cards to scroll, so the header never moves.
+                totalBlock.setAlpha(1f);
+                return;
+            }
+            float closed = Math.abs(verticalOffset) / (float) range;
+            float alpha = 1f - Math.min(closed / 0.6f, 1f);
+            totalBlock.setAlpha(alpha);
         });
     }
 
