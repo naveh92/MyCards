@@ -108,9 +108,40 @@ public final class SearchNormalizer {
         /** For each character of {@link #text}, the index it came from in the source. */
         private final int[] source;
 
+        /** Built on demand by {@link #folded()}; most callers never ask for one. */
+        private Normalized foldedForm;
+
         private Normalized(String text, int[] source) {
             this.text = text;
             this.source = source;
+        }
+
+        /**
+         * The same text put through {@link HebrewFold}, with offsets still pointing into the
+         * original string.
+         *
+         * <p>Folding only ever drops or substitutes characters, never inserts, so every
+         * surviving character keeps the source index it already had — which is what lets a
+         * span found in the skeleton be drawn over the letters the reader is looking at.
+         */
+        public Normalized folded() {
+            if (foldedForm != null) {
+                return foldedForm;
+            }
+            StringBuilder out = new StringBuilder(text.length());
+            int[] mapped = new int[text.length()];
+            HebrewFold.Folder folder = new HebrewFold.Folder();
+            int kept = 0;
+            for (int i = 0; i < text.length(); i++) {
+                char c = folder.next(text.charAt(i));
+                if (c == HebrewFold.Folder.DROP) {
+                    continue;
+                }
+                out.append(c);
+                mapped[kept++] = source[i];
+            }
+            foldedForm = new Normalized(out.toString(), Arrays.copyOf(mapped, kept));
+            return foldedForm;
         }
 
         /** Where the normalized character at {@code index} started in the source string. */

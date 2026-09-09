@@ -84,6 +84,24 @@ public class CardEntity {
     public boolean hasUnreconciledMismatch;
 
     /**
+     * When the user put this card away by hand, epoch millis; 0 while it is in use.
+     *
+     * <p>The only retirement state that is stored. "Used up" and "expired" are worked out
+     * from the balance and the expiry every time they are needed, so deleting a purchase or
+     * correcting an expiry brings the card back on its own. This one cannot be derived from
+     * anything — it is a decision — so it has to be written down.
+     *
+     * <p>A timestamp rather than a flag: it costs the same, and it is the difference between
+     * "this card is archived" and being able to say when it stopped being in use.
+     */
+    public long archivedAt;
+
+    /** True when the user has put this card away by hand. */
+    public boolean isArchived() {
+        return archivedAt > 0L;
+    }
+
+    /**
      * True when this card holds anything behind the auth-bound key.
      *
      * <p>All three fields count. The card expiry was missing from this test while every

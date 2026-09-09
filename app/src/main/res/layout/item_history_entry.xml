@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One purchase. Built from the same parts as item_spend.xml, with one addition: the card
+    that paid for it. That line is the entire difference between this screen and a single
+    card's log, so it is never left off and never folded into the run of metadata above it.
+
+    Every label sets textAlignment="viewStart" of its own accord. TextView resolves alignment
+    from the direction of its own text unless told otherwise, so on a Hebrew screen a purchase
+    typed as "Bed linen" or logged at "Fox Home" drifts to the left edge while the Hebrew rows
+    around it stay right. It cannot be set once on the container.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:baselineAligned="false"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="56dp"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/entryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            tools:text="Shoes at Castro" />
+
+        <TextView
+            android:id="@+id/entryMeta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            tools:text="12/07/2026 · Castro" />
+
+        <!-- A way through to the card itself. It is wrap_content and carries its own ripple
+             so the tap target is the name and nothing else: the rest of the row still opens
+             the purchase for editing, and a full-width target here would swallow that.
+
+             No chevron or button. The name was already drawn in the accent colour before it
+             did anything, which is exactly what a link looks like — so the affordance was
+             half-built already and finishing it costs no extra furniture. -->
+        <TextView
+            android:id="@+id/entryCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:maxLines="1"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:textAlignment="viewStart"
+            android:textAppearance="?attr/textAppearanceLabelSmall"
+            android:textColor="?attr/colorPrimary"
+            tools:text="Holiday gift 2026" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/entryAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        tools:text="₪120" />
+
+</LinearLayout>

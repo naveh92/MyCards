@@ -16,9 +16,20 @@
     <color name="toolbar_background">#1B5E9C</color>
     <color name="toolbar_on_background">#FFFFFF</color>
 
+    <!-- Text inside the overflow menu, which drops onto the ordinary light surface rather
+         than onto the blue bar, and so must not follow toolbar_on_background. Material 3's
+         on-surface tones. -->
+    <color name="popup_on_surface">#1C1B1F</color>
+    <color name="popup_on_surface_variant">#49454F</color>
+
     <color name="expiry_warning">#B26A00</color>
     <color name="expiry_expired">#B3261E</color>
     <color name="online_badge">#2E7D5B</color>
+
+    <!-- "Used up" / "Archived". Deliberately grey: a card being finished is not a warning
+         and not an error, and painting it in either tone would make a wallet in perfectly
+         normal order look like it needed attention. 4.6:1 on white. -->
+    <color name="card_status">#5B6670</color>
 
     <!-- The store list scrollbar. Tinted rather than grey so it reads as part of the app,
          and translucent so a thousand-row list is not divided by a bar down its side. -->

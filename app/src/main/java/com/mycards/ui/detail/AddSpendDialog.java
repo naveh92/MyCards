@@ -155,8 +155,14 @@ public final class AddSpendDialog {
             // Tolerance of one agora, so a balance of exactly 25.00 accepts a 25.00 spend
             // rather than tripping on floating-point representation.
             if (amount > maxAmount + 0.01d) {
-                amountLayout.setError(activity.getString(R.string.spend_exceeds_balance,
-                        Formats.money(maxAmount, currency)));
+                // A card with nothing left refuses every amount that can be typed, so
+                // "Only ₪0 left on this card" was a door with no handle: true, unarguable,
+                // and no help at all to someone who opened this dialog because an earlier
+                // entry is wrong. Point at the entry instead of restating the balance.
+                amountLayout.setError(maxAmount < 0.01d
+                        ? activity.getString(R.string.spend_card_used_up)
+                        : activity.getString(R.string.spend_exceeds_balance,
+                                Formats.money(maxAmount, currency)));
                 return;
             }
             amountLayout.setError(null);

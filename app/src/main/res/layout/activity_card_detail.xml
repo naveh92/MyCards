@@ -2,6 +2,8 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detailRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -16,6 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@color/toolbar_background"
             android:theme="@style/ThemeOverlay.MyCards.Toolbar"
+            app:popupTheme="@style/ThemeOverlay.MyCards.Popup"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:title="@string/card_details"
             app:titleTextColor="@color/toolbar_on_background" />
@@ -69,6 +72,44 @@
                     android:layout_marginTop="8dp"
                     android:textAlignment="viewStart"
                     android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+                <!-- Why this card is not in the wallet list. Shown only when it is not:
+                     an active card says nothing here rather than announcing that it is
+                     fine, which is the default and needs no words.
+
+                     Expiry is left to the red line above, which already says it and says
+                     when. This block covers the two states nothing else would explain. -->
+                <LinearLayout
+                    android:id="@+id/statusBlock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/statusBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_muted"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="3dp"
+                        android:textAppearance="?attr/textAppearanceLabelMedium"
+                        android:textColor="@color/card_status"
+                        tools:text="Archived" />
+
+                    <TextView
+                        android:id="@+id/statusExplain"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textAlignment="viewStart"
+                        android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                        android:visibility="gone"
+                        tools:text="Kept out of your wallet list." />
+                </LinearLayout>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/mismatchCard"

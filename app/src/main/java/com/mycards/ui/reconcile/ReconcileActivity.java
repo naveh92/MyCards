@@ -77,8 +77,7 @@ public class ReconcileActivity extends AppCompatActivity {
 
             // Read here, on the thread that is already doing the reading, so the shop
             // names are ready by the time the purchase dialog opens.
-            StoreNameIndex names = StoreNameIndex.of(
-                    catalogRepo.loadStoreNames(card.cardTypeId));
+            StoreNameIndex names = catalogRepo.loadStoreSuggestions(card.cardTypeId);
 
             AppExecutors.main(() -> {
                 storeSuggestions = names;

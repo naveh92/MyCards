@@ -16,10 +16,11 @@ import com.mycards.data.db.AppDatabase;
 import com.mycards.data.db.CardEntity;
 import com.mycards.data.db.StoreCacheEntity;
 import com.mycards.data.source.StoreListJson;
-import com.mycards.search.MatchScore;
+import com.mycards.search.MatchSpan;
+import com.mycards.search.Query;
 import com.mycards.search.SearchEngine;
-import com.mycards.search.SearchNormalizer;
 import com.mycards.search.Store;
+import com.mycards.search.StoreMatch;
 import com.mycards.ui.AppExecutors;
 
 import java.io.ByteArrayInputStream;
@@ -28,10 +29,8 @@ import java.nio.charset.StandardCharsets;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Holds one card's merchant list and answers queries against it.
@@ -78,16 +77,6 @@ public class StoreListViewModel extends AndroidViewModel {
 
     /** Every merchant on the card, already in the reader's alphabetical order. */
     private List<Store> allStores = Collections.emptyList();
-
-    /**
-     * Each merchant's aliases as they were written.
-     *
-     * <p>{@link Store} normalizes them and throws the originals away, which is the right
-     * trade for the wallet-wide index but leaves nothing to show someone whose query matched
-     * an alias rather than a name. Keyed by identity, which is what a {@code HashMap} gives
-     * for a class that does not override {@code equals}.
-     */
-    private Map<Store, List<String>> aliases = new HashMap<>();
 
     private String query = "";
     private boolean onlineOnly;
@@ -163,18 +152,11 @@ public class StoreListViewModel extends AndroidViewModel {
                     .storeCacheDao().getByCardType(card.cardTypeId);
 
             List<Store> stores = new ArrayList<>();
-            Map<Store, List<String>> aliasesByStore = new HashMap<>();
 
             if (cache != null && cache.storesJson != null) {
                 try (InputStream in = new ByteArrayInputStream(
                         cache.storesJson.getBytes(StandardCharsets.UTF_8))) {
-                    StoreListJson.readCompactList(in, (name, written, online) -> {
-                        Store store = new Store(name, written, online);
-                        stores.add(store);
-                        if (!written.isEmpty()) {
-                            aliasesByStore.put(store, written);
-                        }
-                    });
+                    stores.addAll(StoreListJson.parseCompactList(in));
                 } catch (Exception e) {
                     // Treated exactly as the search index treats it: a corrupt cache is an
                     // empty list, not a crash on a screen someone opened in order to read.
@@ -208,7 +190,6 @@ public class StoreListViewModel extends AndroidViewModel {
 
             AppExecutors.main(() -> {
                 allStores = stores;
-                aliases = aliasesByStore;
                 loaded = true;
                 info.setValue(cardInfo);
                 refilter();
@@ -243,12 +224,12 @@ public class StoreListViewModel extends AndroidViewModel {
                 }
             }
 
-            List<Store> matched = engine.matchingStores(forQuery, base);
-            List<String> variants = SearchEngine.queryVariants(forQuery);
+            List<StoreMatch> matched = engine.matchingStores(forQuery, base);
+            List<Query> variants = SearchEngine.queryVariants(forQuery);
 
             List<StoreRow> out = new ArrayList<>(matched.size());
-            for (Store store : matched) {
-                out.add(describe(store, variants));
+            for (StoreMatch match : matched) {
+                out.add(describe(match, variants));
             }
 
             AppExecutors.main(() -> {
@@ -263,85 +244,24 @@ public class StoreListViewModel extends AndroidViewModel {
      * Works out what to tell the reader about why this merchant is on screen.
      *
      * <p>The order is the honest one: point at the name when the name is the reason, and
-     * name the alias when it is not. A row that bolds nothing and explains nothing looks
-     * like a bug in the filter.
+     * name the spelling that matched when it is not. A row that bolds nothing and explains
+     * nothing looks like a bug in the filter.
      */
-    private StoreRow describe(Store store, List<String> variants) {
+    private StoreRow describe(StoreMatch match, List<Query> variants) {
+        Store store = match.getStore();
         String name = store.getName();
         if (variants.isEmpty()) {
             return new StoreRow(name, -1, -1, null, store.isOnlineRedeem());
         }
 
-        SearchNormalizer.Normalized normalized = SearchNormalizer.normalizeWithSource(name);
-        int bestAt = -1;
-        int bestLength = 0;
-        int bestScore = MatchScore.NONE;
-
-        for (String variant : variants) {
-            int at = normalized.text.indexOf(variant);
-            if (at < 0) {
-                continue;
-            }
-            int score;
-            if (normalized.text.length() == variant.length()) {
-                score = MatchScore.EXACT;
-            } else if (at == 0) {
-                score = MatchScore.PREFIX;
-            } else {
-                score = MatchScore.SUBSTRING;
-            }
-            if (score > bestScore) {
-                bestScore = score;
-                bestAt = at;
-                bestLength = variant.length();
-            }
+        if (match.isByName()) {
+            MatchSpan span = MatchSpan.find(name, variants);
+            return span == null
+                    ? new StoreRow(name, -1, -1, null, store.isOnlineRedeem())
+                    : new StoreRow(name, span.start, span.end, null, store.isOnlineRedeem());
         }
 
-        if (bestAt >= 0) {
-            return new StoreRow(name,
-                    normalized.sourceStart(bestAt),
-                    normalized.sourceEnd(bestAt + bestLength - 1),
-                    null,
-                    store.isOnlineRedeem());
-        }
-
-        // The name does not contain the query, so something else put this row here.
-        return new StoreRow(name, -1, -1, matchingAlias(store, variants),
-                store.isOnlineRedeem());
-    }
-
-    /**
-     * Picks the alias to name as the reason this merchant is on screen.
-     *
-     * <p>The shortest match rather than the first, and that choice matters more than it
-     * looks. What the cache holds is not the alias as the issuer wrote it — {@code
-     * StoreListWriter} stores the normalized haystacks, so spacing, case and punctuation are
-     * already gone by the time anything gets here. A short alias survives that intact
-     * ("אדידס" reads exactly as written); a long one collapses into a run-on
-     * ("אדידס וריבוק - adidas &amp; reebok" becomes "אדידסוריבוקadidasreebok") and explains
-     * nothing. Since a merchant that matches at all usually matches a short brand token too,
-     * preferring the shortest keeps the line readable.
-     *
-     * @return the shortest alias the query hits, or null when the merchant has none kept
-     */
-    private String matchingAlias(Store store, List<String> variants) {
-        List<String> written = aliases.get(store);
-        if (written == null) {
-            return null;
-        }
-        String best = null;
-        for (String alias : written) {
-            if (best != null && alias.length() >= best.length()) {
-                continue;
-            }
-            String normalized = SearchNormalizer.normalize(alias);
-            for (String variant : variants) {
-                if (SearchNormalizer.containsNormalized(normalized, variant)) {
-                    best = alias;
-                    break;
-                }
-            }
-        }
-        return best;
+        // The name does not contain the query, so say which of its other spellings does.
+        return new StoreRow(name, -1, -1, match.getMatchedForm(), store.isOnlineRedeem());
     }
 }

@@ -50,4 +50,14 @@ public interface CardDao {
 
     @Query("UPDATE cards SET hasUnreconciledMismatch = 0 WHERE id = :cardId")
     void clearMismatch(long cardId);
+
+    /**
+     * Puts a card away by hand, or brings it back — {@code archivedAt} of 0 means in use.
+     *
+     * <p>{@code updatedAt} moves with it. A backup merge picks the newer of two copies by
+     * that field, so archiving without touching it would let a restore from an older file
+     * silently un-archive the card.
+     */
+    @Query("UPDATE cards SET archivedAt = :archivedAt, updatedAt = :updatedAt WHERE id = :cardId")
+    void setArchived(long cardId, long archivedAt, long updatedAt);
 }

@@ -47,12 +47,43 @@ handles the very common case of typing with the layout in the wrong language —
 on an English keyboard comes out as `tshsx`, and still finds adidas. The layout table was
 verified against BuyMe's own alias data, which ships exactly these manglings.
 
+**Hebrew spelling variants**
+([HebrewFold](app/src/main/java/com/mycards/search/HebrewFold.java)) bridge the two ways
+Hebrew is legitimately written. Nobody agrees where the optional yod and vav go — Erroca is
+listed as `אירוקה` and typed as `ארוקה` — and `ק`/`כ` and `ט`/`ת` are coin tosses in a
+transliterated brand name. Both sides of a comparison are reduced to a *skeleton* with those
+distinctions removed. `א`/`ע` are sound-alikes too and deliberately are **not** folded: they
+are common enough that merging them made `ארוקה` match `ערכה` ("a kit") and handed the top of
+the Erroca search to a toy shop.
+
+This is a fallback, not the main event. It runs only when exact matching found nothing,
+scores in a band below every literal match, and refuses a skeleton buried mid-word — `מארזי
+אווירה` folds to something containing the fold of `זארה`, and answering a Zara search with a
+gift-box shop is worse than answering with nothing.
+
 **Matching is infix**, not token-based: `"za"` has to find a store with `za` in the middle of
 its name. That rules out an inverted index — no token map answers arbitrary mid-word
 fragments — so names and aliases are normalized once at index-build time and scanned
-directly. Ranking is exact > prefix > substring, with a card-name hit outranking a merchant
-hit, so typing `buyme` means "my BuyMe card" rather than "every card covering a shop called
-BuyMe".
+directly. Ranking is literal-before-skeleton, then name-before-alias, then exact > prefix >
+substring, with a card-name hit outranking a merchant hit — so typing `buyme` means "my BuyMe
+card" rather than "every card covering a shop called BuyMe".
+
+**Your own card names are searchable too**
+([CardLabel](app/src/main/java/com/mycards/search/CardLabel.java)). Everything above is
+shared — a card type and its merchants are the same for everyone holding that card — but the
+label you typed onto a card exists on one phone only, so it is matched per card rather than
+per card type. It carries the same card-name bonus as the type's own name, for the same
+reason: typing the name you chose is a request for *that card*, so the row reports what the
+card covers instead of naming a shop that happens to share a word with it. This was a blind
+spot worth recording — the card sat on screen with its label as the heading, and typing that
+heading answered "no card of yours is accepted there".
+
+**Every match carries the spelling that produced it**, which is what lets a row explain
+itself. A merchant list holds a shop under one name and finds it under a dozen: searching
+`קרולינה` returns both `CAROLINA LEMKE` and `מגוון מותגי קבוצת קסטרו הודיס`, the second of
+which shares no letter with the query and is on the list because the Castro group it names
+covers that brand. Both rows name the spelling they read and highlight it, so a correct result
+stops looking like a broken filter.
 
 Results are sorted by relevance, then **soonest-to-expire**, which nudges dying cards to get
 spent first.

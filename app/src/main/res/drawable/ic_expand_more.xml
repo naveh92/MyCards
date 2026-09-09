@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Points down when the group is shut and is rotated 180° when it is open. Not
+     autoMirrored, unlike the chevron that means "go this way": a vertical arrow says the same
+     thing on an RTL screen as on an LTR one, and mirroring it would only flip it upside
+     down. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M7.4,8.6 L12,13.2 L16.6,8.6 L18,10 L12,16 L6,10 Z" />
+</vector>

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- On the bar rather than in the overflow, and the only thing there. The alternative
+         was a second tab along the bottom, which would have pushed the search field down a
+         permanent 80dp to reach a screen opened once a month — on the one screen in the app
+         whose entire job is to answer a question in the twenty seconds you have at a
+         counter. An icon costs nothing and moves nothing. -->
+    <item
+        android:id="@+id/action_history"
+        android:icon="@drawable/ic_history"
+        android:title="@string/spending_history"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
         android:title="@string/menu_settings"

@@ -21,7 +21,9 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mycards.R;
+import com.mycards.cards.CardStatus;
 import com.mycards.data.CardsRepository;
 import com.mycards.data.CatalogRepository;
 import com.mycards.data.catalog.model.Catalog;
@@ -137,7 +139,7 @@ public class CardDetailActivity extends AppCompatActivity {
             // cheapest place to have the shop names ready before anyone asks for them.
             StoreNameIndex names = storeSuggestions != null
                     ? storeSuggestions
-                    : StoreNameIndex.of(catalogRepo.loadStoreNames(card.cardTypeId));
+                    : catalogRepo.loadStoreSuggestions(card.cardTypeId);
 
             AppExecutors.main(() -> {
                 storeSuggestions = names;
@@ -180,6 +182,11 @@ public class CardDetailActivity extends AppCompatActivity {
             expiry.setText(getString(R.string.expires_on,
                     Formats.expiryToDisplay(card.expiryDate)));
         }
+
+        renderStatus(remaining, days);
+        // The overflow is built before the card is loaded, so its Archive/Bring back wording
+        // is only knowable once we are here.
+        invalidateOptionsMenu();
 
         storeCache = cache;
         renderStoreListRow();
@@ -224,6 +231,82 @@ public class CardDetailActivity extends AppCompatActivity {
         findViewById(R.id.noSpends).setVisibility(noSpends ? View.VISIBLE : View.GONE);
         // An empty list still reserves its padding and draws as a stray grey block.
         spendList.setVisibility(noSpends ? View.GONE : View.VISIBLE);
+    }
+
+    // --- retirement ---
+
+    /**
+     * States why the card is not in the wallet list, when it is not.
+     *
+     * <p>An active card says nothing at all here. Its being spendable is the default, and a
+     * screen that announced it would be spending a line on the absence of news — the same
+     * reason the expiry line disappears on a card that has no expiry.
+     *
+     * <p>Archiving gets a sentence as well as a badge, because it is the only one of these
+     * states the user caused and the only one they can be surprised by. The card vanishing
+     * from the wallet needs to be explained where they will be standing when they wonder.
+     */
+    private void renderStatus(double remaining, long daysUntilExpiry) {
+        View block = findViewById(R.id.statusBlock);
+        TextView badge = findViewById(R.id.statusBadge);
+        TextView explain = findViewById(R.id.statusExplain);
+
+        CardStatus state = CardStatus.of(remaining, daysUntilExpiry, card.archivedAt);
+        if (state == CardStatus.ARCHIVED) {
+            badge.setText(R.string.status_archived);
+            explain.setText(R.string.status_archived_explain);
+            explain.setVisibility(View.VISIBLE);
+            block.setVisibility(View.VISIBLE);
+        } else if (state == CardStatus.EMPTY) {
+            badge.setText(R.string.status_empty);
+            explain.setVisibility(View.GONE);
+            block.setVisibility(View.VISIBLE);
+        } else {
+            // Active, or expired — which the red line above has already said, with the month.
+            block.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Puts the card away, or brings it back.
+     *
+     * <p>Stays on this screen rather than returning to the wallet. Archiving is not a
+     * farewell — the card keeps its balance, its history and its shop list, and all of that
+     * is on the screen behind the confirmation. Leaving would also take away the one place
+     * the undo can be offered.
+     */
+    private void toggleArchive() {
+        if (card == null) {
+            return;
+        }
+        boolean archiving = !card.isArchived();
+        long previous = card.archivedAt;
+        long now = System.currentTimeMillis();
+
+        applyArchive(archiving ? now : 0L, now, () ->
+                Snackbar.make(findViewById(R.id.detailRoot),
+                                archiving ? R.string.card_archived : R.string.card_unarchived,
+                                Snackbar.LENGTH_LONG)
+                        // Reversible, and said so at the moment of doing it. Archiving is
+                        // meant to be the cheap, safe neighbour of deleting a card, and an
+                        // action nobody is sure how to undo is not cheap.
+                        .setAction(R.string.undo, v ->
+                                applyArchive(previous, System.currentTimeMillis(), null))
+                        .show());
+    }
+
+    private void applyArchive(long archivedAt, long updatedAt, Runnable then) {
+        AppExecutors.io(() -> {
+            cardsRepo.cards().setArchived(cardId, archivedAt, updatedAt);
+            AppExecutors.main(() -> {
+                load();
+                // The overflow item's wording flips between "Archive" and "Bring back".
+                invalidateOptionsMenu();
+                if (then != null) {
+                    then.run();
+                }
+            });
+        });
     }
 
     // --- sensitive values ---
@@ -521,8 +604,43 @@ public class CardDetailActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Shows the archive action only when it would do something.
+     *
+     * <p>An empty or expired card is already out of the wallet and already in the archive —
+     * it got there on its own. Offering to archive it was offering to do what had been done,
+     * and the one visible effect of accepting was that the badge changed from "Expired" to
+     * "Archived", which reads as the app having reclassified the card for no reason.
+     *
+     * <p>A card the user archived by hand keeps the reverse action, and an active card keeps
+     * the forward one. Everything else gets neither.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem archive = menu.findItem(R.id.action_archive);
+        if (archive != null) {
+            CardStatus state = card == null
+                    ? CardStatus.ACTIVE
+                    : CardStatus.of(remainingBalance, Formats.daysUntil(card.expiryDate),
+                            card.archivedAt);
+
+            boolean archived = state == CardStatus.ARCHIVED;
+            // Retired on its own: nothing to archive, and nothing to bring back either,
+            // because what put it in the archive was not a decision that can be undone here.
+            boolean retiredByItself = state == CardStatus.EMPTY || state == CardStatus.EXPIRED;
+
+            archive.setVisible(!retiredByItself);
+            archive.setTitle(archived ? R.string.unarchive_card : R.string.archive_card);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_archive) {
+            toggleArchive();
+            return true;
+        }
         if (item.getItemId() == R.id.action_edit) {
             Intent intent = new Intent(this, AddEditCardActivity.class);
             intent.putExtra(AddEditCardActivity.EXTRA_CARD_ID, cardId);

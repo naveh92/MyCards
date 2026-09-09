@@ -30,6 +30,31 @@
         <item name="android:textColorSecondary">@color/toolbar_on_background</item>
     </style>
 
+    <!--
+        The overflow menu's own theme, and it has to be stated separately or the overlay
+        above swallows it.
+
+        A Toolbar hands its android:theme down to the popup it opens, which is reasonable
+        for a toolbar whose popup shares its background and catastrophic for one whose does
+        not. Ours is the second kind: the overlay paints every foreground white so it can sit
+        on solid blue, and the popup then drew white text on the light popup surface. The
+        items were still there, still tappable, entirely invisible — and only in light mode,
+        because a dark popup surface hid the fault completely.
+
+        "Delete card" was the exception that disguised it: CardDetailActivity tints that one
+        item red in code, so the menu always had exactly one readable row and looked more
+        like a deliberate style than a bug.
+
+        Kept as explicit day/night colours rather than inherited, because inheriting is what
+        went wrong in the first place.
+    -->
+    <style name="ThemeOverlay.MyCards.Popup" parent="">
+        <item name="colorOnSurface">@color/popup_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/popup_on_surface_variant</item>
+        <item name="android:textColorPrimary">@color/popup_on_surface</item>
+        <item name="android:textColorSecondary">@color/popup_on_surface_variant</item>
+    </style>
+
     <!-- Balances are the thing you scan for at a checkout counter, so they get their own scale. -->
     <style name="TextAppearance.MyCards.Amount" parent="TextAppearance.Material3.HeadlineSmall">
         <item name="android:textStyle">bold</item>

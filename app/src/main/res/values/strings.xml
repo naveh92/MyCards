@@ -11,6 +11,11 @@
     <string name="accepted_at">Accepted at %1$s</string>
     <string name="and_more_stores">+%1$d more</string>
     <string name="matched_card_name">Matches the card name</string>
+
+    <!-- A merchant found through one of its other spellings: the list calls it "CAROLINA
+         LEMKE" and the query was typed in Hebrew. Showing both is what stops the row looking
+         like a mistake, and the parenthesis is what keeps the shop's own name the anchor. -->
+    <string name="store_listed_as">%1$s (%2$s)</string>
     <string name="online_badge">Online</string>
 
     <!-- Card summary -->
@@ -19,7 +24,49 @@
     <string name="expires_on">Expires %1$s</string>
     <string name="no_expiry">No expiry</string>
     <string name="expired">Expired</string>
+    <!-- Naming the month tells a card that lapsed last week from one that lapsed in 2023 —
+         most of what there is to know about a card once it is in the archive. -->
+    <string name="expired_on">Expired %1$s</string>
     <string name="expires_soon">Expires in %1$d days</string>
+
+    <!-- Retired cards: empty, expired, or put away by hand.
+
+         All three are single words on purpose. They are read as a set, side by side in one
+         group, and a set is easiest to take in when its members have the same shape. "Empty"
+         also beat "Used up" on its own merits: it is what the row already shows (a balance of
+         zero) said in one word rather than two, it does not imply the money was spent — a
+         card can be empty because it was never loaded — and it translates to a single Hebrew
+         word, where "used up" needs three. "Fully redeemed" and "Zero balance" are the other
+         two the industry uses; the first is jargon and the second just restates the number
+         printed beside it. -->
+    <string name="status_empty">Empty</string>
+    <string name="status_expired">Expired</string>
+    <string name="status_archived">Archived</string>
+    <string name="status_archived_explain">Kept out of your wallet list, and never offered as an answer when you search for a shop. Everything on it is still here.</string>
+    <string name="archive_card">Archive card</string>
+    <string name="unarchive_card">Unarchive card</string>
+    <string name="card_archived">Card archived</string>
+    <string name="card_unarchived">Card is back in your wallet</string>
+    <string name="undo">Undo</string>
+
+    <!-- Said when a card leaves the wallet without anyone asking it to. Archiving is a
+         decision and announces itself; these two just happen, one inside the dialog that
+         logs a purchase and the other overnight with the app shut. -->
+    <string name="card_now_empty">%1$s is empty — moved to your archive</string>
+    <string name="card_now_expired">%1$s has expired — moved to your archive</string>
+    <plurals name="cards_moved_to_archive">
+        <item quantity="one">%1$d card moved to your archive</item>
+        <item quantity="other">%1$d cards moved to your archive</item>
+    </plurals>
+    <string name="show_archive">Show</string>
+    <!-- The group at the foot of the wallet. "Archive" is a place rather than a verdict, so
+         it can hold an empty card, a lapsed one and one put away on purpose without
+         misdescribing any of them — each row states its own reason. -->
+    <string name="archive_group">Archive (%1$d)</string>
+    <string name="archive_group_matched">Also in the archive (%1$d)</string>
+    <string name="group_expanded">Showing</string>
+    <string name="group_collapsed">Hidden</string>
+    <string name="all_cards_retired">Every card in your wallet is empty, expired or archived. Open the archive below to bring one back.</string>
 
     <!-- Card detail -->
     <string name="card_details">Card details</string>
@@ -54,7 +101,28 @@
     <string name="spend_required_title">Give the purchase a short description</string>
     <string name="spend_required_amount">Enter an amount above zero</string>
     <string name="spend_exceeds_balance">Only %1$s left on this card</string>
+    <string name="spend_card_used_up">This card is empty. If something is wrong, edit or delete one of the entries below instead.</string>
     <string name="delete_spend">Delete entry</string>
+
+    <!-- Spending history: every purchase, across every card -->
+    <string name="spending_history">Spending history</string>
+    <string name="history_search_hint">Search purchases, shops or cards…</string>
+    <plurals name="history_summary">
+        <item quantity="one">%1$s across %2$d purchase</item>
+        <item quantity="other">%1$s across %2$,d purchases</item>
+    </plurals>
+    <!-- Used when the purchases shown are in more than one currency, so no single total
+         can honestly be stated. -->
+    <plurals name="history_count">
+        <item quantity="one">%1$d purchase</item>
+        <item quantity="other">%1$,d purchases</item>
+    </plurals>
+    <string name="history_nothing_logged">Nothing logged yet. Purchases you log on a card show up here, newest first.</string>
+    <string name="history_no_match">No purchase matches \"%1$s\"</string>
+    <string name="history_delete_from">On %1$s. This cannot be undone.</string>
+    <!-- Spoken label for tapping the card name on a purchase; the visible text is the card
+         name itself, which says what it is but not what tapping it does. -->
+    <string name="history_open_card">Open this card</string>
 
     <!-- Add / edit card -->
     <string name="add_card">Add card</string>

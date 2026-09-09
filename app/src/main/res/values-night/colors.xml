@@ -17,10 +17,18 @@
     <color name="toolbar_background">#17466F</color>
     <color name="toolbar_on_background">#FFFFFF</color>
 
+    <!-- The popup surface is dark here, so its text is light — which is why the missing
+         popupTheme only ever showed up in light mode. -->
+    <color name="popup_on_surface">#E6E1E5</color>
+    <color name="popup_on_surface_variant">#CAC4D0</color>
+
     <!-- Warning and error tones need more luminance in dark mode to stay readable. -->
     <color name="expiry_warning">#E8A33D</color>
     <color name="expiry_expired">#F2B8B5</color>
     <color name="online_badge">#7FD1A6</color>
+
+    <!-- Lightened to clear AA on the dark surface, the same reason the tones above are. -->
+    <color name="card_status">#AEB9C4</color>
 
     <color name="fastscroll_thumb">#66A8C7E8</color>
     <color name="fastscroll_thumb_active">#A8C7E8</color>

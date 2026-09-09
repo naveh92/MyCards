@@ -7,12 +7,23 @@ import java.util.List;
 /**
  * Serialises merchants back into the compact snapshot format for the local cache.
  *
- * <p>What gets written is each store's <em>normalized</em> haystacks rather than its
- * original aliases. Normalization is idempotent, so re-reading through the ordinary
- * {@link Store} constructor reproduces an identical index — which means the cache and the
- * bundled assets can share one format instead of needing two parsers.
+ * <p>What gets written is each store's aliases <em>as written</em>. That is a change: this
+ * used to write the normalized match keys instead, on the grounds that normalization is
+ * idempotent and re-reading them rebuilds an identical index. It does — but an index is not
+ * all the cache is read for. A row explaining that it matched "carolinalemke" has told the
+ * reader nothing except that the app mangles text, and the two screens that name the alias a
+ * query hit had to be built around that. Round-tripping the original costs a few characters
+ * per alias and gives both screens something a person wrote.
  */
 public final class StoreListWriter {
+
+    /**
+     * Bumped when what the cache holds changes shape, so a cache written by an older build
+     * can be recognised and re-seeded rather than read as if it were current.
+     *
+     * <p>Version 1 is the unmarked original, whose aliases are normalized run-ons.
+     */
+    public static final int FORMAT_VERSION = 2;
 
     private StoreListWriter() {
     }
@@ -20,6 +31,7 @@ public final class StoreListWriter {
     public static String toCompactJson(String cardTypeId, String sourceType, List<Store> stores) {
         StringBuilder sb = new StringBuilder(stores.size() * 64);
         sb.append("{\"cardTypeId\":").append(quote(cardTypeId));
+        sb.append(",\"v\":").append(FORMAT_VERSION);
         sb.append(",\"source\":").append(quote(sourceType));
         sb.append(",\"stores\":[");
 
@@ -30,14 +42,14 @@ public final class StoreListWriter {
             }
             sb.append("{\"n\":").append(quote(s.getName()));
 
-            List<String> hay = s.getHaystacks();
-            if (!hay.isEmpty()) {
+            // Slot 0 is the name, already written above as "n".
+            if (s.formCount() > 1) {
                 sb.append(",\"a\":[");
-                for (int j = 0; j < hay.size(); j++) {
-                    if (j > 0) {
+                for (int j = 1; j < s.formCount(); j++) {
+                    if (j > 1) {
                         sb.append(',');
                     }
-                    sb.append(quote(hay.get(j)));
+                    sb.append(quote(s.getForm(j)));
                 }
                 sb.append(']');
             }

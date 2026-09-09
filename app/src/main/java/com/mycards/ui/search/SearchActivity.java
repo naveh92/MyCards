@@ -23,14 +23,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mycards.R;
+import com.mycards.cards.CardStatus;
 import com.mycards.data.db.AppDatabase;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.EdgeToEdge;
 import com.mycards.ui.detail.CardDetailActivity;
 import com.mycards.ui.edit.AddEditCardActivity;
+import com.mycards.ui.history.HistoryActivity;
 import com.mycards.ui.settings.SettingsActivity;
 
 /**
@@ -87,7 +91,12 @@ public class SearchActivity extends AppCompatActivity {
 
         RecyclerView results = findViewById(R.id.results);
         results.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CardRowAdapter(this::openCard);
+        // Resolved from the theme rather than named as a colour, so the matched words stay
+        // legible against both the light and the dark surface.
+        adapter = new CardRowAdapter(
+                MaterialColors.getColor(results, androidx.appcompat.R.attr.colorPrimary),
+                this::openCard,
+                () -> viewModel.toggleArchive());
         results.setAdapter(adapter);
 
         FloatingActionButton addCard = findViewById(R.id.addCard);
@@ -97,8 +106,9 @@ public class SearchActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         viewModel.rows().observe(this, rows -> {
             adapter.submitList(rows);
-            updateEmptyState(rows == null || rows.isEmpty());
+            updateEmptyState(rows);
         });
+        viewModel.retiredNotice().observe(this, this::showRetiredNotice);
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -160,15 +170,26 @@ public class SearchActivity extends AppCompatActivity {
         debounce.postDelayed(pendingSearch, SEARCH_DEBOUNCE_MS);
     }
 
-    private void updateEmptyState(boolean empty) {
-        if (!empty) {
+    /**
+     * Explains an empty result, where "empty" means no card you can actually spend.
+     *
+     * <p>The archive group does not count as an answer. A search that turns up nothing but an
+     * expired card still needs to say so out loud — the group header alone reads as a result,
+     * and at a checkout counter that is the difference between putting a card on the counter
+     * and knowing not to. Both are shown together: the sentence above, the group below it.
+     */
+    private void updateEmptyState(java.util.List<CardRow> rows) {
+        if (hasSpendableCard(rows)) {
             emptyState.setVisibility(View.GONE);
             return;
         }
         String query = viewModel.currentQuery();
         if (query.trim().isEmpty()) {
-            // Distinguish "you own nothing" from "nothing matched" — different next steps.
-            emptyState.setText(getString(R.string.no_cards_yet));
+            // Three different situations that all look like an empty screen, and three
+            // different next steps: add a card, go and unarchive one, or nothing at all.
+            emptyState.setText(getString(viewModel.walletIsEmpty()
+                    ? R.string.no_cards_yet
+                    : R.string.all_cards_retired));
         } else if (viewModel.anyPartialStoreList()) {
             // One of the wallet's lists is known to have gaps, so "not accepted" would be
             // asserting more than is known.
@@ -177,6 +198,51 @@ public class SearchActivity extends AppCompatActivity {
             emptyState.setText(getString(R.string.no_results, query));
         }
         emptyState.setVisibility(View.VISIBLE);
+    }
+
+    /** True when the list holds at least one card that is neither a header nor retired. */
+    private boolean hasSpendableCard(java.util.List<CardRow> rows) {
+        if (rows == null) {
+            return false;
+        }
+        for (CardRow row : rows) {
+            if (!row.isHeader() && !row.status.isRetired()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Says so when a card has left the wallet on its own.
+     *
+     * <p>Archiving announces itself, because someone chose it. These two do not: a card
+     * empties inside the dialog that logs the purchase, and a card expires overnight with the
+     * app closed. Without a word here the card is simply missing next time the wallet is
+     * opened, which is the difference between an app that tidied up after you and an app that
+     * lost one of your cards.
+     *
+     * <p>Carries a way to look, because the natural next thought is "wait, which one?".
+     */
+    private void showRetiredNotice(SearchViewModel.RetiredNotice notice) {
+        if (notice == null) {
+            return;
+        }
+        String message;
+        if (notice.count > 1) {
+            message = getResources().getQuantityString(
+                    R.plurals.cards_moved_to_archive, notice.count, notice.count);
+        } else if (notice.status == CardStatus.EXPIRED) {
+            message = getString(R.string.card_now_expired, notice.cardName);
+        } else {
+            message = getString(R.string.card_now_empty, notice.cardName);
+        }
+
+        Snackbar.make(findViewById(R.id.searchRoot), message, Snackbar.LENGTH_LONG)
+                .setAction(R.string.show_archive, v -> viewModel.expandArchive())
+                .show();
+        // Consumed, so a rotation does not replay it.
+        viewModel.noticeShown();
     }
 
     private void openCard(CardRow row) {
@@ -203,6 +269,10 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_history) {
+            startActivity(new Intent(this, HistoryActivity.class));
+            return true;
+        }
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;

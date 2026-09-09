@@ -11,6 +11,7 @@
     <string name="accepted_at">מתקבל ב%1$s</string>
     <string name="and_more_stores">ועוד %1$d</string>
     <string name="matched_card_name">התאמה לשם הכרטיס</string>
+    <string name="store_listed_as">%1$s (%2$s)</string>
     <string name="online_badge">אונליין</string>
 
     <!-- Card summary -->
@@ -20,6 +21,33 @@
     <string name="no_expiry">ללא תאריך תפוגה</string>
     <string name="expired">פג תוקף</string>
     <string name="expires_soon">פג תוקף בעוד %1$d ימים</string>
+    <string name="expired_on">פג תוקף ב-%1$s</string>
+
+    <!-- Retired cards: used up, expired, or put away by hand -->
+    <!-- One word each, as in English: "ריק" sits beside "פג תוקף" and "בארכיון" as a set,
+         where the old "נוצל במלואו" was three words next to two short ones. -->
+    <string name="status_empty">ריק</string>
+    <string name="status_expired">פג תוקף</string>
+    <string name="status_archived">בארכיון</string>
+    <string name="status_archived_explain">לא מופיע ברשימת הכרטיסים ולא מוצע כתשובה בחיפוש חנות. כל המידע עליו נשמר.</string>
+    <string name="archive_card">העברה לארכיון</string>
+    <string name="unarchive_card">הוצאה מהארכיון</string>
+    <string name="card_archived">הכרטיס הועבר לארכיון</string>
+    <string name="card_unarchived">הכרטיס חזר לרשימה</string>
+    <string name="undo">ביטול</string>
+    <string name="card_now_empty">%1$s ריק — הועבר לארכיון</string>
+    <string name="card_now_expired">פג תוקפו של %1$s — הועבר לארכיון</string>
+    <plurals name="cards_moved_to_archive">
+        <item quantity="one">כרטיס אחד הועבר לארכיון</item>
+        <item quantity="two">שני כרטיסים הועברו לארכיון</item>
+        <item quantity="other">%1$d כרטיסים הועברו לארכיון</item>
+    </plurals>
+    <string name="show_archive">הצגה</string>
+    <string name="archive_group">ארכיון (%1$d)</string>
+    <string name="archive_group_matched">נמצא גם בארכיון (%1$d)</string>
+    <string name="group_expanded">פתוח</string>
+    <string name="group_collapsed">סגור</string>
+    <string name="all_cards_retired">כל הכרטיסים בארנק ריקים, פג תוקפם או הועברו לארכיון. פתחו את הארכיון למטה כדי להחזיר אחד מהם.</string>
 
     <!-- Card detail -->
     <string name="card_details">פרטי הכרטיס</string>
@@ -54,7 +82,26 @@
     <string name="spend_required_title">הוסיפו תיאור קצר לקנייה</string>
     <string name="spend_required_amount">הזינו סכום גדול מאפס</string>
     <string name="spend_exceeds_balance">נותרו בכרטיס %1$s בלבד</string>
+    <string name="spend_card_used_up">הכרטיס ריק. אם משהו לא מדויק, ערכו או מחקו אחד מהרישומים הקיימים.</string>
     <string name="delete_spend">מחיקת רישום</string>
+
+    <!-- Spending history: every purchase, across every card -->
+    <string name="spending_history">היסטוריית הוצאות</string>
+    <string name="history_search_hint">חיפוש קניות, חנויות או כרטיסים…</string>
+    <plurals name="history_summary">
+        <item quantity="one">%1$s בקנייה אחת</item>
+        <item quantity="two">%1$s בשתי קניות</item>
+        <item quantity="other">%1$s ב-%2$,d קניות</item>
+    </plurals>
+    <plurals name="history_count">
+        <item quantity="one">קנייה אחת</item>
+        <item quantity="two">שתי קניות</item>
+        <item quantity="other">%1$,d קניות</item>
+    </plurals>
+    <string name="history_nothing_logged">עדיין לא נרשמו קניות. כל קנייה שתרשמו בכרטיס תופיע כאן, מהחדשה לישנה.</string>
+    <string name="history_no_match">אין קנייה שתואמת ל\"%1$s\"</string>
+    <string name="history_delete_from">בכרטיס %1$s. לא ניתן לבטל את הפעולה.</string>
+    <string name="history_open_card">פתיחת הכרטיס</string>
 
     <!-- Add / edit card -->
     <string name="add_card">הוספת כרטיס</string>

@@ -157,7 +157,7 @@ public class SearchEngineTest {
     @Test
     public void matchingStoresRanksWholeNamesAboveFragments() {
         // "za" is the whole of nothing, the start of "Zara" and buried inside "Pizza Hut".
-        List<Store> hits = engine.matchingStores("za", oneCardsStores());
+        List<StoreMatch> hits = engine.matchingStores("za", oneCardsStores());
         assertEquals(2, hits.size());
         assertEquals("Zara", hits.get(0).getName());
         assertEquals("Pizza Hut", hits.get(1).getName());
@@ -170,7 +170,7 @@ public class SearchEngineTest {
         List<Store> alphabetical = Arrays.asList(
                 new Store("Aroma", Collections.<String>emptyList(), false),
                 new Store("Zaroma", Collections.<String>emptyList(), false));
-        List<Store> hits = engine.matchingStores("rom", alphabetical);
+        List<StoreMatch> hits = engine.matchingStores("rom", alphabetical);
         assertEquals(2, hits.size());
         assertEquals("Aroma", hits.get(0).getName());
         assertEquals("Zaroma", hits.get(1).getName());
@@ -178,7 +178,7 @@ public class SearchEngineTest {
 
     @Test
     public void matchingStoresFindsAShopThroughItsAlias() {
-        List<Store> hits = engine.matchingStores("ריבוק", oneCardsStores());
+        List<StoreMatch> hits = engine.matchingStores("ריבוק", oneCardsStores());
         assertEquals(1, hits.size());
         assertEquals("adidas", hits.get(0).getName());
     }
@@ -187,7 +187,7 @@ public class SearchEngineTest {
     public void matchingStoresSurvivesTheWrongKeyboardLayout() {
         // The same forgiveness the wallet search gives. "tshsx" is "אדידס" typed with the
         // layout in the wrong language, and it has to find adidas here too.
-        List<Store> hits = engine.matchingStores("tshsx", oneCardsStores());
+        List<StoreMatch> hits = engine.matchingStores("tshsx", oneCardsStores());
         assertEquals(1, hits.size());
         assertEquals("adidas", hits.get(0).getName());
     }
@@ -208,7 +208,7 @@ public class SearchEngineTest {
                 new Store("סילו תרבות", Arrays.asList("cafe"), false),
                 new Store("CAFE MAYER", Collections.<String>emptyList(), false));
 
-        List<Store> hits = engine.matchingStores("cafe", stores);
+        List<StoreMatch> hits = engine.matchingStores("cafe", stores);
         assertEquals(2, hits.size());
         assertEquals("CAFE MAYER", hits.get(0).getName());
         assertEquals("סילו תרבות", hits.get(1).getName());
@@ -222,7 +222,7 @@ public class SearchEngineTest {
                 new Store("Cafe Mayer", Collections.<String>emptyList(), false),
                 new Store("Tagged Only", Arrays.asList("cafe"), false));
 
-        List<Store> hits = engine.matchingStores("cafe", stores);
+        List<StoreMatch> hits = engine.matchingStores("cafe", stores);
         assertEquals(3, hits.size());
         assertEquals("Cafe Mayer", hits.get(0).getName());
         assertEquals("Coffee Cafe Bar", hits.get(1).getName());

@@ -94,4 +94,18 @@ public class CardsRepository {
     public List<CardEntity> allCards() {
         return cardDao.getAll();
     }
+
+    /**
+     * The date of each card's most recent purchase, for ordering the archive.
+     *
+     * <p>A card with no purchases against it is simply absent from the map rather than
+     * present with a zero, so a caller can tell "never spent on" from "spent on at the epoch".
+     */
+    public Map<Long, Long> lastSpendTimes() {
+        Map<Long, Long> out = new HashMap<>();
+        for (SpendDao.LastSpend row : spendDao.getLastSpendTimes()) {
+            out.put(row.cardId, row.lastSpentAt);
+        }
+        return out;
+    }
 }

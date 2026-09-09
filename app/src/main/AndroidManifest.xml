@@ -44,6 +44,18 @@
             android:parentActivityName=".ui.detail.CardDetailActivity"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
+        <!--
+            Every purchase across every card.
+
+            stateHidden for the same reason as the store list: this screen is opened to read.
+            adjustResize so the list shortens rather than sliding under the keyboard when the
+            search field is used.
+        -->
+        <activity
+            android:name=".ui.history.HistoryActivity"
+            android:parentActivityName=".ui.search.SearchActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+
         <activity
             android:name=".ui.edit.AddEditCardActivity"
             android:parentActivityName=".ui.search.SearchActivity" />

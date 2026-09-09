@@ -19,7 +19,11 @@
          instead of the text's own, which is what keeps a Latin card name on the right in
          an RTL screen — TextView otherwise picks direction from the first strong character
          it finds and left-aligns it. -->
+    <!-- Carries the dimming for a retired card, rather than the card itself: RecyclerView's
+         item animator owns itemView's alpha and resets it to 1 at the end of every add and
+         change animation, so a value set here from onBindViewHolder is silently undone. -->
     <LinearLayout
+        android:id="@+id/cardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -58,6 +62,28 @@
                     android:visibility="gone"
                     tools:text="BuyMe All" />
             </LinearLayout>
+
+            <!-- Why this card is in the archive, when nothing else on the row would say.
+                 A word rather than a shade of grey: colour alone is unreadable to a good
+                 number of people and invisible to a screen reader.
+
+                 Not shown for an expired card — the expiry line below already says
+                 "Expired", in red, with the month it happened. -->
+            <TextView
+                android:id="@+id/statusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_badge_muted"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="@color/card_status"
+                android:visibility="gone"
+                tools:text="Used up" />
 
             <!-- The number you actually need at the counter. -->
             <TextView

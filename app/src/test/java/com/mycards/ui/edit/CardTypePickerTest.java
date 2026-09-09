@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.gson.Gson;
 import com.mycards.data.catalog.model.CardTypeDef;
 import com.mycards.data.catalog.model.Catalog;
+import com.mycards.search.Query;
 import com.mycards.search.SearchEngine;
 
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class CardTypePickerTest {
     }
 
     private static boolean typing(CardTypeAdapter.Option option, String typed) {
-        List<String> variants = SearchEngine.queryVariants(typed);
+        List<Query> variants = SearchEngine.queryVariants(typed);
         return option.matches(variants);
     }
 
