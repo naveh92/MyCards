@@ -1,7 +1,11 @@
 package com.mycards.data.backup;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import com.mycards.cards.GiftLink;
 import com.mycards.data.db.CardEntity;
 
 import org.junit.Test;
@@ -108,5 +112,70 @@ public class BackupMergeTest {
         // The same uuid at the same age is the same card, already here.
         assertEquals(BackupManager.CardAction.SKIP,
                 BackupManager.planFor(fromFile("a", 100L), onPhone));
+    }
+
+    // --- the gift-link fingerprint ---
+
+    /**
+     * The fingerprint is a hash of the link, so it is never carried in the file. It has to be
+     * recomputed on the way in, or the restored card silently loses the only thing that can
+     * recognise it as a card the wallet already holds.
+     */
+    @Test
+    public void aRestoredGiftLinkIsFingerprintedStraightAway() {
+        String link = "https://buyme.co.il/gift/abc123";
+
+        assertEquals(GiftLink.fingerprint(link),
+                BackupManager.giftFingerprintAfterMerge(link, null));
+        assertNotNull(BackupManager.giftFingerprintAfterMerge(link, null));
+    }
+
+    /**
+     * The one the startup backfill can never repair: it only visits cards whose fingerprint is
+     * null, so a stale one survives for good and goes on reporting a duplicate of a link the
+     * card no longer holds.
+     */
+    @Test
+    public void aCardUpdatedWithADifferentLinkDoesNotKeepTheOldFingerprint() {
+        String oldLink = "https://buyme.co.il/gift/OLD";
+        String newLink = "https://buyme.co.il/gift/NEW";
+
+        String after = BackupManager.giftFingerprintAfterMerge(
+                newLink, GiftLink.fingerprint(oldLink));
+
+        assertEquals(GiftLink.fingerprint(newLink), after);
+        assertNotEquals(GiftLink.fingerprint(oldLink), after);
+    }
+
+    /**
+     * A file with no link leaves the stored link in place — see {@link
+     * BackupManager#keepsStored} — so its fingerprint has to stay with it. Recomputing to null
+     * here would keep the link and throw away the only handle on it.
+     */
+    @Test
+    public void aFileWithNoLinkLeavesTheStoredFingerprintAlone() {
+        String stored = GiftLink.fingerprint("https://buyme.co.il/gift/abc123");
+
+        assertEquals(stored, BackupManager.giftFingerprintAfterMerge(null, stored));
+    }
+
+    @Test
+    public void aCardWithNoLinkOnEitherSideHasNoFingerprint() {
+        assertNull(BackupManager.giftFingerprintAfterMerge(null, null));
+    }
+
+    /**
+     * What the fingerprint is actually for: pasting the same link again after a restore has to
+     * find the restored card. That means the value written by the restore must be the one the
+     * card form computes, down to the normalisation — the same link copied before and after an
+     * issuer's redirect included.
+     */
+    @Test
+    public void aLinkPastedAgainAfterARestoreMatchesTheRestoredCard() {
+        String restored = BackupManager.giftFingerprintAfterMerge(
+                "https://BuyMe.co.il/gift/abc123", null);
+
+        assertEquals("the same card, pasted again in a different spelling",
+                restored, GiftLink.fingerprint("http://buyme.co.il/gift/abc123"));
     }
 }

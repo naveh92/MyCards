@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.mycards.cards.GiftLink;
 import com.mycards.data.crypto.SecretVault;
 import com.mycards.data.db.AppDatabase;
 import com.mycards.data.db.CardEntity;
@@ -444,6 +445,47 @@ public class BackupManager {
         return inFile == null && stored != null;
     }
 
+    /**
+     * Copies everything about a card that is neither encrypted nor derived.
+     *
+     * <p>Pulled out of {@link #apply} for the same reason as {@link #planFor}: what a restore
+     * does to a card is worth pinning down in a test, and a test has no database.
+     */
+    static void copyPlainFields(BackupPayload.Card incoming, CardEntity target) {
+        target.uuid = incoming.uuid;
+        target.cardTypeId = incoming.cardTypeId == null ? "" : incoming.cardTypeId;
+        target.label = incoming.label;
+        target.expiryDate = incoming.expiryDate;
+        target.initialAmount = incoming.initialAmount;
+        target.currency = incoming.currency == null ? "ILS" : incoming.currency;
+        target.notes = incoming.notes;
+        target.createdAt = incoming.createdAt;
+        target.updatedAt = incoming.updatedAt;
+        // Restoring a card restores whether it was in use. A backup from before this field
+        // existed carries 0, which is exactly "in use" — the state such a card was in when
+        // the file was written.
+        target.archivedAt = incoming.archivedAt;
+    }
+
+    /**
+     * The gift-link fingerprint a merged card should carry.
+     *
+     * <p>The fingerprint is a hash of the link, so it is never carried in the file; it is
+     * recomputed here from whichever link the restore actually stored. Recomputed rather
+     * than left for the startup pass, because {@code CardsRepository#backfillGiftFingerprints}
+     * only ever visits cards whose fingerprint is null. A card updated with a different link
+     * would therefore keep the fingerprint of its old one for good, and go on claiming a
+     * duplicate of a link it no longer holds. A newly inserted card would be repaired at the
+     * next launch, but not during the restore itself — which is precisely when someone is
+     * most likely to paste in the link they have only just restored.
+     *
+     * <p>When the file carries no link the stored fingerprint stands, because
+     * {@link #keepsStored} has kept the stored link along with it.
+     */
+    static String giftFingerprintAfterMerge(String inFile, String storedFingerprint) {
+        return inFile == null ? storedFingerprint : GiftLink.fingerprint(inFile);
+    }
+
     public ImportResult apply(BackupPayload payload) throws Exception {
         ImportResult result = new ImportResult();
         result.cardsInFile = payload.cards.size();
@@ -469,19 +511,7 @@ public class BackupManager {
             }
 
             CardEntity target = existing != null ? existing : new CardEntity();
-            target.uuid = incoming.uuid;
-            target.cardTypeId = incoming.cardTypeId == null ? "" : incoming.cardTypeId;
-            target.label = incoming.label;
-            target.expiryDate = incoming.expiryDate;
-            target.initialAmount = incoming.initialAmount;
-            target.currency = incoming.currency == null ? "ILS" : incoming.currency;
-            target.notes = incoming.notes;
-            target.createdAt = incoming.createdAt;
-            target.updatedAt = incoming.updatedAt;
-            // Restoring a card restores whether it was in use. A backup from before this
-            // field existed carries 0, which is exactly "in use" — the state such a card
-            // was in when the file was written.
-            target.archivedAt = incoming.archivedAt;
+            copyPlainFields(incoming, target);
 
             // Re-wrapped under this device's own Keystore key on the way in. A card the vault
             // refuses is counted and stepped over: aborting here would abandon the restore
@@ -512,6 +542,8 @@ public class BackupManager {
                 if (incoming.giftUrl != null) {
                     target.encGiftUrl = vault.encryptData(incoming.giftUrl);
                 }
+                target.giftUrlFingerprint =
+                        giftFingerprintAfterMerge(incoming.giftUrl, target.giftUrlFingerprint);
                 if (kept) {
                     // A card assembled from two sources is not something to discover later.
                     result.cardsKeptLocalSecrets++;
