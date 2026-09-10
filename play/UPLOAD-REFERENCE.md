@@ -4,8 +4,12 @@ Every technical value the Console asks for, read off the built artifact rather t
 from memory. Listing prose (descriptions, form answers, review risks) is in
 [STORE-LISTING.md](STORE-LISTING.md).
 
-Generated against the build of 10 September 2026 — version **1.3 (10)**, built from
-`ui-revamp-material3` at `b8c7fa9` with `./gradlew clean test bundleRelease assembleRelease`.
+Generated against the build of 10 September 2026 — version **1.4 (11)**, built from
+`main` at `6543c07` with `./gradlew clean test bundleRelease assembleRelease`.
+
+Every row below was re-read off that build rather than carried over. The identity,
+permission and asset tables came back unchanged from 1.3; the version, the artifact sizes
+and the release name are what moved.
 
 ---
 
@@ -34,8 +38,8 @@ Three things catch first-time publishers, in rough order of how much time they c
 | **Package name / Application ID** | `io.github.naveh92.mycards` |
 | Java package / `namespace` | `com.mycards` — a compile-time concern, deliberately left alone |
 | Launcher activity | `com.mycards.ui.search.SearchActivity` |
-| **Version code** | `10` |
-| Version name | `1.3` |
+| **Version code** | `11` |
+| Version name | `1.4` |
 | Min SDK | 26 — Android 8.0 Oreo |
 | Target SDK | 36 — Android 16 |
 | Compile SDK | 36 |
@@ -49,9 +53,9 @@ Three things catch first-time publishers, in rough order of how much time they c
 
 | What | Path | Size |
 |---|---|---|
-| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 4,180,274 bytes |
-| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,709,680 bytes |
-| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 17,637,524 bytes |
+| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 4,243,749 bytes |
+| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,737,472 bytes |
+| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 18,006,515 bytes |
 
 The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
 every rebuild even with identical sources, and a recorded hash would be stale immediately.
@@ -196,15 +200,40 @@ on the listing — for the sake of cosmetics nobody sees. The same goes for the 
 filename, the certificate's `OU`/`O` fields, the `com.mycards` Java namespace and the
 `.mycards` backup extension: all internal or historical identifiers, none of them the brand.
 
-## Suggested first release
+## Release settings
 
 - **Track:** closed testing (also the 12-tester requirement above), then production.
 - **Countries:** Israel only to begin with. The merchant lists are Israeli and the app is
   useless elsewhere; a narrow launch also keeps the first reviews relevant.
 - **Rollout:** 100% — with no server and no backend to overload, a staged rollout buys
   nothing at this scale.
-- **Release name:** `1.2 (9)`.
-- **Release notes:** first release.
+- **Release name:** `1.4 (11)`.
 
-For every subsequent upload, `versionCode` must increase. Play rejects a bundle whose
-version code has already been used, even in a different track.
+`versionCode` must increase on every upload. Play rejects a bundle whose version code has
+already been used, even in a different track, and even for a draft that is never published.
+
+### What's new — 1.4, ready to paste
+
+Play's field is per-language and capped at 500 characters. Both are drafts: they are an
+accurate description of what changed, not copy anybody has signed off.
+
+| | |
+|---|---|
+| English | More of your wallet on one screen. Cards are half the height they were, and a search now shows the shops that matched in full instead of cutting them off.<br><br>• Give any card its own colour, from the palette or mixed by hand<br>• Redesigned cards: balance, meter and expiry in half the space<br>• Results always start at the best match<br>• Card types with Hebrew-only names now appear when adding a card |
+| Hebrew | יותר מהארנק במסך אחד. הכרטיסים תופסים חצי מהגובה, וחיפוש מציג עכשיו את שמות החנויות שהתאימו במלואם במקום לקטוע אותם.<br><br>• אפשר לבחור צבע לכל כרטיס, מהפלטה או בהתאמה אישית<br>• עיצוב חדש לכרטיס: יתרה, מד ותוקף בחצי מקום<br>• התוצאות תמיד מתחילות מההתאמה הטובה ביותר<br>• סוגי כרטיסים בעלי שם בעברית בלבד מופיעים עכשיו בהוספת כרטיס |
+
+## Known stale for this upload
+
+Neither blocks the upload, and both can be replaced later with no re-review — but they are
+what a reader of this file would otherwise assume is current.
+
+- **The screenshots predate this release.** `play/screenshots/*` were shot against the
+  Material 3 rebuild (`ad3f2ed`), which is before 1.4 redesigned the card row and the
+  wallet header. They show the app, but not this build's app. `tools/capture-shots.sh`
+  reshoots them.
+- **Two unused feature-graphic candidates sit beside the shipped one.**
+  `feature-graphic-1024x500_2__CHOSEN.png` and `_3.png` are both 1024×500 and both valid,
+  and the second one's filename says it was picked — but the file this page tells you to
+  upload, `feature-graphic-1024x500.png`, is a different image (see `8536611`, which
+  installed a hand-tuned banner under that name). If `_2__CHOSEN` is the one that should go
+  live, copy it over the shipped filename; nothing else reads the candidates.
