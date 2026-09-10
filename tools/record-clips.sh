@@ -6,10 +6,11 @@
 # read that file first; the device plumbing is explained there and duplicated here only so
 # each script runs on its own.
 #
-# ⚠️ THE KEYBOARD STAYS UP IN THE VIDEO, ON PURPOSE. In a still it covers two of the three
-# results and has to go; in a clip, watching the letters go in is the whole point of the
-# scene. So this script does NOT call hide_kb before typing scenes -- the opposite of the
-# screenshot pass.
+# ⚠️ NO KEYBOARD IN ANY SCENE. This used to say the opposite -- that watching the letters go
+# in was worth the keyboard covering the bottom 45% of the screen. It is not: on the search
+# results that 45% is two of the three cards that make the app's point, and unlike a still,
+# a clip holds the same crop for its whole eight seconds. See type_query for how the query
+# gets in without ever focusing the field.
 #
 # ⚠️ screenrecord STOPS ON ITS OWN AT --time-limit AND WRITES NOTHING IF KILLED WITH -9.
 # It needs SIGINT to flush the MP4 moov atom; a -9 leaves a file that exists, has a size, and
@@ -79,14 +80,36 @@ launch() {
     sleep 5
 }
 
-# Type one character at a time so the results visibly narrow as the query grows -- the whole
-# point of the search scenes. `input text "castro"` arrives as a single edit and the list
-# simply blinks from all cards to three.
-type_slow() {
-    local s="$1" i ch
+# Puts a query in the search field one character at a time, WITHOUT EVER RAISING THE
+# KEYBOARD -- and without touching the field at all.
+#
+# ⚠️ EVERY OTHER WAY OF TYPING RAISES THE IME. Measured on this emulator, all of these end
+# with `dumpsys input_method` reporting mInputShown=true and a Gboard on the capture:
+#
+#   * `adb shell input text` after hiding the keyboard with ESCAPE -- the editor asks for the
+#     IME again on the first key it receives.
+#   * the same, with the field focused by D-pad rather than by touch, so the IME was never
+#     shown in the first place. Focusing that way genuinely keeps it down; the first
+#     character brings it up.
+#   * the emulator console's `event text`, which arrives as a hardware key. Same result.
+#   * `ime disable` on Gboard: the voice IME takes over and draws a full "Tap to speak"
+#     panel, which is worse. Disable that one too and the system re-enables Gboard.
+#   * `sendevent` straight onto the guest's own qwerty2 keyboard device: permission denied,
+#     and `adb root` is refused on a production build.
+#
+# WHAT WORKS. SearchActivity is exported, singleTop, and already reads its query from an
+# intent extra (SearchActivity.EXTRA_QUERY, "query") for the notification tap. So each am
+# start lands in onNewIntent -> searchInput.setText on a field that never had focus, and
+# nothing ever asks for an IME. One growing prefix per step is what makes the list narrow on
+# screen the way typing did.
+#
+# ⚠️ THE FIELD MUST NOT BE FOCUSED WHEN THIS RUNS. Do not tap searchInput first "to get the
+# cursor in there": that raises the keyboard by itself, before a single character is sent.
+type_query() {
+    local s="$1" i
     for i in $(seq 1 ${#s}); do
-        ch="${s:i-1:1}"
-        "$ADB" shell input text "$ch"
+        "$ADB" shell am start -n "$PKG/com.mycards.ui.search.SearchActivity" \
+            --es query "${s:0:i}" >/dev/null 2>&1
         sleep "${2:-0.45}"
     done
 }
@@ -112,28 +135,46 @@ stop_rec() {
         echo "!! $name.mp4 is only ${sz} bytes -- screenrecord did not flush" >&2
         return 1
     fi
-    printf "  %-16s %s KB  %ss\n" "$name.mp4" "$((sz / 1024))" \
-        "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUTDIR/$name.mp4" 2>/dev/null)"
+
+    # ⚠️ screenrecord EMITS A FRAME ONLY WHEN THE SCREEN CHANGES, so a clip's duration ends at
+    # its last visible change rather than when the recorder was stopped -- and it starts at
+    # the first one, not when it was started. The 4.5s hold on the search results is a still
+    # screen, so it produced no frames at all: search-store came back 26 frames over 6.3s for
+    # an 8s scene, and make-video would have looped it, restarting the typing halfway through
+    # the scene. (This is also why a clip can be shorter than the wall-clock time it took.)
+    #
+    # So clone the last frame out far enough to cover any scene. A scene that ends on a still
+    # screen is what these were going to be anyway -- the hold on the finished search is the
+    # point of it -- and a clip that scrolls is already longer than its scene, so it never
+    # reaches the padding. fps=30 also turns screenrecord's variable rate into the constant
+    # one make-video's filters expect.
+    ffmpeg -y -loglevel error -i "$OUTDIR/$name.mp4" \
+        -vf "fps=30,tpad=stop_mode=clone:stop_duration=6" \
+        -c:v libx264 -preset veryfast -crf 20 "$OUTDIR/$name.cfr.mp4"
+    mv "$OUTDIR/$name.cfr.mp4" "$OUTDIR/$name.mp4"
+
+    printf "  %-16s %s KB  %ss (%s raw)\n" "$name.mp4" \
+        "$(( $(wc -c < "$OUTDIR/$name.mp4") / 1024 ))" \
+        "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$OUTDIR/$name.mp4" 2>/dev/null)" \
+        "$sz"
 }
 
 # --- the clips --------------------------------------------------------------------------------
 
 clip_search_store() {
     launch
-    tap "resource-id=\"$PKG:id/searchInput\"" 1
     start_rec
-    sleep 0.6
-    type_slow "castro"
+    sleep 0.8
+    type_query "castro"
     sleep 4.5          # hold on the results: this scene is 8s and the list is the point
     stop_rec "search-store"
 }
 
 clip_hebrew() {
     launch
-    tap "resource-id=\"$PKG:id/searchInput\"" 1
     start_rec
-    sleep 0.6
-    type_slow "tshsx" 0.50
+    sleep 0.8
+    type_query "tshsx" 0.50
     sleep 4.0
     stop_rec "hebrew"
 }
@@ -153,21 +194,43 @@ clip_card_types() {
     launch
     tap 'content-desc="Add a card"' 2
     # End icon only: touching the field would raise the keyboard over the list.
-    tap "resource-id=\"$PKG:id/text_input_end_icon\"" 1.5
-    # ⚠️ SCROLL BEFORE RECORDING, NOT ONLY DURING. The list opens on ten consecutive BuyMe
-    # variants, so a scene captioned "32 card types" opened on what looked like one issuer and
-    # only reached the other vendors near its end -- and a viewer who leaves early sees only
-    # the BuyMes. Pre-scrolling starts the scene on the join, and the scroll during it carries
-    # on through Max, Tav HaZahav and the rest.
-    for _ in 1 2 3; do "$ADB" shell input swipe 540 1500 540 900 400; sleep 0.5; done
-    sleep 0.8
+    tap "resource-id=\"$PKG:id/text_input_end_icon\"" 2.5
+    # ⚠️ PRE-SCROLL SIX ROWS, NOT ALL EIGHTEEN -- THIS IS WHY THE 1.3 CUT WAS FROZEN.
+    #
+    # The list is 32 types and fourteen fit on screen, so it has exactly 18 rows of travel and
+    # no more. The old pre-scroll was three flicks, and a flick with its fling is worth about
+    # nine rows: two of them and the list is already sitting on its last row. The three swipes
+    # that then ran while the recorder was on had nowhere left to go, so the shipped 1.3 scene
+    # is five seconds of one motionless screenful -- which is what it was reported as. Nothing
+    # was wrong with the swipes, the recorder or the popup; the list was simply at the bottom
+    # before the camera started.
+    #
+    # Two slow drags is six rows, which leaves twelve for the scene itself.
+    for _ in 1 2; do "$ADB" shell input swipe 540 1750 540 1350 1000; sleep 0.1; done
+    sleep 1.5
+
+    # ONE CONTINUOUS DRAG, NOT A SERIES OF THEM. `input swipe` interpolates over its whole
+    # duration, so one long drag is a single smooth movement. Repeated shorter drags cost an
+    # adb round trip each -- roughly 0.7s of dead still list between them -- and the scroll
+    # visibly stutters. 1450px is the twelve rows the pre-scroll left, and 6.5s over them is
+    # about two rows a second: slow enough to read a name as it goes past, which is the point
+    # of the scene.
+    #
+    # ⚠️ START THE DRAG BEFORE THE RECORDER, AND IN THE BACKGROUND. start_rec spends 2.5s
+    # waiting for screenrecord to come up, and how much of that wait lands in the file varies
+    # from run to run -- one take here opened with 2.4 dead seconds, which at a 5s scene is
+    # half of it spent on a motionless list. Beginning the drag first means whenever the
+    # capture actually starts, it starts on a list that is already moving.
+    #
+    # ⚠️ CHECK THE CLIP, NOT THE SCRIPT. `ffmpeg -ss N -i card-types.mp4 -frames:v 1` a second
+    # apart has to show DIFFERENT rows, at N=0 as well as at N=4. That is the check the 1.3
+    # cut did not get.
+    "$ADB" shell input swipe 540 2050 540 600 6500 &
+    local swipe=$!
     start_rec
-    sleep 0.6
-    for _ in $(seq 1 3); do "$ADB" shell input swipe 540 1600 540 950 450; sleep 0.6; done
-    # Hold long enough for the fling to stop: a moving list can draw a row as blank space,
-    # which reads as a card type with no name. See open_card_types in capture-shots.sh.
-    sleep 2.5
+    sleep 3.4
     stop_rec "card-types"
+    wait "$swipe" 2>/dev/null || true
 }
 
 # The daily balance check, shown by its outcome. The recording starts on the card so the
@@ -210,13 +273,13 @@ clip_refresh() {
     stop_rec "refresh"
 }
 
-# ⚠️ GBOARD REMEMBERS FLOATING MODE, AND IT RUINS EVERY TYPING CLIP.
-#
-# Once the keyboard has been put into floating mode -- which a stray ESCAPE or a long-press
-# during earlier automation can do -- it stops docking and leaves a vertical pill of
-# mic/backspace/search/emoji icons hovering over the middle of the app. It survives
-# `am force-stop` and `ime reset` because it is a saved Gboard preference, so the only thing
-# that clears it is clearing Gboard's own data. Cheap, and it is a keyboard on an emulator.
+# No scene types any more (see type_query), so nothing here should ever raise a keyboard.
+# This stays as the belt to that braces: if an earlier pass left Gboard in floating mode --
+# which a stray ESCAPE or a long-press during automation can do -- it stops docking and
+# leaves a vertical pill of mic/backspace/search/emoji icons hovering over the middle of the
+# app, and it would hover there over any scene, typing or not. It survives `am force-stop`
+# and `ime reset` because it is a saved Gboard preference, so the only thing that clears it
+# is clearing Gboard's own data. Cheap, and it is a keyboard on an emulator.
 reset_keyboard() {
     "$ADB" shell pm clear com.google.android.inputmethod.latin >/dev/null 2>&1 || true
     "$ADB" shell ime reset >/dev/null 2>&1 || true

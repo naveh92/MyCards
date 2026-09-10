@@ -138,9 +138,31 @@ tap_scroll() {
 }
 
 type_text() { "$ADB" shell input text "$1"; sleep "${2:-1.5}"; }
+
+# Puts a query in the search field without ever focusing it, so no IME is asked for.
+#
+# ⚠️ THIS REPLACES tap searchInput -> type_text -> hide_kb -> scroll_top, AND IT REPLACES THE
+# TWO BUGS THAT SEQUENCE CAME WITH: a keyboard that had to be dismissed by a keystroke the
+# IME does not reliably consume, and a result list left scrolled by the room the keyboard had
+# taken (see scroll_top). Nothing is raised, so nothing has to be put back.
+#
+# SearchActivity is exported, singleTop, and already reads SearchActivity.EXTRA_QUERY
+# ("query") for the notification tap, so this is the app's own entry point rather than a hook
+# added for the camera. tools/record-clips.sh sends one growing prefix per frame for the same
+# reason; a still only needs the finished query. See the long note there for everything that
+# does NOT work.
+type_query() {
+    "$ADB" shell am start -n "$PKG/com.mycards.ui.search.SearchActivity" \
+        --es query "$1" >/dev/null 2>&1
+    sleep "${2:-2}"
+}
 back()      { "$ADB" shell input keyevent KEYCODE_BACK; sleep "${1:-1}"; }
 swipe_up()  { "$ADB" shell input swipe 540 1700 540 500 "${1:-250}"; sleep 0.6; }
 
+# NO LONGER ON THE SHOT PATH -- type_query never raises a keyboard, so the list is never
+# pushed up and never has to be put back. Kept because the reason is still true of anything
+# that does focus the field.
+#
 # ⚠️ SEARCHING LEAVES THE RESULT LIST SCROLLED. Focusing the field pushes the list up to make
 # room for the keyboard, and hiding the keyboard again does not put it back -- so the first
 # result sits with its name and balance above the top of the list, and the hero screenshot
@@ -210,6 +232,9 @@ clear_query() {
     sleep 0.8
 }
 
+# NO LONGER ON THE SHOT PATH either: type_query means no keyboard is ever raised to dismiss.
+# Everything below is why it was worth going round the problem instead of solving it here.
+#
 # ⚠️ THE SOFT KEYBOARD IS THE BIGGEST PROBLEM IN THESE CAPTURES: it covers the bottom 45% of
 # the screen, which on the search results is two of the three cards that make the app's point.
 #
@@ -418,20 +443,14 @@ main() {
     shot "wallet"
 
     # 1. The question the app exists to answer.
-    tap "resource-id=\"$PKG:id/searchInput\"" 1
-    type_text "castro"
-    hide_kb
-    scroll_top
+    type_query "castro"
     shot "search-store"
 
     # 3. The same field with the keyboard in the wrong language: "tshsx" is what אדידס comes
     #    out as typed on an English layout, and it still finds adidas. This is the feature
     #    people repeat to someone else, so it earns a slot of its own.
     launch          # cheaper and safer than clearing the field -- see clear_query
-    tap "resource-id=\"$PKG:id/searchInput\"" 1
-    type_text "tshsx"
-    hide_kb
-    scroll_top
+    type_query "tshsx"
     shot "hebrew"
 
     # A card in detail. An alternate now rather than a numbered slot: the wallet already

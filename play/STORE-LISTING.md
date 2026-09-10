@@ -24,9 +24,15 @@ node tools/seed-demo-db.js /tmp/seed.db           # the fixture the screens are 
 tools/capture-shots.sh play/raw-captures          # drive the emulator, one still per screen
 java tools/StoreShots.java play/top_bars play/raw-captures play/screenshots
 tools/record-clips.sh   /tmp/clips                # the same screens, moving
-java tools/VideoStage.java play/top_bars /tmp/stage play/icon-512.png
+javac -d /tmp/classes tools/VideoStage.java tools/StoreShots.java
+java -cp /tmp/classes VideoStage play/top_bars /tmp/stage play/icon-512.png
 tools/make-video.sh     /tmp/stage /tmp/clips play/promo-video.mp4
 ```
+
+`VideoStage` reads the banner through `StoreShots.prepareBar`, so unlike the other tools here
+it cannot be run as a single source file — `java tools/VideoStage.java` fails with *cannot
+find symbol: StoreShots*. Compiling both together is the fix. (JDK 22's multi-file source
+mode would run it directly; the JDK that ships inside Android Studio is 21.)
 
 Each file carries its judgement calls in its own header — read `tools/StoreShots.java` before
 changing a crop anchor and `tools/capture-shots.sh` before changing the capture order. Both

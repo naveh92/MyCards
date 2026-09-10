@@ -224,13 +224,13 @@ accurate description of what changed, not copy anybody has signed off.
 
 ## Known stale for this upload
 
-Neither blocks the upload, and both can be replaced later with no re-review — but they are
+This does not block the upload, and it can be replaced later with no re-review — but it is
 what a reader of this file would otherwise assume is current.
 
-- **The screenshots predate this release.** `play/screenshots/*` were shot against the
-  Material 3 rebuild (`ad3f2ed`), which is before 1.4 redesigned the card row and the
-  wallet header. They show the app, but not this build's app. `tools/capture-shots.sh`
-  reshoots them.
+(The screenshots and the promo video used to be listed here as predating the release. They
+were reshot against 1.4 on 10 September 2026 — new card row, new wallet header, and no soft
+keyboard in either search shot. See the note on `type_query` in `tools/capture-shots.sh`.)
+
 - **Two unused feature-graphic candidates sit beside the shipped one.**
   `feature-graphic-1024x500_2__CHOSEN.png` and `_3.png` are both 1024×500 and both valid,
   and the second one's filename says it was picked — but the file this page tells you to
