@@ -4,8 +4,8 @@ Every technical value the Console asks for, read off the built artifact rather t
 from memory. Listing prose (descriptions, form answers, review risks) is in
 [STORE-LISTING.md](STORE-LISTING.md).
 
-Generated against the build of 27 August 2026 — version **1.2 (9)**, built from `main`
-at `cd9eaed` with `./gradlew clean test bundleRelease`.
+Generated against the build of 10 September 2026 — version **1.3 (10)**, built from
+`ui-revamp-material3` at `b8c7fa9` with `./gradlew clean test bundleRelease assembleRelease`.
 
 ---
 
@@ -34,8 +34,8 @@ Three things catch first-time publishers, in rough order of how much time they c
 | **Package name / Application ID** | `io.github.naveh92.mycards` |
 | Java package / `namespace` | `com.mycards` — a compile-time concern, deliberately left alone |
 | Launcher activity | `com.mycards.ui.search.SearchActivity` |
-| **Version code** | `9` |
-| Version name | `1.2` |
+| **Version code** | `10` |
+| Version name | `1.3` |
 | Min SDK | 26 — Android 8.0 Oreo |
 | Target SDK | 36 — Android 16 |
 | Compile SDK | 36 |
@@ -49,9 +49,9 @@ Three things catch first-time publishers, in rough order of how much time they c
 
 | What | Path | Size |
 |---|---|---|
-| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,592,079 bytes |
-| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,164,839 bytes |
-| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 16,494,689 bytes |
+| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 4,180,274 bytes |
+| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,709,680 bytes |
+| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 17,637,524 bytes |
 
 The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
 every rebuild even with identical sources, and a recorded hash would be stale immediately.
