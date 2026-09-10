@@ -17,19 +17,29 @@ const { DatabaseSync } = require('node:sqlite');
 // Derived from this file's own location rather than hardcoded, so the script works from any
 // checkout and any working directory.
 const REPO = path.resolve(__dirname, '..');
-const SCHEMA = path.join(REPO, 'app/schemas/com.mycards.data.db.AppDatabase/2.json');
+const SCHEMA_DIR = path.join(REPO, 'app/schemas/com.mycards.data.db.AppDatabase');
 
-// ⚠️ 2.json IS AN EXPORTED ROOM SCHEMA, AND IT ONLY EXISTS ONCE THE v2 MIGRATION IS IN THE
-// TREE. Against a checkout that predates it this fails with a bare ENOENT stack trace that
-// says nothing about why -- so say it here instead.
-if (!fs.existsSync(SCHEMA)) {
-    console.error(
-        'no exported schema at ' + SCHEMA + '\n' +
-        'This fixture is schema v2. Build the app once on a tree that has the v2 migration\n' +
-        '(./gradlew :app:assembleDebug) so Room exports the schema, then re-run.');
+// ⚠️ TRACK THE NEWEST EXPORTED SCHEMA, NEVER A PINNED ONE. This was pinned to 2.json, and
+// when the app moved to v3 the fixture kept building a v2 file: Room then either refuses it
+// ("cannot verify the data integrity") or silently runs the migration over it, and the
+// screenshots come from a database that is not the one the app ships. Reading the highest
+// version present means adding a migration cannot leave this behind.
+if (!fs.existsSync(SCHEMA_DIR)) {
+    console.error('no exported schemas at ' + SCHEMA_DIR + '\n' +
+        'Build the app once (./gradlew :app:assembleDebug) so Room exports them, then re-run.');
     process.exit(1);
 }
+const versions = fs.readdirSync(SCHEMA_DIR)
+    .filter((f) => /^\d+\.json$/.test(f))
+    .map((f) => parseInt(f, 10))
+    .sort((a, b) => a - b);
+if (!versions.length) {
+    console.error('no NN.json schema files in ' + SCHEMA_DIR);
+    process.exit(1);
+}
+const SCHEMA = path.join(SCHEMA_DIR, versions[versions.length - 1] + '.json');
 const schema = JSON.parse(fs.readFileSync(SCHEMA, 'utf8'));
+console.log('schema v' + schema.database.version + ' (' + path.basename(SCHEMA) + ')');
 
 const out = process.argv[2];
 if (!out) {
@@ -77,15 +87,28 @@ const rows = [
   { id: 6, type: 'love_gift_card',       label: 'Small change',      expiry: null,       initial: 260, archived: 0 },
 ];
 
+// The daily background check (BalanceCheckWorker) reads the issuer's own page for cards that
+// carry a gift link, compares it with the spend log and flags the gap. Card 5 is seeded in
+// that flagged state so the wallet badge, the card detail prompt and the "Balance mismatch"
+// screen all have something real to render -- the fetch itself needs a live issuer page and a
+// spendable link, neither of which belongs in a fixture.
+//
+// `checkedBalance` is what the issuer reported. The log says 45 for card 5, so 30 leaves 15
+// missing, which is what the reconcile screen offers to add as a purchase.
+const CHECKED = {
+  5: { at: ago(1), reported: 30, mismatch: 1 },
+};
+
 const insertCard = db.prepare(`INSERT INTO cards
   (id, uuid, updatedAt, cardTypeId, label, expiryDate, initialAmount, currency,
    enc_pan, enc_cvv, enc_card_expiry, enc_gift_url, notes, createdAt,
    lastBalanceCheckAt, lastFetchedBalance, hasUnreconciledMismatch, archivedAt)
-  VALUES (?,?,?,?,?,?,?,'ILS',NULL,NULL,NULL,NULL,NULL,?,0,NULL,0,?)`);
+  VALUES (?,?,?,?,?,?,?,'ILS',NULL,NULL,NULL,NULL,NULL,?,?,?,?,?)`);
 
 for (const c of rows) {
+  const chk = CHECKED[c.id] || { at: 0, reported: null, mismatch: 0 };
   insertCard.run(c.id, 'card-' + c.id, now, c.type, c.label, c.expiry,
-      c.initial, ago(200), c.archived);
+      c.initial, ago(200), chk.at, chk.reported, chk.mismatch, c.archived);
 }
 
 // Purchases spread over several months so the history screen has more than one heading,

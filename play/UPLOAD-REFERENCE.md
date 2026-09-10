@@ -148,11 +148,11 @@ WorkManager.
 | `play/screenshots/02-store-list.png` | 1080×1920 | " | ok |
 | `play/screenshots/03-hebrew.png` | 1080×1920 | " | ok |
 | `play/screenshots/04-card-types.png` | 1080×1920 | " | ok |
-| `play/screenshots/05-detail.png` | 1080×1920 | " | ok |
-| `play/screenshots/06-wallet.png` | 1080×1920 | " | ok |
-| `play/screenshots/07-refresh.png` | 1080×1920 | " | ok |
-| `play/screenshots/08-dark.png` | 1080×1920 | " | ok |
-| `play/promo-video.mp4` | 1920x1080, 37.4s | 30-120s, uploaded to YouTube | ok |
+| `play/screenshots/05-dark.png` | 1080×1920 | " | ok |
+| `play/screenshots/06-balance-check.png` | 1080×1920 | " | ok |
+| `play/screenshots/07-history.png` | 1080×1920 | " | ok |
+| `play/screenshots/08-refresh.png` | 1080×1920 | " | ok |
+| `play/promo-video.mp4` | 1920x1080, 48.0s | 30-120s, uploaded to YouTube | ok |
 
 Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. `StoreShots`
 crops them to 9:16 rather than letterboxing, and lays the wavy brand banner over the top.

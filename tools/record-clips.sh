@@ -74,7 +74,9 @@ tap_scroll() {
 launch() {
     "$ADB" shell am force-stop "$PKG"
     "$ADB" shell am start -n "$PKG/com.mycards.ui.search.SearchActivity" >/dev/null 2>&1
-    sleep 2.5
+    # A cold start on a software-rendered emulator needs a moment before it draws; tapping
+    # into a half-drawn activity is how the pass gets ahead of the app.
+    sleep 5
 }
 
 # Type one character at a time so the results visibly narrow as the query grows -- the whole
@@ -85,7 +87,7 @@ type_slow() {
     for i in $(seq 1 ${#s}); do
         ch="${s:i-1:1}"
         "$ADB" shell input text "$ch"
-        sleep "${2:-0.34}"
+        sleep "${2:-0.45}"
     done
 }
 
@@ -122,7 +124,7 @@ clip_search_store() {
     start_rec
     sleep 0.6
     type_slow "castro"
-    sleep 2.2
+    sleep 4.5          # hold on the results: this scene is 8s and the list is the point
     stop_rec "search-store"
 }
 
@@ -131,8 +133,8 @@ clip_hebrew() {
     tap "resource-id=\"$PKG:id/searchInput\"" 1
     start_rec
     sleep 0.6
-    type_slow "tshsx" 0.40
-    sleep 2.4
+    type_slow "tshsx" 0.50
+    sleep 4.0
     stop_rec "hebrew"
 }
 
@@ -150,28 +152,40 @@ clip_store_list() {
 clip_card_types() {
     launch
     tap 'content-desc="Add a card"' 2
-    tap "resource-id=\"$PKG:id/cardTypeInput\"" 1.2
-    "$ADB" shell input keyevent KEYCODE_BACK; sleep 0.9   # drop-down
-    "$ADB" shell input keyevent KEYCODE_BACK; sleep 1.1   # keyboard
+    # End icon only: touching the field would raise the keyboard over the list.
     tap "resource-id=\"$PKG:id/text_input_end_icon\"" 1.5
+    # ⚠️ SCROLL BEFORE RECORDING, NOT ONLY DURING. The list opens on ten consecutive BuyMe
+    # variants, so a scene captioned "32 card types" opened on what looked like one issuer and
+    # only reached the other vendors near its end -- and a viewer who leaves early sees only
+    # the BuyMes. Pre-scrolling starts the scene on the join, and the scroll during it carries
+    # on through Max, Tav HaZahav and the rest.
+    for _ in 1 2 3; do "$ADB" shell input swipe 540 1500 540 900 400; sleep 0.5; done
+    sleep 0.8
     start_rec
     sleep 0.6
-    for _ in $(seq 1 4); do "$ADB" shell input swipe 540 1700 540 800 450; sleep 0.5; done
-    sleep 0.8
+    for _ in $(seq 1 3); do "$ADB" shell input swipe 540 1600 540 950 450; sleep 0.6; done
+    # Hold long enough for the fling to stop: a moving list can draw a row as blank space,
+    # which reads as a card type with no name. See open_card_types in capture-shots.sh.
+    sleep 2.5
     stop_rec "card-types"
 }
 
-# ⚠️ OPEN THE SCREEN BEFORE THE RECORDER STARTS. Recording the tap that gets here meant the
-# scene spent its first four seconds on the wallet, and the frame the viewer actually sees
-# under "spend it before it expires" was a list, not the balance the line is about.
-clip_detail() {
+# The daily balance check, shown by its outcome. The recording starts on the card so the
+# viewer sees the flagged card first and then the comparison it leads to -- which is the story
+# the scene's line tells, in the order it tells it.
+#
+# ⚠️ OPEN THE SCREEN BEFORE THE RECORDER STARTS where the scene is about what is ON a screen
+# rather than about getting to it. An earlier cut recorded the tap that opened the card detail
+# and spent its first four seconds on the wallet, so the frame a viewer actually saw under
+# "spend it before it expires" was a list, not the balance the line was about.
+clip_balance_check() {
     launch
-    open_detail_card
+    tap_scroll 'text="Dinner voucher"' 6 2.5
     start_rec
-    sleep 0.8
-    "$ADB" shell input swipe 540 1700 540 1000 500; sleep 1.6
-    "$ADB" shell input swipe 540 1000 540 1500 500; sleep 1.2
-    stop_rec "detail"
+    sleep 1.4
+    tap 'text="Add this purchase"' 2.5
+    sleep 2.2
+    stop_rec "balance-check"
 }
 
 clip_history() {
@@ -196,15 +210,49 @@ clip_refresh() {
     stop_rec "refresh"
 }
 
+# ⚠️ GBOARD REMEMBERS FLOATING MODE, AND IT RUINS EVERY TYPING CLIP.
+#
+# Once the keyboard has been put into floating mode -- which a stray ESCAPE or a long-press
+# during earlier automation can do -- it stops docking and leaves a vertical pill of
+# mic/backspace/search/emoji icons hovering over the middle of the app. It survives
+# `am force-stop` and `ime reset` because it is a saved Gboard preference, so the only thing
+# that clears it is clearing Gboard's own data. Cheap, and it is a keyboard on an emulator.
+reset_keyboard() {
+    "$ADB" shell pm clear com.google.android.inputmethod.latin >/dev/null 2>&1 || true
+    "$ADB" shell ime reset >/dev/null 2>&1 || true
+    sleep 2
+}
+
+# ⚠️ RECORD THIS LAST, AND PUT THE APP BACK AFTERWARDS. Every other clip finds its way around
+# by matching English strings, so once the app is in Hebrew none of them work. The wallet is
+# the subject rather than a search: a query narrows the list to one card, and this scene has
+# to earn its place on how much Hebrew is on screen.
+clip_dark() {
+    "$ADB" shell cmd uimode night yes >/dev/null 2>&1
+    "$ADB" shell cmd locale set-app-locales "$PKG" --locales he-IL >/dev/null 2>&1
+    sleep 2
+    launch
+    start_rec
+    sleep 1.2
+    "$ADB" shell input swipe 540 1600 540 1100 500; sleep 1.6
+    "$ADB" shell input swipe 540 1100 540 1600 500; sleep 1.4
+    stop_rec "dark"
+    "$ADB" shell cmd locale set-app-locales "$PKG" --locales en-US >/dev/null 2>&1
+    "$ADB" shell cmd uimode night no >/dev/null 2>&1
+    sleep 2
+}
+
 main() {
     echo "== recording into $OUTDIR"
+    reset_keyboard
     clip_search_store
     clip_hebrew
     clip_store_list
     clip_card_types
-    clip_detail
+    clip_balance_check
     clip_history
     clip_refresh
+    clip_dark          # last: it switches the app to Hebrew
     echo "== done -- now WATCH the clips, do not just check they exist"
 }
 

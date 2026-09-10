@@ -37,14 +37,18 @@ public final class StoreShots {
 
     /**
      * The banner colourway. {@code blue_original} is a #2A8DFC sky blue -- the same hue family
-     * as the app's own #1B5E9C toolbar, one step brighter. At 1080 wide the bar lands ~302px
-     * tall, which is almost exactly the height of the status bar plus the toolbar in a
-     * 1080x2400 capture, so the banner sits where the app's own blue chrome would be and reads
-     * as an extension of it rather than a sticker over it.
+     * as the app's own #2C5FA8 brand colour, a couple of steps brighter.
      *
-     * <p>The other five colourways were rejected on message, not on looks: the app already
-     * spends orange on "expiring soon" and green on "online", so a bar in either colour turns
-     * a status colour into the brand colour. {@code cosmic-navy}'s starfield says space game.
+     * <p>It used to be chosen partly because it landed on top of the app's blue toolbar. That
+     * reasoning is gone: the Material 3 rebuild put the app bars on the surface, so there is no
+     * blue chrome to sit over and the banner is now laid on plain background by
+     * {@link #compose}. The colour still holds on hue alone -- it is the app's own blue, and
+     * the gradient card faces underneath are drawn from the same family.
+     *
+     * <p>The other five colourways were rejected on message, not on looks: the app spends
+     * green on "online" and on a healthy card face, and amber on the balance-mismatch banner,
+     * so a bar in either colour turns a status colour into the brand colour.
+     * {@code cosmic-navy}'s starfield says space game.
      */
     static final String DEFAULT_BAR = "blue_original";
 
@@ -53,7 +57,7 @@ public final class StoreShots {
      * gradient, so the white fill keeps its edge at the pale end of the wave. Deliberately
      * the app's own {@code brand_on_primary_container} rather than pure black.
      */
-    static final Color STROKE = new Color(0x0B2A45);
+    static final Color STROKE = new Color(0x0C2949);
 
     /**
      * The eight screenshots, in the order Play shows them.
@@ -69,23 +73,30 @@ public final class StoreShots {
      * down far enough that the search field clears it.
      */
     static final Shot[] SHOTS = {
-        new Shot("search-store", 0.06, 1.00, "WHICH CARD WORKS\nIN THIS SHOP?"),
-        new Shot("store-list",   0.06, 1.00, "AND WHERE DOES\nTHIS CARD WORK?"),
-        new Shot("hebrew",       0.06, 1.00, "WRONG KEYBOARD?\nFINDS IT ANYWAY."),
+        new Shot("search-store", "WHICH CARD WORKS\nIN THIS SHOP?"),
+        new Shot("store-list",   "AND WHERE DOES\nTHIS CARD WORK?"),
+        new Shot("hebrew",       "WRONG KEYBOARD?\nFINDS IT ANYWAY."),
         // 2,179 unique shop names across the 32 lists in docs/stores, counted rather than
         // remembered -- the widest single card is 1,303 (buyme_all). Do not round this up:
         // an inflated number in a listing is the one kind of copy a reviewer can check.
-        new Shot("card-types",   0.06, 1.00, "32 CARD TYPES.\n2,100+ SHOPS."),
-        new Shot("detail",       0.06, 1.00, "SPEND IT BEFORE\nIT EXPIRES."),
-        new Shot("wallet",       0.06, 1.00, "EVERY CARD, SOONEST\nTO EXPIRE FIRST."),
-        // ⚠️ ANCHOR 1.0 ON PURPOSE. Settings is one short page that does not scroll far, so
-        // the freshness line sits two thirds down it. Anchored to the top this shot is a
-        // screenful of language radio buttons under a caption about shop lists -- the caption
-        // and the screen disagreeing is worse than either being dull. Anchored to the bottom
-        // it lands on "Where store lists come from", and the backup blurb below it says
-        // "your cards live only on this phone" for free.
-        new Shot("refresh",      1.00, 1.00, "SHOP LISTS REFRESH\nTHEMSELVES."),
-        new Shot("dark",         0.06, 1.00, "HEBREW AND ENGLISH.\nLIGHT AND DARK."),
+        new Shot("card-types",   "32 CARD TYPES.\n2,100+ SHOPS."),
+        // The wallet used to hold this slot, under "WHAT'S LEFT, AND HOW LONG YOU HAVE" --
+        // which was still a caption describing a list rather than showing anything the other
+        // shots did not. Hebrew and dark earns the slot instead: right-to-left is the thing
+        // this app's audience checks for, and neither is visible anywhere else in the set.
+        new Shot("dark",         "HEBREW AND ENGLISH.\nLIGHT AND DARK."),
+        // The daily balance check, described by what it does FOR someone rather than by the
+        // worker that does it.
+        new Shot("balance-check", "IT NOTICES PURCHASES\nYOU FORGOT TO LOG."),
+        new Shot("history",      "EVERY PURCHASE,\nMONTH BY MONTH."),
+        // ⚠️ chromeTop 820, not the default 262. Settings is a short page that will not scroll
+        // any further, so the freshness line sits two thirds down it and the shot led with a
+        // screenful of theme radio buttons under a caption about shop lists. Starting the
+        // frame lower drops the Language and Appearance blocks and opens on "Where store lists
+        // come from", with the backup blurb below it saying "your cards live only on this
+        // phone" for free. This is the one place chromeTop is used as a crop rather than as
+        // chrome removal, which is why it is spelled out.
+        new Shot("refresh", 820, "SHOP LISTS REFRESH\nTHEMSELVES."),
     };
 
     /**
@@ -97,7 +108,8 @@ public final class StoreShots {
      * a rename rather than a re-shoot: drop it over whichever numbered file it replaces.
      */
     static final Shot[] ALTERNATES = {
-        new Shot("history",      0.06, 1.00, "EVERY PURCHASE,\nMONTH BY MONTH."),
+        new Shot("wallet", "WHAT'S LEFT, AND\nHOW LONG YOU HAVE."),
+        new Shot("detail", "ONE CARD, IN FULL."),
     };
 
     // --- END PER APP -----------------------------------------------------------------------
@@ -105,8 +117,28 @@ public final class StoreShots {
     private static final int W = 1080;
     private static final int H = 1920;
 
-    /** One screenshot: the capture to use, how to crop it, and what to say over it. */
-    record Shot(String name, double anchor, double zoom, String promo) {
+    /** How far the app's content slides up behind the wave, so there is never a seam. */
+    private static final int TUCK = 16;
+
+    /**
+     * Rows of the capture to discard: the status bar plus the app's toolbar.
+     *
+     * <p>Measured on a 1080x2400 capture of this app — the status bar ends at ~110 and the
+     * toolbar at ~250, and content begins just below. Overshooting slightly is safe (the page
+     * simply starts a little lower); undershooting puts a sliver of toolbar under the wave,
+     * which is the thing this exists to prevent.
+     */
+    private static final int CHROME = 262;
+
+    /** One screenshot: the capture, how much chrome to drop, and what to say over it. */
+    record Shot(String name, int chromeTop, String promo) {
+        Shot(String name, String promo) {
+            this(name, CHROME, promo);
+        }
+    }
+
+    static int barHeight(BufferedImage bar) {
+        return (int) Math.round((double) bar.getHeight() * W / bar.getWidth());
     }
 
     public static void main(String[] args) throws Exception {
@@ -135,7 +167,7 @@ public final class StoreShots {
             }
             n++;
             File out = new File(outDir, String.format("%02d-%s.png", n, s.name()));
-            BufferedImage frame = cropToPhone(ImageIO.read(in), s.anchor(), s.zoom());
+            BufferedImage frame = compose(ImageIO.read(in), s.chromeTop(), barHeight(bar));
             ImageIO.write(banner(frame, bar, s.promo(), font), "png", out);
             System.out.printf("%-34s %dx%d  %d KB%n", out.getName(), W, H, out.length() / 1024);
         }
@@ -145,7 +177,7 @@ public final class StoreShots {
                 continue;
             }
             File out = new File(outDir, "alt-" + s.name() + ".png");
-            BufferedImage frame = cropToPhone(ImageIO.read(in), s.anchor(), s.zoom());
+            BufferedImage frame = compose(ImageIO.read(in), s.chromeTop(), barHeight(bar));
             ImageIO.write(banner(frame, bar, s.promo(), font), "png", out);
             System.out.printf("%-34s %dx%d  %d KB  (alternate, not uploaded)%n",
                     out.getName(), W, H, out.length() / 1024);
@@ -233,7 +265,7 @@ public final class StoreShots {
      * first thing the eye went to. These are the shipped values: a lift, not a drop shadow.
      */
     static BufferedImage banner(BufferedImage frame, BufferedImage bar, String text, Font base) {
-        int barH = (int) Math.round((double) bar.getHeight() * W / bar.getWidth());
+        int barH = barHeight(bar);
         BufferedImage b = scale(bar, W, barH);
 
         // Shadow: the bar's own alpha, dropped 9px, blurred 8, at 78/255 -- then the bar on top.
@@ -292,22 +324,46 @@ public final class StoreShots {
     }
 
     /**
-     * Scale to 1080 wide (times {@code zoom}), then take a 1920-tall window set by {@code anchor}.
+     * Drop the app's own chrome and slide what is left up under the wave.
      *
-     * <p>Letterboxing is deliberately not done here. A capture taller than 9:16 is cropped and
-     * one shorter is scaled to fit; squashing to the aspect is the one option guaranteed to
-     * look wrong, and Play rejects outright the 9:20 a modern phone actually captures.
+     * <p><b>This is the fix for the banner clipping the action bar.</b> The first version laid
+     * the bar straight over an untouched capture. That looks fine where the wave hangs low and
+     * wrong everywhere it rises: the app's status bar and toolbar reappear in the gap, sliced
+     * off mid-glyph by a curve. Shortening the bar does not help and cropping it does not
+     * either — <em>whatever sits under a wave shows through wherever the wave is high</em>, so
+     * the only thing that can be under it is plain background.
+     *
+     * <p>So the capture's top {@code chromeTop} rows — status bar and toolbar — are discarded
+     * outright, and the app's content starts a few pixels under the bar's lowest point. The
+     * strip that shows through beneath the crest is then the app's own surface colour, which
+     * is what makes the banner read as part of the screen rather than a sticker on top of it.
+     *
+     * <p>The colour is sampled from the capture rather than hardcoded, so this works in dark
+     * mode without a second constant to keep in step.
      */
-    static BufferedImage cropToPhone(BufferedImage im, double anchor, double zoom) {
-        int w = (int) Math.round(W * zoom);
-        int h = (int) Math.round((double) im.getHeight() * w / im.getWidth());
-        BufferedImage scaled = scale(im, w, h);
-        if (h < H) {
-            return scale(scaled, W, H);
+    static BufferedImage compose(BufferedImage capture, int chromeTop, int barH) {
+        BufferedImage src = capture.getWidth() == W
+                ? capture
+                : scale(capture, W, (int) Math.round((double) capture.getHeight() * W / capture.getWidth()));
+
+        // A few rows below the chrome, so the sample is page background rather than a shadow
+        // or a divider left at the toolbar's edge.
+        int surface = src.getRGB(8, Math.min(src.getHeight() - 1, chromeTop + 12));
+
+        BufferedImage out = new BufferedImage(W, H, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = out.createGraphics();
+        hints(g);
+        g.setColor(new Color(surface));
+        g.fillRect(0, 0, W, H);
+
+        int contentTop = barH - TUCK;
+        int avail = src.getHeight() - chromeTop;
+        if (avail > 0) {
+            g.drawImage(src.getSubimage(0, chromeTop, W, Math.min(avail, H - contentTop + 1)),
+                    0, contentTop, null);
         }
-        int left = (w - W) / 2;
-        int top = (int) Math.round((h - H) * anchor);
-        return scaled.getSubimage(left, top, W, H);
+        g.dispose();
+        return out;
     }
 
     /** Largest size at which every line fits the width. Lines are pre-split by the caller. */

@@ -11,7 +11,7 @@ Assets in this folder:
 | `feature-graphic-1024x500.png` | Feature graphic | 1024×500 |
 | `screenshots/01…08` | Phone screenshots | 1080×1920, min 2, max 8 |
 | `promo-video.mp4` | Promo video | upload to YouTube, paste the URL — see below |
-| `alt-history.png` | *(spare)* | a ninth, ready-framed. Eight is Play's cap — see below |
+| `alt-wallet.png`, `alt-detail.png` | *(spares)* | ready-framed swaps. Eight is Play's cap — see below |
 | `top_bars/` | *(source art)* | the banner the screenshots are built on |
 | `raw-captures/` | *(source art)* | the unframed device captures, kept so the set can be rebuilt |
 
@@ -32,20 +32,22 @@ Each file carries its judgement calls in its own header — read `tools/StoreSho
 changing a crop anchor and `tools/capture-shots.sh` before changing the capture order. Both
 are ports of, or built on, the `game-infra` skill's `references/store-listing-art.md`.
 
-**The fixture is part of the art.** `tools/seed-demo-db.js` writes a schema-v2 database with
-one card in each state (active / used-up / expired-with-money / archived) and 11 purchases
-across three months, so the wallet shows its status badges and the Archive group, and the
+**The fixture is part of the art.** `tools/seed-demo-db.js` writes a database against the
+newest exported Room schema (it reads the highest-numbered file in `app/schemas/`, so adding
+a migration cannot leave it behind) with one card in each state -- active, used-up,
+expired-with-money and archived -- and 11 purchases across three months, so the wallet shows its status badges and the Archive group, and the
 history screen has more than one month heading. Its card *types* are chosen so that three
 active cards all stock Castro — otherwise screenshot 1, the most-viewed image in the listing,
-answers "which card works here?" with a single row.
+answers "which card works here?" with a single row. One card is also seeded already flagged by
+the daily balance check, which is what screenshot 6 photographs.
 
-**`alt-history.png` is a swap, not an addition.** Play accepts at most eight, and screenshot 5
-already shows a card's purchases inline. If you would rather lead with spending than with the
-wallet, drop it over `06-wallet.png`; it is already framed and captioned.
+**The spares are swaps, not additions.** Play accepts at most eight. `alt-wallet.png` is the
+wallet in English and light; `alt-detail.png` is one card in full. Drop either over whichever
+numbered file it replaces -- both are already framed and captioned.
 
 ## Promo video
 
-`promo-video.mp4` — **37.4s, 1920x1080, silent**. Play takes a YouTube URL rather than a file:
+`promo-video.mp4` — **48.0s, 1920x1080, silent**. Play takes a YouTube URL rather than a file:
 upload it as **public or unlisted**, leave **embedding on**, turn **ads off**, and paste the
 clean `watch?v=` URL (no playlist or timestamp parameters).
 
@@ -53,7 +55,9 @@ Three things drove the shape of it:
 
 - **Play requires 30–120s and autoplays only the first 30**, so the pitch is front-loaded: the
   two halves of the core idea are on screen by 0:14, and everything that has to land does so
-  inside the autoplay window. Nine scenes, none longer than 5.5s.
+  inside the autoplay window. Ten scenes. The search scene alone runs 8s, because a viewer
+  has to read the query going in, watch the list narrow and then read the results -- at 5.5s
+  the answer was on screen for about a second, which is not long enough to follow.
 - **It autoplays muted, and most people never unmute.** Every claim is set as type on the
   stage, not spoken. That is also why there is no music: a silent track cannot arrive with a
   licensing problem attached.

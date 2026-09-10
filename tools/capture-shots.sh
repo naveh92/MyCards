@@ -70,12 +70,47 @@ node_center() {
         | awk '{printf "%d %d", ($1+$3)/2, ($2+$4)/2}'
 }
 
+# ⚠️ AN ANR DIALOG LOOKS EXACTLY LIKE A RENAMED BUTTON: every lookup underneath it reports
+# its own target missing, so one dialog can look like a dozen unrelated breakages.
+#
+# ⚠️ TAP "CLOSE APP", NOT "WAIT". This is the one that mattered. "Wait" tells Android to keep
+# waiting on the same process and leaves the dialog up, so it is still there at the next
+# lookup -- a pass can spend its whole length "dismissing" a dialog that never leaves, which
+# is exactly what the logs showed. Closing kills the process and the caller gets a clean cold
+# start. Returns 0 only when a dialog was actually there, and leaves the app STOPPED, so
+# callers must relaunch.
+#
+# WHAT THE ANRs WERE. One real ANR was logged, "Input dispatching timed out ... Waited 15001ms
+# for KeyEvent", while the emulator itself was 392% idle. Every later "(ANR dialog)" line was
+# that same undismissed dialog, not a new hang: after clearing logcat, a full pass produced no
+# new ANR at all. Treat it as a headless software-rendered emulator being driven faster than
+# it draws, not as an app defect -- nothing here reproduced once the dialog was closed
+# properly.
+dismiss_anr() {
+    ui_peek | grep -q "isn't responding" || return 1
+    echo "   (ANR dialog -- closing the app and restarting it)" >&2
+    local c
+    c="$(node_center 'text="Close app"' || true)"
+    # shellcheck disable=SC2086
+    [ -n "$c" ] && "$ADB" shell input tap $c
+    sleep 2
+    "$ADB" shell am force-stop "$PKG"
+    sleep 1
+    return 0
+}
+
 tap() {
     local c
     # `|| true`: node_center ends in a grep that fails when the node is absent, and under
     # `set -e` a failing command substitution in an assignment kills the script outright --
     # silently, before the message below can say which target was missing.
     c="$(node_center "$1" || true)"
+
+    if [ -z "$c" ] && ui_peek | grep -q "isn't responding"; then
+        echo "!! the app is showing an ANR dialog; $1 is unreachable" >&2
+        return 1
+    fi
+
     if [ -z "$c" ]; then echo "!! tap target not found: $1" >&2; return 1; fi
     # shellcheck disable=SC2086
     "$ADB" shell input tap $c
@@ -106,6 +141,15 @@ type_text() { "$ADB" shell input text "$1"; sleep "${2:-1.5}"; }
 back()      { "$ADB" shell input keyevent KEYCODE_BACK; sleep "${1:-1}"; }
 swipe_up()  { "$ADB" shell input swipe 540 1700 540 500 "${1:-250}"; sleep 0.6; }
 
+# ⚠️ SEARCHING LEAVES THE RESULT LIST SCROLLED. Focusing the field pushes the list up to make
+# room for the keyboard, and hiding the keyboard again does not put it back -- so the first
+# result sits with its name and balance above the top of the list, and the hero screenshot
+# opens on a card with no title. Scroll it home before shooting anything that was typed into.
+scroll_top() {
+    for _ in 1 2 3; do "$ADB" shell input swipe 540 900 540 1800 260; sleep 0.4; done
+    sleep 0.6
+}
+
 # Assert where you are before you shoot.
 #
 # ⚠️ THIS EXISTS BECAUSE THE PASS ONCE PHOTOGRAPHED THE CARD DETAIL SCREEN TWICE -- once
@@ -113,10 +157,9 @@ swipe_up()  { "$ADB" shell input swipe 540 1700 540 500 "${1:-250}"; sleep 0.6; 
 # reported success both times. A screenshot is not an assertion; a log line saying "captured"
 # says only that a PNG was written.
 expect() {
-    if ! ui_peek | grep -q -- "$1"; then
-        echo "!! WRONG SCREEN: expected $1 before shooting ${2:-next shot}" >&2
-        return 1
-    fi
+    ui_peek | grep -q -- "$1" && return 0
+    echo "!! WRONG SCREEN: expected $1 before shooting ${2:-next shot}" >&2
+    return 1
 }
 
 shot() {
@@ -128,9 +171,18 @@ shot() {
 }
 
 launch() {
+    dismiss_anr || true          # clear any dialog left over the app before restarting it
     "$ADB" shell am force-stop "$PKG"
     "$ADB" shell am start -n "$PKG/com.mycards.ui.search.SearchActivity" >/dev/null 2>&1
-    sleep 3
+    # 5s, not 3: a cold start on a software-rendered emulator has to run the Room migration and
+    # load the catalog before it draws, and tapping into a half-drawn activity is how the pass
+    # gets ahead of the app.
+    sleep 5
+    # If one appeared during the start itself, close it and try once more from cold.
+    if dismiss_anr; then
+        "$ADB" shell am start -n "$PKG/com.mycards.ui.search.SearchActivity" >/dev/null 2>&1
+        sleep 5
+    fi
 }
 
 set_theme() {  # light | dark
@@ -139,9 +191,22 @@ set_theme() {  # light | dark
     sleep 2
 }
 
+# Clearing a query by firing 14 KEYCODE_DELs back to back is not how anything types, and it
+# is not worth doing: relaunching resets the field instantly, so the callers that used to
+# clear now just `launch` again. Kept, with a gap between presses, for the odd case that
+# needs it.
+#
+# ⚠️ NOT AN APP PROBLEM, THOUGH IT WAS ONCE WRITTEN UP AS ONE. The search here is debounced
+# (SearchActivity.scheduleSearch) and runs off the main thread (AppExecutors.io), so a burst
+# of backspaces costs ONE search on a background thread -- not fourteen on the UI thread. An
+# earlier version of this comment claimed the opposite and blamed an ANR on it; that was
+# wrong. See dismiss_anr for what the ANR dialogs actually were.
 clear_query() {
     "$ADB" shell input keyevent KEYCODE_MOVE_END
-    for _ in $(seq 1 14); do "$ADB" shell input keyevent KEYCODE_DEL; done
+    for _ in $(seq 1 14); do
+        "$ADB" shell input keyevent KEYCODE_DEL
+        sleep 0.15
+    done
     sleep 0.8
 }
 
@@ -151,14 +216,27 @@ clear_query() {
 # Disabling the IME does NOT work, and it fails convincingly: `ime disable` reports success
 # and drops the keyboard out of `ime list -s`, but the running LatinIME keeps on serving and
 # it respawns after `am force-stop`, so the captures come out with a keyboard on them anyway.
-# BACK dismisses it in one press and leaves the screen alone -- and it does not reconfigure
-# the user's emulator, which the disable route did.
-hide_kb() { "$ADB" shell input keyevent KEYCODE_BACK; sleep 1.2; }
+#
+# ⚠️ AND BACK IS NOT THE ANSWER EITHER, THOUGH IT WORKED FOR A WHILE. An injected
+# KEYCODE_BACK is not reliably consumed by the IME here: one press hid the keyboard AND
+# finished the activity, so the pass carried on tapping at the launcher and photographed the
+# home screen under the search caption.
+#
+# THIS IS ABOUT `adb shell input keyevent`, NOT ABOUT THE APP. The app registers no back
+# handling of its own -- no onBackPressed, no OnBackPressedCallback -- so finishing on BACK is
+# just the platform default; the only oddity is the IME not taking it first, which is a
+# property of injected events rather than of a real back gesture. Do not read this comment as
+# a bug report against the app.
+#
+# ESCAPE hides the keyboard and leaves the activity focused, and the guard makes it a no-op
+# where no keyboard is up -- which is what stops it navigating on screens nothing was typed
+# into.
+hide_kb() {
+    "$ADB" shell dumpsys input_method 2>/dev/null | grep -q 'mInputShown=true' || return 0
+    "$ADB" shell input keyevent KEYCODE_ESCAPE
+    sleep 1.2
+}
 
-# ⚠️ ORDER MATTERS HERE. Tapping the card-type field opens the drop-down AND raises the
-# keyboard, which hides two thirds of the list. BACK closes the DROP-DOWN first and the
-# keyboard second, so it takes two -- and then the drop-down has to be reopened from the end
-# icon rather than the field, because touching the field raises the keyboard again.
 # Open the first card from DETAIL_CARDS that this fixture actually has.
 open_detail_card() {
     local label
@@ -174,11 +252,25 @@ open_detail_card() {
     return 1
 }
 
+# ⚠️ TAP THE END ICON, NEVER THE FIELD. Touching the text field opens the drop-down AND
+# raises the keyboard, which buries two thirds of the list. The old workaround -- dismiss
+# both, then reopen from the icon -- stopped working when ESCAPE replaced BACK, because
+# ESCAPE closes the drop-down too. Going straight to the arrow never focuses the field, so no
+# keyboard is raised and the whole list is on screen first time.
+#
+# ⚠️ AND SCROLL IT. Unscrolled, the list opens on ten consecutive BuyMe variants, so a caption
+# promising 32 card types is illustrated by what looks like one issuer. Three swipes land on
+# the join: BuyMe Kosher/Pets/Live above All-inZone, SuperZone, GiftZone, ChefZone, SpaZone,
+# LOVE, Max and Tav HaZahav -- several BuyMe variants and eight other issuers in one frame.
+# ⚠️ LET THE FLING STOP BEFORE SHOOTING. A capture taken while this list is still moving can
+# come back with a row drawn as blank space -- it looked exactly like a card type with no name,
+# and got as far as the shipped art before anyone noticed. The row is fine: it is
+# `buyme_business`, whose catalog name is Hebrew ("עוטפים עסקים") in both locales, and once the
+# list settles it draws right-aligned like any RTL string. 0.8s was not enough; 4s is.
 open_card_types() {
-    tap "resource-id=\"$PKG:id/cardTypeInput\"" 1.5
-    hide_kb          # closes the drop-down
-    hide_kb          # closes the keyboard
     tap "resource-id=\"$PKG:id/text_input_end_icon\"" 2
+    for _ in 1 2 3; do "$ADB" shell input swipe 540 1500 540 900 400; sleep 0.6; done
+    sleep 4
 }
 
 # --- device setup -------------------------------------------------------------------------
@@ -305,7 +397,9 @@ sync_store_data() {
     tap 'content-desc="More options"'
     tap 'text="Settings"' 2
     tap "resource-id=\"$PKG:id/syncNow\"" 3
-    sleep 25
+    # Long, and deliberately so: the sync is what provokes the ANR on a software-rendered
+    # emulator, and every shot after it is cheaper if it has already finished.
+    sleep 40
 }
 
 # --- the shots ------------------------------------------------------------------------------
@@ -327,29 +421,46 @@ main() {
     tap "resource-id=\"$PKG:id/searchInput\"" 1
     type_text "castro"
     hide_kb
+    scroll_top
     shot "search-store"
 
     # 3. The same field with the keyboard in the wrong language: "tshsx" is what אדידס comes
     #    out as typed on an English layout, and it still finds adidas. This is the feature
     #    people repeat to someone else, so it earns a slot of its own.
+    launch          # cheaper and safer than clearing the field -- see clear_query
     tap "resource-id=\"$PKG:id/searchInput\"" 1
-    clear_query
     type_text "tshsx"
     hide_kb
+    scroll_top
     shot "hebrew"
 
-    # 5. A card in detail: balance against the original, real purchases, and the freshness of
-    #    the shop list it is matched against.
+    # A card in detail. An alternate now rather than a numbered slot: the wallet already
+    # states balance, share left and expiry for every card, and the history screen covers
+    # spending better than one card's slice of it.
     launch
     open_detail_card
     expect 'text="Spending History"' "detail"
     shot "detail"
 
+    # The daily balance check, shown by its outcome rather than by the worker.
+    #
+    # The fixture seeds one card as already flagged (see CHECKED in tools/seed-demo-db.js);
+    # the fetch itself needs a live issuer page and a spendable gift link, neither of which
+    # belongs in a fixture. What is on screen is the real app rendering real card state.
+    launch
+    tap_scroll 'text="Dinner voucher"' 6 2.5
+    tap 'text="Add this purchase"' 2.5
+    expect 'text="Balance mismatch"' "balance-check"
+    shot "balance-check"
+
     # 2. The other half of the question -- every shop this one card works in. Scrolled past
     #    the head of the list, which is symbols and digits before it reaches any brand.
-    # ⚠️ NO hide_kb HERE. Nothing was typed on this screen, so there is no keyboard for BACK
-    # to close and it navigates back to the card detail instead -- which photographed the
-    # detail screen a second time, under this screen's caption, and the pass reported success.
+    # ⚠️ NAVIGATE FROM THE WALLET, DO NOT INHERIT THE PREVIOUS SHOT'S SCREEN. This step used to
+    # rely on the detail shot having left us on a card; inserting the balance-check shot
+    # between the two left it on the reconcile screen instead, and it failed looking for a row
+    # that was two screens away. Every shot starts from `launch` for that reason.
+    launch
+    open_detail_card
     tap_scroll 'text="Accepted at' 4 3
     for _ in $(seq 1 8); do swipe_up 200; done
     expect 'resource-id="'"$PKG"':id/storeList"' "store-list"
@@ -358,8 +469,13 @@ main() {
     # 4. Breadth: the card-type picker is the only screen that shows how many issuers the app
     #    knows, and with the keyboard gone it shows fourteen of them at once.
     #    (The drop-down will not appear in ui_peek -- see the note on ui_peek.)
+    #    ⚠️ SCROLL IT. Unscrolled, the drop-down opens on ten consecutive BuyMe variants, so a
+    #    caption promising 32 card types is illustrated by what looks like one issuer. Three
+    #    swipes lands on the join, where BuyMe's tail sits above All-inZone, SuperZone,
+    #    GiftZone, ChefZone, SpaZone, LOVE, Max and Tav HaZahav -- several BuyMe variants and
+    #    several other issuers in one frame, which is what the claim actually needs.
     launch
-    tap 'content-desc="Add a card"' 2.5
+    tap 'content-desc="Add a card"' 2.5 || tap 'text="Add card"' 2.5
     open_card_types
     shot "card-types"
 
@@ -368,7 +484,7 @@ main() {
     launch
     tap 'content-desc="More options"'
     tap 'text="Settings"' 2
-    swipe_up
+    swipe_up; swipe_up
     shot "refresh"
 
     # Every purchase across every card, by month. Captured as an alternate rather than a
