@@ -33,6 +33,17 @@ public class BackupPayload {
         public long createdAt;
         public long updatedAt;
 
+        /**
+         * When the card was put away by hand; 0 while in use.
+         *
+         * <p>Added after the format was already in the wild, and deliberately without
+         * bumping {@code backupVersion}: a file written by 1.2 simply has no such field, Gson
+         * leaves it at 0, and the card restores as in use — which is what it was. An older
+         * build reading a newer file ignores the field for the same reason. Raising the
+         * version would have made every existing backup unreadable to buy nothing.
+         */
+        public long archivedAt;
+
         // Decrypted for transport, re-encrypted under the passphrase by the codec.
         public String pan;
         public String cvv;

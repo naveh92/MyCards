@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Four settings groups, each in its own container.
+
+    They used to be one column of controls with hairline rules between them, which is the
+    Material 2 arrangement and leaves every group looking like a continuation of the last —
+    on a screen where the four have nothing to do with each other. Grouping them into
+    separate surfaces is how Material 3, and every current settings screen, marks a boundary:
+    the shape does the work the rule was failing to do, and the heading above each group can
+    then be a heading rather than a divider label.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,13 +17,11 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.MyCards.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/toolbar_background"
-        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/settings"
-        app:titleTextColor="@color/toolbar_on_background" />
+        app:title="@string/settings" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,159 +31,197 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="32dp">
 
+            <!-- ══ Language ══ -->
             <TextView
+                style="@style/TextAppearance.MyCards.SettingsHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/language"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:text="@string/language" />
 
-            <RadioGroup
-                android:id="@+id/languageGroup"
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyCards.SettingsGroup"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:layout_height="wrap_content">
 
-                <RadioButton
-                    android:id="@+id/langSystem"
+                <RadioGroup
+                    android:id="@+id/languageGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/language_system" />
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
 
-                <RadioButton
-                    android:id="@+id/langEnglish"
+                    <RadioButton
+                        android:id="@+id/langSystem"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/language_system" />
+
+                    <RadioButton
+                        android:id="@+id/langEnglish"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/language_english" />
+
+                    <RadioButton
+                        android:id="@+id/langHebrew"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/language_hebrew" />
+                </RadioGroup>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Appearance ══ -->
+            <TextView
+                style="@style/TextAppearance.MyCards.SettingsHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/appearance" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyCards.SettingsGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RadioGroup
+                    android:id="@+id/themeGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/language_english" />
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
 
-                <RadioButton
-                    android:id="@+id/langHebrew"
+                    <RadioButton
+                        android:id="@+id/themeSystem"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/theme_system" />
+
+                    <RadioButton
+                        android:id="@+id/themeLight"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/theme_light" />
+
+                    <RadioButton
+                        android:id="@+id/themeDark"
+                        style="@style/Widget.MyCards.SettingsChoice"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/theme_dark" />
+                </RadioGroup>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Shop data ══ -->
+            <TextView
+                style="@style/TextAppearance.MyCards.SettingsHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_data_sources" />
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyCards.SettingsGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/language_hebrew" />
-            </RadioGroup>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="?android:attr/listDivider" />
+                    <TextView
+                        android:id="@+id/lastSync"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="viewStart"
+                        android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+                    <!-- Holds a bare URL, which is pure left-to-right and so aligned itself
+                         to the left in Hebrew while every line around it sat right. -->
+                    <TextView
+                        android:id="@+id/catalogNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAlignment="viewStart"
+                        android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/syncNow"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:minHeight="52dp"
+                        android:text="@string/update_store_data" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Backup ══ -->
             <TextView
+                style="@style/TextAppearance.MyCards.SettingsHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/appearance"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
+                android:text="@string/backup" />
 
-            <RadioGroup
-                android:id="@+id/themeGroup"
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.MyCards.SettingsGroup"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
+                android:layout_height="wrap_content">
 
-                <RadioButton
-                    android:id="@+id/themeSystem"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/theme_system" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <RadioButton
-                    android:id="@+id/themeLight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/theme_light" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/backup_explain"
+                        android:textAlignment="viewStart"
+                        android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
-                <RadioButton
-                    android:id="@+id/themeDark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/theme_dark" />
-            </RadioGroup>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/exportBackup"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:minHeight="52dp"
+                        android:text="@string/backup_export" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="?android:attr/listDivider" />
+                    <!-- Sits directly under Export, because it is the step that belongs with
+                         it: an export you have not checked is a file, not a backup. -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/checkBackup"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:minHeight="48dp"
+                        android:text="@string/backup_check" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/about_data_sources"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
-
-            <TextView
-                android:id="@+id/lastSync"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAlignment="viewStart"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
-
-            <!-- Holds a bare URL, which is pure left-to-right and so aligned itself to the
-                 left in Hebrew while every line around it sat right. -->
-            <TextView
-                android:id="@+id/catalogNote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAlignment="viewStart"
-                android:textAppearance="@style/TextAppearance.MyCards.Meta" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/syncNow"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/update_store_data" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="?android:attr/listDivider" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="@string/backup"
-                android:textAppearance="?attr/textAppearanceTitleMedium" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/backup_explain"
-                android:textAppearance="@style/TextAppearance.MyCards.Meta" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/exportBackup"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/backup_export" />
-
-            <!-- Sits directly under Export, because it is the step that belongs with it:
-                 an export you have not checked is a file, not a backup. -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/checkBackup"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/backup_check" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/importBackup"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/backup_import" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/importBackup"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:text="@string/backup_import" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

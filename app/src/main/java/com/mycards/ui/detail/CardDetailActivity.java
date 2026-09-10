@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,8 +22,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.mycards.R;
+import com.mycards.cards.CardFace;
+import com.mycards.cards.CardStatus;
 import com.mycards.data.CardsRepository;
 import com.mycards.data.CatalogRepository;
 import com.mycards.data.catalog.model.Catalog;
@@ -32,6 +41,7 @@ import com.mycards.data.db.StoreCacheEntity;
 import com.mycards.search.StoreNameIndex;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.BiometricGate;
+import com.mycards.ui.CardFaces;
 import com.mycards.ui.EdgeToEdge;
 import com.mycards.ui.Formats;
 import com.mycards.ui.edit.AddEditCardActivity;
@@ -50,6 +60,7 @@ public class CardDetailActivity extends AppCompatActivity {
 
     /** Revealed numbers re-hide themselves, in case the phone is put down still unlocked. */
     private static final long AUTO_HIDE_MS = 60_000L;
+
 
     private CardsRepository cardsRepo;
     private CatalogRepository catalogRepo;
@@ -72,6 +83,7 @@ public class CardDetailActivity extends AppCompatActivity {
     private double remainingBalance;
     /** Decrypted and scheme-corrected gift link; null when nothing usable is stored. */
     private String giftUrl;
+
     private View secretBlock;
     private MaterialButton revealButton;
     private final Handler autoHide = new Handler(Looper.getMainLooper());
@@ -90,10 +102,31 @@ public class CardDetailActivity extends AppCompatActivity {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         // Registering the toolbar is what makes the overflow menu ("Edit card") reachable.
         setSupportActionBar(toolbar);
+        // The window keeps its name — it is what the recents list and a screen reader
+        // announce on arrival — but the bar shows nothing. The card names itself on the hero
+        // immediately below, in its own colour and several times the size, so "Card details"
+        // above it would be the least informative text on the screen in the most prominent
+        // position. Cleared after setTitle, because an Activity's title propagates to the
+        // action bar once one is registered.
+        setTitle(R.string.card_details);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(R.string.card_details);
+            getSupportActionBar().setTitle("");
         }
         toolbar.setNavigationOnClickListener(v -> finish());
+
+        // The label is worth its width on arrival and not afterwards: at full size it covers
+        // most of the spending log on a small screen, which is the thing this screen is for
+        // reading. Scrolling is the signal that reading has started. It comes back at the
+        // top rather than on a timer, so the same gesture always returns it.
+        ExtendedFloatingActionButton addSpend = findViewById(R.id.addSpend);
+        findViewById(R.id.detailScroll).setOnScrollChangeListener(
+                (View v, int x, int y, int oldX, int oldY) -> {
+                    if (y > 0) {
+                        addSpend.shrink();
+                    } else {
+                        addSpend.extend();
+                    }
+                });
 
         secretBlock = findViewById(R.id.secretBlock);
         revealButton = findViewById(R.id.revealButton);
@@ -137,7 +170,7 @@ public class CardDetailActivity extends AppCompatActivity {
             // cheapest place to have the shop names ready before anyone asks for them.
             StoreNameIndex names = storeSuggestions != null
                     ? storeSuggestions
-                    : StoreNameIndex.of(catalogRepo.loadStoreNames(card.cardTypeId));
+                    : catalogRepo.loadStoreSuggestions(card.cardTypeId);
 
             AppExecutors.main(() -> {
                 storeSuggestions = names;
@@ -161,8 +194,31 @@ public class CardDetailActivity extends AppCompatActivity {
 
         remainingBalance = remaining;
         ((TextView) findViewById(R.id.balance)).setText(Formats.money(remaining, card.currency));
-        ((TextView) findViewById(R.id.balanceMeta)).setText(
-                getString(R.string.of_initial, Formats.money(card.initialAmount, card.currency)));
+
+        // The hero wears the same face the card wears in the wallet, so the screen you
+        // arrive at is visibly the card you tapped — including the neutral one a retired
+        // card wears, which is a plain surface and therefore needs dark text on it.
+        CardStatus heroState = CardStatus.of(remaining, Formats.daysUntil(card.expiryDate),
+                card.archivedAt);
+        findViewById(R.id.heroContent).setBackgroundResource(
+                CardFaces.backgroundFor(card.cardTypeId, heroState));
+        paintHero(heroState.isRetired());
+
+        TextView balanceMeta = findViewById(R.id.balanceMeta);
+        ProgressBar depletion = findViewById(R.id.depletion);
+        if (card.initialAmount > 0d) {
+            balanceMeta.setText(getString(R.string.of_initial_amount,
+                    Formats.money(card.initialAmount, card.currency)));
+            balanceMeta.setVisibility(View.VISIBLE);
+            depletion.setProgress(Math.round(
+                    CardFace.remainingFraction(remaining, card.initialAmount) * 100f));
+            depletion.setVisibility(View.VISIBLE);
+        } else {
+            // Nothing is known about what the card started with, so there is no fraction to
+            // draw. An empty track would claim it had been spent.
+            balanceMeta.setVisibility(View.GONE);
+            depletion.setVisibility(View.GONE);
+        }
 
         TextView expiry = findViewById(R.id.expiry);
         long days = Formats.daysUntil(card.expiryDate);
@@ -170,16 +226,25 @@ public class CardDetailActivity extends AppCompatActivity {
             // No expiry recorded, so drop the line rather than announcing an absence.
             expiry.setVisibility(View.GONE);
         } else if (days < 0) {
+            // Not painted red any more, and not for want of urgency: this line now sits on
+            // the card face, which is one of eight saturated fills, and red on the rose face
+            // is unreadable while amber on the amber one is invisible. The badge in the
+            // hero corner carries the state instead — it reads the same on all eight.
             expiry.setVisibility(View.VISIBLE);
             expiry.setText(R.string.expired);
-            expiry.setTextColor(getColor(R.color.expiry_expired));
         } else if (days <= 30) {
+            expiry.setVisibility(View.VISIBLE);
             expiry.setText(getString(R.string.expires_soon, (int) days));
-            expiry.setTextColor(getColor(R.color.expiry_warning));
         } else {
+            expiry.setVisibility(View.VISIBLE);
             expiry.setText(getString(R.string.expires_on,
                     Formats.expiryToDisplay(card.expiryDate)));
         }
+
+        renderStatus(remaining, days);
+        // The overflow is built before the card is loaded, so its Archive/Bring back wording
+        // is only knowable once we are here.
+        invalidateOptionsMenu();
 
         storeCache = cache;
         renderStoreListRow();
@@ -224,6 +289,137 @@ public class CardDetailActivity extends AppCompatActivity {
         findViewById(R.id.noSpends).setVisibility(noSpends ? View.VISIBLE : View.GONE);
         // An empty list still reserves its padding and draws as a stray grey block.
         spendList.setVisibility(noSpends ? View.GONE : View.VISIBLE);
+    }
+
+    // --- retirement ---
+
+    /**
+     * States why the card is not in the wallet list, when it is not.
+     *
+     * <p>An active card says nothing at all here. Its being spendable is the default, and a
+     * screen that announced it would be spending a line on the absence of news — the same
+     * reason the expiry line disappears on a card that has no expiry.
+     *
+     * <p>Archiving gets a sentence as well as a badge, because it is the only one of these
+     * states the user caused and the only one they can be surprised by. The card vanishing
+     * from the wallet needs to be explained where they will be standing when they wonder.
+     */
+    /**
+     * Colours the hero for whichever of the two kinds of face it is wearing.
+     *
+     * <p>A live card is a saturated fill and everything on it is white; a retired one is the
+     * page’s own surface and everything on it is ordinary text. Both branches always set
+     * every view, because this screen is re-rendered in place when a card is archived or
+     * brought back and a value left over from the other branch would survive.
+     */
+    private void paintHero(boolean retired) {
+        int strong = retired
+                ? MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, 0)
+                : getColor(R.color.on_face);
+        int soft = retired
+                ? MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorOnSurfaceVariant, 0)
+                : getColor(R.color.on_face_variant);
+
+        ((TextView) findViewById(R.id.cardTitle)).setTextColor(strong);
+        ((TextView) findViewById(R.id.balance)).setTextColor(strong);
+        ((TextView) findViewById(R.id.cardSubtitle)).setTextColor(soft);
+        ((TextView) findViewById(R.id.balanceMeta)).setTextColor(soft);
+        ((TextView) findViewById(R.id.expiry)).setTextColor(soft);
+
+        ((ProgressBar) findViewById(R.id.depletion)).setProgressDrawable(
+                androidx.core.content.ContextCompat.getDrawable(this,
+                        retired ? R.drawable.progress_depletion_muted
+                                : R.drawable.progress_depletion));
+
+        TextView badge = findViewById(R.id.statusBadge);
+        badge.setBackgroundResource(
+                retired ? R.drawable.bg_badge_muted : R.drawable.bg_face_badge);
+        badge.setTextColor(retired ? getColor(R.color.card_status) : getColor(R.color.on_face));
+
+        MaterialCardView hero = findViewById(R.id.heroCard);
+        hero.setCardElevation(retired ? 0f : getResources().getDisplayMetrics().density * 3f);
+    }
+
+    private void renderStatus(double remaining, long daysUntilExpiry) {
+        TextView badge = findViewById(R.id.statusBadge);
+        TextView explain = findViewById(R.id.statusExplain);
+
+        CardStatus state = CardStatus.of(remaining, daysUntilExpiry, card.archivedAt);
+
+        Integer label = null;
+        if (state == CardStatus.ARCHIVED) {
+            label = R.string.status_archived;
+        } else if (state == CardStatus.EMPTY) {
+            label = R.string.status_empty;
+        } else if (state == CardStatus.EXPIRED) {
+            label = R.string.status_expired;
+        } else if (daysUntilExpiry != Long.MAX_VALUE && daysUntilExpiry <= 30) {
+            label = R.string.status_expiring_soon;
+        }
+
+        // Expiry is badged here now. It used to be left to the expiry line alone, on the
+        // grounds that the line already said it — true then, when the line could be red.
+        // On a coloured face it cannot be, so the badge is the only thing left carrying
+        // urgency, and a state with no badge would be the only unmarked one on the screen.
+        if (label == null) {
+            badge.setVisibility(View.GONE);
+        } else {
+            badge.setText(label);
+            badge.setVisibility(View.VISIBLE);
+        }
+
+        // Only archiving gets a sentence. It is the one state the user caused and the only
+        // one they can be surprised by; the rest explain themselves from the balance or the
+        // date already on the card.
+        if (state == CardStatus.ARCHIVED) {
+            explain.setText(R.string.status_archived_explain);
+            explain.setVisibility(View.VISIBLE);
+        } else {
+            explain.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Puts the card away, or brings it back.
+     *
+     * <p>Stays on this screen rather than returning to the wallet. Archiving is not a
+     * farewell — the card keeps its balance, its history and its shop list, and all of that
+     * is on the screen behind the confirmation. Leaving would also take away the one place
+     * the undo can be offered.
+     */
+    private void toggleArchive() {
+        if (card == null) {
+            return;
+        }
+        boolean archiving = !card.isArchived();
+        long previous = card.archivedAt;
+        long now = System.currentTimeMillis();
+
+        applyArchive(archiving ? now : 0L, now, () ->
+                Snackbar.make(findViewById(R.id.detailRoot),
+                                archiving ? R.string.card_archived : R.string.card_unarchived,
+                                Snackbar.LENGTH_LONG)
+                        // Reversible, and said so at the moment of doing it. Archiving is
+                        // meant to be the cheap, safe neighbour of deleting a card, and an
+                        // action nobody is sure how to undo is not cheap.
+                        .setAction(R.string.undo, v ->
+                                applyArchive(previous, System.currentTimeMillis(), null))
+                        .show());
+    }
+
+    private void applyArchive(long archivedAt, long updatedAt, Runnable then) {
+        AppExecutors.io(() -> {
+            cardsRepo.cards().setArchived(cardId, archivedAt, updatedAt);
+            AppExecutors.main(() -> {
+                load();
+                // The overflow item's wording flips between "Archive" and "Bring back".
+                invalidateOptionsMenu();
+                if (then != null) {
+                    then.run();
+                }
+            });
+        });
     }
 
     // --- sensitive values ---
@@ -391,6 +587,8 @@ public class CardDetailActivity extends AppCompatActivity {
         }
     }
 
+
+
     // --- spending ---
 
     /**
@@ -474,7 +672,7 @@ public class CardDetailActivity extends AppCompatActivity {
     }
 
     private void confirmDeleteCard() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.delete_card)
                 .setMessage(R.string.delete_card_confirm)
                 .setNegativeButton(R.string.cancel, null)
@@ -486,7 +684,7 @@ public class CardDetailActivity extends AppCompatActivity {
     }
 
     private void confirmDeleteSpend(com.mycards.data.db.SpendEntity spend) {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(spend.title)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete_spend, (d, w) -> AppExecutors.io(() -> {
@@ -521,8 +719,43 @@ public class CardDetailActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Shows the archive action only when it would do something.
+     *
+     * <p>An empty or expired card is already out of the wallet and already in the archive —
+     * it got there on its own. Offering to archive it was offering to do what had been done,
+     * and the one visible effect of accepting was that the badge changed from "Expired" to
+     * "Archived", which reads as the app having reclassified the card for no reason.
+     *
+     * <p>A card the user archived by hand keeps the reverse action, and an active card keeps
+     * the forward one. Everything else gets neither.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem archive = menu.findItem(R.id.action_archive);
+        if (archive != null) {
+            CardStatus state = card == null
+                    ? CardStatus.ACTIVE
+                    : CardStatus.of(remainingBalance, Formats.daysUntil(card.expiryDate),
+                            card.archivedAt);
+
+            boolean archived = state == CardStatus.ARCHIVED;
+            // Retired on its own: nothing to archive, and nothing to bring back either,
+            // because what put it in the archive was not a decision that can be undone here.
+            boolean retiredByItself = state == CardStatus.EMPTY || state == CardStatus.EXPIRED;
+
+            archive.setVisible(!retiredByItself);
+            archive.setTitle(archived ? R.string.unarchive_card : R.string.archive_card);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_archive) {
+            toggleArchive();
+            return true;
+        }
         if (item.getItemId() == R.id.action_edit) {
             Intent intent = new Intent(this, AddEditCardActivity.class);
             intent.putExtra(AddEditCardActivity.EXTRA_CARD_ID, cardId);

@@ -5,6 +5,14 @@
         android:id="@+id/action_edit"
         android:title="@string/edit_card"
         app:showAsAction="never" />
+    <!-- Sits above Delete deliberately. It is the reversible neighbour of an action that
+         takes a card's whole spending history with it, and anyone reaching this menu to get
+         a finished card out of the way should meet it first. Its title is set at runtime,
+         because the same item also brings a card back. -->
+    <item
+        android:id="@+id/action_archive"
+        android:title="@string/archive_card"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_delete_card"
         android:title="@string/delete_card"

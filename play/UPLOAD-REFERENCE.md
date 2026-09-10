@@ -4,8 +4,8 @@ Every technical value the Console asks for, read off the built artifact rather t
 from memory. Listing prose (descriptions, form answers, review risks) is in
 [STORE-LISTING.md](STORE-LISTING.md).
 
-Generated against the build of 27 August 2026 — version **1.2 (9)**, built from `main`
-at `cd9eaed` with `./gradlew clean test bundleRelease`.
+Generated against the build of 10 September 2026 — version **1.3 (10)**, built from
+`ui-revamp-material3` at `b8c7fa9` with `./gradlew clean test bundleRelease assembleRelease`.
 
 ---
 
@@ -34,8 +34,8 @@ Three things catch first-time publishers, in rough order of how much time they c
 | **Package name / Application ID** | `io.github.naveh92.mycards` |
 | Java package / `namespace` | `com.mycards` — a compile-time concern, deliberately left alone |
 | Launcher activity | `com.mycards.ui.search.SearchActivity` |
-| **Version code** | `9` |
-| Version name | `1.2` |
+| **Version code** | `10` |
+| Version name | `1.3` |
 | Min SDK | 26 — Android 8.0 Oreo |
 | Target SDK | 36 — Android 16 |
 | Compile SDK | 36 |
@@ -49,9 +49,9 @@ Three things catch first-time publishers, in rough order of how much time they c
 
 | What | Path | Size |
 |---|---|---|
-| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 3,592,079 bytes |
-| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,164,839 bytes |
-| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 16,494,689 bytes |
+| **Upload this** | `app/build/outputs/bundle/release/app-release.aab` | 4,180,274 bytes |
+| Sideload / manual testing | `app/build/outputs/apk/release/app-release.apk` | 2,709,680 bytes |
+| R8 mapping — **nothing to do** | `app/build/outputs/mapping/release/mapping.txt` | 17,637,524 bytes |
 
 The bundle's sha256 is **not** pinned here: an AAB embeds build timestamps, so it differs on
 every rebuild even with identical sources, and a recorded hash would be stale immediately.
@@ -144,22 +144,28 @@ WorkManager.
 |---|---|---|---|
 | `play/icon-512.png` | 512×512 | exactly 512×512, 32-bit PNG, no alpha | ok |
 | `play/feature-graphic-1024x500.png` | 1024×500 | exactly 1024×500 | ok |
-| `play/screenshots/01-search.png` | 1080×1920 | 320–3840px per side, long side ≤ 2× short | ok |
-| `play/screenshots/02-list.png` | 1080×1920 | " | ok |
-| `play/screenshots/03-detail.png` | 1080×1920 | " | ok |
-| `play/screenshots/04-hebrew.png` | 1080×1920 | " | ok |
-| `play/screenshots/05-light.png` | 1080×1920 | " | ok |
+| `play/screenshots/01-search-store.png` | 1080×1920 | 320–3840px per side, long side ≤ 2× short | ok |
+| `play/screenshots/02-store-list.png` | 1080×1920 | " | ok |
+| `play/screenshots/03-hebrew.png` | 1080×1920 | " | ok |
+| `play/screenshots/04-card-types.png` | 1080×1920 | " | ok |
+| `play/screenshots/05-dark.png` | 1080×1920 | " | ok |
+| `play/screenshots/06-balance-check.png` | 1080×1920 | " | ok |
+| `play/screenshots/07-history.png` | 1080×1920 | " | ok |
+| `play/screenshots/08-refresh.png` | 1080×1920 | " | ok |
+| `play/promo-video.mp4` | 1920x1080, 48.0s | 30-120s, uploaded to YouTube | ok |
 
-Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. These are
-composited onto a 16:9 canvas by `tools/ShotFramer.java`; nothing is cropped.
-
-**The five screenshots predate 1.2.** They are correctly sized and still show the app
-honestly, but none of them shows the store list — the screen this version added, and the
-one most worth showing after search itself. Play allows eight; two more captures framed
-by `tools/ShotFramer.java` would cover it. Nothing blocks the upload either way.
+Raw device captures are 1080×2400, which is 2.22:1 and **would be rejected**. `StoreShots`
+crops them to 9:16 rather than letterboxing, and lays the wavy brand banner over the top.
 
 Minimum 2 phone screenshots, maximum 8. Upload them in the numbered order — Play shows the
-first few most prominently, and `01-search` is the one that explains the app.
+first two or three most prominently in search results, which is why the two halves of the
+app's one idea (shop→card, card→shop) hold slots 1 and 2 and the reassurance sits at the end.
+
+**The tablet slots are marked required and are not enforced at save.** Reusing these 9:16
+phone images there is valid — they satisfy both the 7-inch and 10-inch size ranges.
+
+**Screenshots can be replaced at any time with no re-review.** Worth knowing when the choice
+is between shipping a slightly stale image and holding a submission.
 
 ## Short fields, ready to paste
 

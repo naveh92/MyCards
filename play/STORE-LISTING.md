@@ -9,7 +9,60 @@ Assets in this folder:
 |---|---|---|
 | `icon-512.png` | App icon | 512×512 PNG, no transparency |
 | `feature-graphic-1024x500.png` | Feature graphic | 1024×500 |
-| `screenshots/01…05` | Phone screenshots | 1080×1920, min 2, max 8 |
+| `screenshots/01…08` | Phone screenshots | 1080×1920, min 2, max 8 |
+| `promo-video.mp4` | Promo video | upload to YouTube, paste the URL — see below |
+| `alt-wallet.png`, `alt-detail.png` | *(spares)* | ready-framed swaps. Eight is Play's cap — see below |
+| `top_bars/` | *(source art)* | the banner the screenshots are built on |
+| `raw-captures/` | *(source art)* | the unframed device captures, kept so the set can be rebuilt |
+
+**The art is generated, not hand-made.** A UI change costs one command, not an afternoon in
+an image editor. Start a headless emulator (`-no-window`, so it cannot steal focus), install a
+debug build, then:
+
+```bash
+node tools/seed-demo-db.js /tmp/seed.db           # the fixture the screens are shot against
+tools/capture-shots.sh play/raw-captures          # drive the emulator, one still per screen
+java tools/StoreShots.java play/top_bars play/raw-captures play/screenshots
+tools/record-clips.sh   /tmp/clips                # the same screens, moving
+java tools/VideoStage.java play/top_bars /tmp/stage play/icon-512.png
+tools/make-video.sh     /tmp/stage /tmp/clips play/promo-video.mp4
+```
+
+Each file carries its judgement calls in its own header — read `tools/StoreShots.java` before
+changing a crop anchor and `tools/capture-shots.sh` before changing the capture order. Both
+are ports of, or built on, the `game-infra` skill's `references/store-listing-art.md`.
+
+**The fixture is part of the art.** `tools/seed-demo-db.js` writes a database against the
+newest exported Room schema (it reads the highest-numbered file in `app/schemas/`, so adding
+a migration cannot leave it behind) with one card in each state -- active, used-up,
+expired-with-money and archived -- and 11 purchases across three months, so the wallet shows its status badges and the Archive group, and the
+history screen has more than one month heading. Its card *types* are chosen so that three
+active cards all stock Castro — otherwise screenshot 1, the most-viewed image in the listing,
+answers "which card works here?" with a single row. One card is also seeded already flagged by
+the daily balance check, which is what screenshot 6 photographs.
+
+**The spares are swaps, not additions.** Play accepts at most eight. `alt-wallet.png` is the
+wallet in English and light; `alt-detail.png` is one card in full. Drop either over whichever
+numbered file it replaces -- both are already framed and captioned.
+
+## Promo video
+
+`promo-video.mp4` — **48.0s, 1920x1080, silent**. Play takes a YouTube URL rather than a file:
+upload it as **public or unlisted**, leave **embedding on**, turn **ads off**, and paste the
+clean `watch?v=` URL (no playlist or timestamp parameters).
+
+Three things drove the shape of it:
+
+- **Play requires 30–120s and autoplays only the first 30**, so the pitch is front-loaded: the
+  two halves of the core idea are on screen by 0:14, and everything that has to land does so
+  inside the autoplay window. Ten scenes. The search scene alone runs 8s, because a viewer
+  has to read the query going in, watch the list narrow and then read the results -- at 5.5s
+  the answer was on screen for about a second, which is not long enough to follow.
+- **It autoplays muted, and most people never unmute.** Every claim is set as type on the
+  stage, not spoken. That is also why there is no music: a silent track cannot arrive with a
+  licensing problem attached.
+- **The slot is 16:9.** A portrait film gets pillarboxed there and throws away two thirds of
+  the frame, so the phone stands on a landscape stage with the copy beside it.
 
 The AAB to upload is `app/build/outputs/bundle/release/app-release.aab`.
 
@@ -259,5 +312,9 @@ practical value, since most gift cards need only the number.
 openly. The listing states plainly that the app is unaffiliated and the lists may be
 incomplete. An issuer could still object.
 
-**3. Two card types ship without a merchant list.** Max Gift Card has no machine-readable
-source anywhere, so it has no shop list — the app says so rather than pretending otherwise.
+**3. ~~Two card types ship without a merchant list.~~ No longer true.** Partial Max lists
+landed in `85cdf83`, so all **32** card types now carry one: `max_gift` has 84 shops and
+`max_super_gift` 9. Counted from `docs/stores/`, not remembered — the widest single card is
+`buyme_all` at **1,303**, and the union across all 32 lists is **2,179 unique shop names**,
+which is where the screenshots' "2,100+ shops" comes from. Recount before quoting a number in
+the listing; an inflated figure is the one kind of copy a reviewer can trivially check.

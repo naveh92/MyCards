@@ -7,13 +7,11 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.MyCards.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/toolbar_background"
-        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
-        app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
-        app:title="@string/add_card"
-        app:titleTextColor="@color/toolbar_on_background" />
+        app:navigationIcon="@drawable/ic_close"
+        app:title="@string/add_card" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -69,7 +67,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/card_label">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -84,7 +82,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/initial_amount">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -99,7 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/expiryLayout"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/expiry_date"
                 app:placeholderText="@string/expiry_placeholder">
 
@@ -112,18 +110,21 @@
                     android:maxLength="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- The theme's own outline rather than ?android:attr/listDivider, which is the
+                 framework's and does not follow the app's palette in either mode. -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="?android:attr/listDivider" />
+                android:layout_marginTop="24dp"
+                android:background="?attr/colorOutlineVariant" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:text="@string/optional_payment_details"
-                android:textAppearance="?attr/textAppearanceTitleSmall" />
+                android:textAlignment="viewStart"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
 
             <TextView
                 android:id="@+id/securityNote"
@@ -131,13 +132,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="@string/optional_payment_explain"
-                android:textAppearance="@style/TextAppearance.MyCards.Meta" />
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/card_number">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -150,7 +153,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal">
 
                 <!-- Expiry before CVV, matching both the card itself and the order the
@@ -175,7 +178,7 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginStart="14dp"
                     android:layout_weight="1"
                     android:hint="@string/cvv">
 
@@ -192,7 +195,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/gift_link">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -206,7 +209,7 @@
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:hint="@string/notes">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -219,9 +222,11 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"
+                style="@style/Widget.Material3Expressive.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
+                android:minHeight="56dp"
                 android:text="@string/save" />
 
             <com.google.android.material.button.MaterialButton
@@ -229,7 +234,8 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
+                android:minHeight="48dp"
                 android:text="@string/delete"
                 android:textColor="@color/expiry_expired"
                 android:visibility="gone" />

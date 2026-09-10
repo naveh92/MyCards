@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mycards.R;
 import com.mycards.data.RemoteConfig;
 import com.mycards.data.backup.BackupCodec;
@@ -234,7 +235,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (isFinishing() || isDestroyed()) {
             return;
         }
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.backup_export_partial_title)
                 .setMessage(getString(R.string.backup_export_partial_body,
                         cardsInFile, result.spends, result.cardsMissingSecrets))
@@ -265,7 +266,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if (leftBehind) {
                     message += "\n\n" + getString(R.string.backup_leftover_file);
                 }
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setTitle(R.string.backup_export_failed)
                         .setMessage(message)
                         .setPositiveButton(android.R.string.ok, null)
@@ -397,7 +398,7 @@ public class SettingsActivity extends AppCompatActivity {
                     result.olderInFile));
         }
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(result.coversEverything()
                         ? R.string.backup_check_ok_title
                         : R.string.backup_check_bad_title)
@@ -463,7 +464,7 @@ public class SettingsActivity extends AppCompatActivity {
             title = R.string.backup_import_incomplete_title;
         }
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(title)
                 .setMessage(message.toString())
                 .setPositiveButton(android.R.string.ok, null)
@@ -474,7 +475,7 @@ public class SettingsActivity extends AppCompatActivity {
         if (isFinishing() || isDestroyed()) {
             return;
         }
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.backup_import_failed)
                 .setMessage(messageRes)
                 .setPositiveButton(android.R.string.ok, null)

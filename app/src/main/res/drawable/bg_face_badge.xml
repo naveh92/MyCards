@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A pill for a badge sitting on a card face.
+
+    Translucent white rather than one of the semantic colours, because a face can be any of
+    eight hues and an amber "expiring" chip would be illegible on the amber face and
+    invisible on the rose one. The badge's own text stays white; what marks it out is the
+    lighter patch behind it, which reads the same on every face.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="8dp" />
+    <solid android:color="#33FFFFFF" />
+</shape>

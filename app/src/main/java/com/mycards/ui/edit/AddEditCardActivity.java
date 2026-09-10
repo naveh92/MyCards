@@ -10,12 +10,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.mycards.R;
 import com.mycards.data.CardsRepository;
 import com.mycards.data.CatalogRepository;
+import com.mycards.cards.GiftLink;
 import com.mycards.data.catalog.model.Catalog;
 import com.mycards.data.catalog.model.CardTypeDef;
 import com.mycards.data.crypto.SecretVault;
@@ -224,6 +226,59 @@ public class AddEditCardActivity extends AppCompatActivity {
         String cvv = text(cvvInput);
         String cardExpiry = text(cardExpiryInput);
 
+        // Before anything is written, and before the fingerprint prompt: a card that turns
+        // out to be a duplicate should not have cost an unlock first.
+        String giftUrl = text(giftUrlInput);
+        AppExecutors.io(() -> {
+            List<CardEntity> alreadyHave = cardsRepo.cardsSharingGiftLink(
+                    giftUrl, editing == null ? 0L : editing.id);
+            AppExecutors.main(() -> {
+                if (alreadyHave.isEmpty()) {
+                    authenticateThenPersist(amount, expiryStored, pan, cvv, cardExpiry);
+                } else {
+                    warnDuplicateLink(alreadyHave.get(0), () ->
+                            authenticateThenPersist(amount, expiryStored, pan, cvv, cardExpiry));
+                }
+            });
+        });
+    }
+
+    /**
+     * Says that this link is already in the wallet, and lets the user go ahead anyway.
+     *
+     * <p>A warning rather than a refusal. The check compares a hash of the normalised link,
+     * which is a good answer and not a certain one — and being unable to add a card you
+     * genuinely hold is a worse failure than holding it twice. What the user needs is to
+     * know, and to be told which card it clashes with, which is why the existing card is
+     * named rather than merely counted.
+     */
+    private void warnDuplicateLink(CardEntity existing, Runnable proceed) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.duplicate_link_title)
+                .setMessage(getString(R.string.duplicate_link_message, describe(existing)))
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.duplicate_link_add_anyway,
+                        (dialog, which) -> proceed.run())
+                .show();
+    }
+
+    /** The card's own label, or its type's name when it has none. */
+    private String describe(CardEntity card) {
+        if (card.label != null && !card.label.trim().isEmpty()) {
+            return card.label;
+        }
+        String lang = Locale.getDefault().getLanguage();
+        String tag = ("he".equals(lang) || "iw".equals(lang)) ? "he" : "en";
+        for (CardTypeDef def : cardTypes) {
+            if (def.id.equals(card.cardTypeId)) {
+                return def.displayName(tag);
+            }
+        }
+        return card.cardTypeId;
+    }
+
+    private void authenticateThenPersist(double amount, String expiryStored,
+                                         String pan, String cvv, String cardExpiry) {
         // Writing to the auth-bound key needs a recent unlock just as reading does.
         boolean needsAuth = !TextUtils.isEmpty(pan) || !TextUtils.isEmpty(cvv)
                 || !TextUtils.isEmpty(cardExpiry);
@@ -273,6 +328,10 @@ public class AddEditCardActivity extends AppCompatActivity {
 
                 String giftUrl = text(giftUrlInput);
                 card.encGiftUrl = TextUtils.isEmpty(giftUrl) ? null : vault.encryptData(giftUrl);
+                // Written beside the encrypted link, because the ciphertext cannot be
+                // compared: a random IV means the same URL enciphers differently each time.
+                // Set on both branches so clearing a link clears its fingerprint too.
+                card.giftUrlFingerprint = GiftLink.fingerprint(giftUrl);
 
                 if (editing != null) {
                     cardsRepo.cards().update(card);
@@ -290,7 +349,7 @@ public class AddEditCardActivity extends AppCompatActivity {
     }
 
     private void confirmDelete() {
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setMessage(R.string.delete_card_confirm)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.delete, (dialog, which) -> AppExecutors.io(() -> {

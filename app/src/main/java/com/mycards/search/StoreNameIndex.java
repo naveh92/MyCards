@@ -3,15 +3,24 @@ package com.mycards.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * One card's merchant names, ready to offer while someone types a shop into the spend log.
+ * One card's merchants, ready to offer while someone types a shop into the spend log.
  *
- * <p>Names only, and deliberately so. Matching aliases as well would find more, but a
- * suggestion is only worth offering if it is the text you would want left in the field —
- * and by the time a merchant list has been through the local cache its aliases are
- * normalized run-ons rather than anything a person wrote. See {@code StoreListWriter}.
+ * <p>What is <em>offered</em> is always the merchant's name — that is the text you want left
+ * in the field, and "adidas" is the right thing to log whether you reached it by typing
+ * "adid" or "אדידס". What is <em>searched</em> is every spelling the merchant is listed
+ * under, which is the whole difference between this field finding adidas in both languages
+ * and finding it in whichever one the list happens to be written in.
+ *
+ * <p>It used to search names only, on the reasoning that aliases would just widen the net.
+ * They do — into the other half of a bilingual merchant list. A shop filed as "adidas" with
+ * "אדידס" among its aliases was unreachable in Hebrew, while a shop filed the other way round
+ * was unreachable in English, and which one you got was an accident of whoever wrote the
+ * source list.
  *
  * <p>Pure JDK, like the rest of this package, so the rules can be tested without a device.
  */
@@ -20,54 +29,52 @@ public final class StoreNameIndex {
     /** Nothing is offered until the query is at least this long. */
     public static final int MIN_QUERY_LENGTH = 2;
 
-    private static final StoreNameIndex EMPTY =
-            new StoreNameIndex(new String[0], new String[0]);
+    private static final StoreNameIndex EMPTY = new StoreNameIndex(new Store[0]);
 
-    private final String[] names;
+    private final Store[] stores;
 
-    /** {@link #names} in canonical form, computed once so typing costs only the scan. */
-    private final String[] normalized;
-
-    private StoreNameIndex(String[] names, String[] normalized) {
-        this.names = names;
-        this.normalized = normalized;
+    private StoreNameIndex(Store[] stores) {
+        this.stores = stores;
     }
 
     public static StoreNameIndex empty() {
         return EMPTY;
     }
 
+    /** Builds an index from names alone, for a list that carries nothing else. */
     public static StoreNameIndex of(List<String> storeNames) {
         if (storeNames == null || storeNames.isEmpty()) {
             return EMPTY;
         }
-        List<String> kept = new ArrayList<>(storeNames.size());
-        List<String> canonical = new ArrayList<>(storeNames.size());
+        List<Store> kept = new ArrayList<>(storeNames.size());
         for (String name : storeNames) {
-            if (name == null) {
-                continue;
+            if (name != null && !SearchNormalizer.normalize(name).isEmpty()) {
+                kept.add(new Store(name.trim(), null, false));
             }
-            String trimmed = name.trim();
-            String form = SearchNormalizer.normalize(trimmed);
-            if (form.isEmpty()) {
-                continue;
-            }
-            kept.add(trimmed);
-            canonical.add(form);
         }
-        if (kept.isEmpty()) {
+        return ofStores(kept);
+    }
+
+    /** Builds an index from full merchant records, aliases included. */
+    public static StoreNameIndex ofStores(List<Store> stores) {
+        if (stores == null || stores.isEmpty()) {
             return EMPTY;
         }
-        return new StoreNameIndex(kept.toArray(new String[0]),
-                canonical.toArray(new String[0]));
+        List<Store> kept = new ArrayList<>(stores.size());
+        for (Store store : stores) {
+            if (store != null && !store.getName().trim().isEmpty()) {
+                kept.add(store);
+            }
+        }
+        return kept.isEmpty() ? EMPTY : new StoreNameIndex(kept.toArray(new Store[0]));
     }
 
     public boolean isEmpty() {
-        return names.length == 0;
+        return stores.length == 0;
     }
 
     public int size() {
-        return names.length;
+        return stores.length;
     }
 
     /**
@@ -91,52 +98,46 @@ public final class StoreNameIndex {
             return Collections.emptyList();
         }
 
-        List<String> variants = SearchEngine.queryVariants(raw);
+        List<Query> variants = SearchEngine.queryVariants(raw);
         if (variants.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Candidate> hits = new ArrayList<>();
-        for (int i = 0; i < names.length; i++) {
-            if (names[i].equals(raw)) {
+        List<StoreMatch> hits = new ArrayList<>();
+        for (Store store : stores) {
+            if (store.getName().equals(raw)) {
                 continue;
             }
-            int best = MatchScore.NONE;
-            for (String variant : variants) {
-                if (!SearchNormalizer.containsNormalized(normalized[i], variant)) {
-                    continue;
+            StoreMatch best = null;
+            for (Query variant : variants) {
+                StoreMatch candidate = store.match(variant);
+                if (candidate != null
+                        && (best == null || StoreMatch.compare(candidate, best) < 0)) {
+                    best = candidate;
                 }
-                best = Math.max(best, normalized[i].startsWith(variant)
-                        ? MatchScore.PREFIX
-                        : MatchScore.SUBSTRING);
             }
-            if (best > MatchScore.NONE) {
-                hits.add(new Candidate(i, best));
+            if (best != null) {
+                hits.add(best);
             }
         }
 
         // Stable, so shops of equal relevance keep the order the list arrived in.
-        Collections.sort(hits, new Comparator<Candidate>() {
+        Collections.sort(hits, new Comparator<StoreMatch>() {
             @Override
-            public int compare(Candidate a, Candidate b) {
-                return Integer.compare(b.score, a.score);
+            public int compare(StoreMatch a, StoreMatch b) {
+                return StoreMatch.compare(a, b);
             }
         });
 
-        List<String> out = new ArrayList<>(Math.min(limit, hits.size()));
-        for (int i = 0; i < hits.size() && out.size() < limit; i++) {
-            out.add(names[hits.get(i).index]);
+        // A merchant listed twice under the same name — the Zone lists repeat a shop once
+        // per category it sits in — must not spend two of the few slots on offer.
+        Set<String> out = new LinkedHashSet<>();
+        for (StoreMatch hit : hits) {
+            out.add(hit.getName());
+            if (out.size() >= limit) {
+                break;
+            }
         }
-        return out;
-    }
-
-    private static final class Candidate {
-        final int index;
-        final int score;
-
-        Candidate(int index, int score) {
-            this.index = index;
-            this.score = score;
-        }
+        return new ArrayList<>(out);
     }
 }

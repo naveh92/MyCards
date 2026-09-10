@@ -17,7 +17,8 @@ import androidx.room.PrimaryKey;
  * text, so a database pulled off the device without the Keystore key reveals only the card
  * type, balance and expiry.
  */
-@Entity(tableName = "cards", indices = {@Index("cardTypeId")})
+@Entity(tableName = "cards",
+        indices = {@Index("cardTypeId"), @Index("giftUrlFingerprint")})
 public class CardEntity {
 
     @PrimaryKey(autoGenerate = true)
@@ -67,6 +68,21 @@ public class CardEntity {
     @ColumnInfo(name = "enc_gift_url")
     public String encGiftUrl;
 
+    /**
+     * Hash of the normalised gift link, so two cards holding the same link can be spotted.
+     *
+     * <p>Stored in clear because {@link #encGiftUrl} cannot answer the question: AES-GCM
+     * uses a random IV, so the same URL enciphers differently every time and two identical
+     * links share no bytes. A hash is the only comparable form.
+     *
+     * <p>It leaks nothing the row does not already leak. Reversing it means guessing the
+     * voucher token, which is the same work as guessing the encrypted link itself, and the
+     * card type sitting in clear beside it is the more revealing column of the two.
+     *
+     * <p>Null for the many cards with no link; see {@code GiftLink.fingerprint}.
+     */
+    public String giftUrlFingerprint;
+
     public String notes;
 
     public long createdAt;
@@ -82,6 +98,24 @@ public class CardEntity {
      * user has not yet reconciled it. Drives the "unlogged transaction" prompt.
      */
     public boolean hasUnreconciledMismatch;
+
+    /**
+     * When the user put this card away by hand, epoch millis; 0 while it is in use.
+     *
+     * <p>The only retirement state that is stored. "Used up" and "expired" are worked out
+     * from the balance and the expiry every time they are needed, so deleting a purchase or
+     * correcting an expiry brings the card back on its own. This one cannot be derived from
+     * anything — it is a decision — so it has to be written down.
+     *
+     * <p>A timestamp rather than a flag: it costs the same, and it is the difference between
+     * "this card is archived" and being able to say when it stopped being in use.
+     */
+    public long archivedAt;
+
+    /** True when the user has put this card away by hand. */
+    public boolean isArchived() {
+        return archivedAt > 0L;
+    }
 
     /**
      * True when this card holds anything behind the auth-bound key.

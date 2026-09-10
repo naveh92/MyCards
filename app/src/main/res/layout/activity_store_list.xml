@@ -19,33 +19,35 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
+        style="@style/Widget.MyCards.Toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/toolbar_background"
-        android:theme="@style/ThemeOverlay.MyCards.Toolbar"
         app:navigationIcon="@drawable/ic_arrow_back"
-        app:title="@string/store_list_title"
-        app:titleTextColor="@color/toolbar_on_background" />
+        app:title="@string/store_list_title" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchLayout"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.MyCards.SearchField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
         app:endIconMode="clear_text"
-        app:startIconDrawable="@android:drawable/ic_menu_search">
+        app:startIconDrawable="@drawable/ic_search">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/searchInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@null"
             android:hint="@string/store_search_hint"
             android:imeOptions="actionSearch"
             android:inputType="text"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:textAlignment="viewStart"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Filter on one side, count on the other. The count is the feedback that turns
@@ -76,6 +78,7 @@
             android:layout_weight="1"
             android:textAlignment="viewEnd"
             android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            android:textColor="?attr/colorOnSurfaceVariant"
             tools:text="1,276 stores" />
     </LinearLayout>
 
@@ -137,6 +140,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Nothing on this card matches &quot;zara&quot;" />
 
             <!-- The way out of a dead end. This card cannot help, so offer the wallet. -->

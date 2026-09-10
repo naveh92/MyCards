@@ -19,6 +19,7 @@ import com.mycards.data.source.StoreListJson;
 import com.mycards.data.source.StoreListWriter;
 import com.mycards.search.CardTypeIndex;
 import com.mycards.search.Store;
+import com.mycards.search.StoreNameIndex;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -182,28 +183,29 @@ public class CatalogRepository {
     }
 
     /**
-     * Just the merchant names for one card type, in the order the list holds them.
+     * The merchants of one card type, ready to suggest a shop while logging a purchase.
      *
-     * <p>A fraction of the memory of a full index, and all that suggesting a shop while
-     * logging a purchase needs — the aliases would only widen what matches, and what the
-     * cache holds for those is normalized text rather than anything a person wrote.
+     * <p>Aliases and all. This used to load names only, to save the memory the aliases take —
+     * but a bilingual merchant list files half its shops under a Hebrew name and half under a
+     * Latin one, with the other language sitting in the aliases, so a name-only index could
+     * offer adidas to someone typing "adid" and nothing at all to someone typing "אדידס".
+     * Which half of the list you could reach was an accident of who wrote it.
      *
-     * @return the names, or an empty list when this type has no cached list
+     * @return the index, or an empty one when this type has no cached list
      */
-    public List<String> loadStoreNames(String cardTypeId) {
+    public StoreNameIndex loadStoreSuggestions(String cardTypeId) {
         StoreCacheEntity cache = db.storeCacheDao().getByCardType(cardTypeId);
         if (cache == null || cache.storesJson == null) {
-            return Collections.emptyList();
+            return StoreNameIndex.empty();
         }
-        List<String> names = new ArrayList<>();
         try (InputStream in = new ByteArrayInputStream(
                 cache.storesJson.getBytes(StandardCharsets.UTF_8))) {
-            StoreListJson.readCompactList(in, (name, aliases, online) -> names.add(name));
+            return StoreNameIndex.ofStores(StoreListJson.parseCompactList(in));
         } catch (Exception e) {
             // Suggestions are a convenience; a damaged cache costs them, not the purchase.
-            Log.w(TAG, "could not read store names for " + cardTypeId, e);
+            Log.w(TAG, "could not read stores for " + cardTypeId, e);
+            return StoreNameIndex.empty();
         }
-        return names;
     }
 
     // --- refreshing ---
@@ -357,10 +359,16 @@ public class CatalogRepository {
     /**
      * Seeds the cache from bundled assets for any type that has none yet, so the very first
      * launch can search offline before a sync has ever run.
+     *
+     * <p>Also re-seeds a cache written in an older format. A phone that has had the app
+     * installed for a while holds a bundled list nothing will ever refresh — the sync worker
+     * only fetches types with a network source — so without this, an improvement to what the
+     * cache stores would reach new installs only.
      */
     public void seedCacheIfEmpty(Catalog catalog, List<String> cardTypeIds) {
         for (String id : cardTypeIds) {
-            if (db.storeCacheDao().getByCardType(id) != null) {
+            StoreCacheEntity existing = db.storeCacheDao().getByCardType(id);
+            if (existing != null && !isOutdatedFormat(existing)) {
                 continue;
             }
             CardTypeDef def = catalog.findById(id);
@@ -389,6 +397,27 @@ public class CatalogRepository {
                 }
                 break;
             }
+        }
+    }
+
+    /**
+     * Whether a cached list predates the current snapshot format.
+     *
+     * <p>Only worth acting on for lists that came from a bundled asset: every other source
+     * is refetched and rewritten by the sync worker, which brings the format along with it.
+     * Re-seeding a fetched list from the APK would trade fresh data for stale.
+     */
+    private boolean isOutdatedFormat(StoreCacheEntity cache) {
+        if (!"bundled_asset".equals(cache.sourceType) || cache.storesJson == null) {
+            return false;
+        }
+        try (InputStream in = new ByteArrayInputStream(
+                cache.storesJson.getBytes(StandardCharsets.UTF_8))) {
+            return StoreListJson.readFormatVersion(in) < StoreListWriter.FORMAT_VERSION;
+        } catch (Exception e) {
+            // Unreadable is worse than outdated, and re-seeding fixes both.
+            Log.w(TAG, "could not read the cache format for " + cache.cardTypeId, e);
+            return true;
         }
     }
 

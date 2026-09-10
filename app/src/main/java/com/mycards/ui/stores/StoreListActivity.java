@@ -28,6 +28,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.color.MaterialColors;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mycards.R;
@@ -259,7 +260,7 @@ public class StoreListActivity extends AppCompatActivity {
             message = sb.toString();
         }
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.store_list_title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null)

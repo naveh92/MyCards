@@ -204,6 +204,7 @@ public class BackupManager {
             out.notes = card.notes;
             out.createdAt = card.createdAt;
             out.updatedAt = card.updatedAt;
+            out.archivedAt = card.archivedAt;
 
             // Unwrapped from the device-bound key here, rewrapped under the passphrase by
             // the codec. This is the only moment they exist in the clear.
@@ -477,6 +478,10 @@ public class BackupManager {
             target.notes = incoming.notes;
             target.createdAt = incoming.createdAt;
             target.updatedAt = incoming.updatedAt;
+            // Restoring a card restores whether it was in use. A backup from before this
+            // field existed carries 0, which is exactly "in use" — the state such a card
+            // was in when the file was written.
+            target.archivedAt = incoming.archivedAt;
 
             // Re-wrapped under this device's own Keystore key on the way in. A card the vault
             // refuses is counted and stepped over: aborting here would abandon the restore

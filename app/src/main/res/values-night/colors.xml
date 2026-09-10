@@ -3,26 +3,57 @@
     <!-- Light tones on purpose. Material 3 paints dialog buttons, links and focused field
          labels with colorPrimary, so on a dark surface it has to be a light shade — a
          mid-dark blue here is what made "Cancel" and "Save" nearly unreadable.
-         #A8C7E8 on the dark dialog surface clears WCAG AA for body text. -->
-    <color name="brand_primary">#A8C7E8</color>
-    <color name="brand_on_primary">#0B2A45</color>
+         #A9C7F0 on the dark dialog surface clears WCAG AA for body text. -->
+    <color name="brand_primary">#A9C7F0</color>
+    <color name="brand_on_primary">#0C2949</color>
 
-    <color name="brand_primary_container">#1B3B58</color>
-    <color name="brand_on_primary_container">#D3E4F7</color>
+    <color name="brand_primary_container">#1C3F66</color>
+    <color name="brand_on_primary_container">#D7E3F8</color>
 
     <color name="brand_secondary">#7FD1A6</color>
 
-    <!-- The toolbar keeps a solid blue fill with white text in both themes; only slightly
-         darkened here so it does not glare against a dark screen. -->
-    <color name="toolbar_background">#17466F</color>
-    <color name="toolbar_on_background">#FFFFFF</color>
+    <!-- See the note in values/colors.xml: the baseline secondary container is a lavender
+         and would put a lilac button on an otherwise blue screen. -->
+    <color name="brand_secondary_container">#26374F</color>
+    <color name="brand_on_secondary_container">#D7E3F8</color>
+    <color name="brand_tertiary">#A9B6CC</color>
+    <color name="brand_tertiary_container">#2C3543</color>
+    <color name="brand_on_tertiary_container">#DCE2EC</color>
+
+    <!--
+        A true-neutral dark rather than Material 3's default, which carries the same
+        lavender tint the light palette does and shows up as a purple cast over a whole
+        black screen. Stepped so surface < container < container_high, which is what gives
+        an unlit dark UI its depth once elevation shadows stop being visible.
+    -->
+    <color name="surface">#121316</color>
+    <color name="surface_container">#1D1F23</color>
+    <color name="surface_container_high">#282B30</color>
+    <color name="on_surface">#E3E2E6</color>
+    <color name="on_surface_variant">#C3C6CF</color>
+    <color name="outline_variant">#3A3D44</color>
 
     <!-- Warning and error tones need more luminance in dark mode to stay readable. -->
     <color name="expiry_warning">#E8A33D</color>
     <color name="expiry_expired">#F2B8B5</color>
     <color name="online_badge">#7FD1A6</color>
 
-    <color name="fastscroll_thumb">#66A8C7E8</color>
-    <color name="fastscroll_thumb_active">#A8C7E8</color>
+    <!-- Lightened to clear AA on the dark surface, the same reason the tones above are. -->
+    <color name="card_status">#AEB9C4</color>
+
+    <!--
+        The eight card faces are deliberately NOT redefined here; see values/colors.xml. A
+        card's colour is how it is recognised, and an issuer that is teal by day and
+        something else by night is not recognisable. They are dark, saturated fills with
+        white text, which is already a dark-mode-appropriate treatment.
+    -->
+
+    <!-- The retired face is the one face that does follow night mode: it is grey, not an
+         identity, so it should sit back into whichever surface is behind it. -->
+    <color name="face_retired_start">#4A4F56</color>
+    <color name="face_retired_end">#383C42</color>
+
+    <color name="fastscroll_thumb">#66A9C7F0</color>
+    <color name="fastscroll_thumb_active">#A9C7F0</color>
     <color name="fastscroll_track">#0DFFFFFF</color>
 </resources>

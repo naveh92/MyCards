@@ -26,10 +26,10 @@ public final class CardTypeIndex {
      * the user named the card; a hit in the aliases might only mean they named something the
      * card is associated with. See {@link #scoreProperName}.
      */
-    private final String[] nameHaystacks;
+    private final Haystacks nameHaystacks;
 
     /** Normalized aliases: other spellings, marketing strings, issuer names. */
-    private final String[] aliasHaystacks;
+    private final Haystacks aliasHaystacks;
 
     /** When this merchant list was last refreshed, epoch millis; 0 when never fetched. */
     private final long storesUpdatedAt;
@@ -89,7 +89,7 @@ public final class CardTypeIndex {
                 addNormalized(names, name);
             }
         }
-        this.nameHaystacks = names.toArray(new String[0]);
+        this.nameHaystacks = new Haystacks(names);
 
         List<String> aliases = new ArrayList<>();
         if (extraAliases != null) {
@@ -102,7 +102,7 @@ public final class CardTypeIndex {
                 }
             }
         }
-        this.aliasHaystacks = aliases.toArray(new String[0]);
+        this.aliasHaystacks = new Haystacks(aliases);
     }
 
     private static void addNormalized(List<String> into, String raw) {
@@ -137,8 +137,8 @@ public final class CardTypeIndex {
     }
 
     /** Scores the card's own names and aliases together; this is what ranking uses. */
-    int scoreName(String normalizedQuery) {
-        return Math.max(scoreProperName(normalizedQuery), scoreIn(aliasHaystacks, normalizedQuery));
+    int scoreName(Query query) {
+        return Math.max(scoreProperName(query), scoreIn(aliasHaystacks, query));
     }
 
     /**
@@ -150,28 +150,41 @@ public final class CardTypeIndex {
      * card only through an alias carried because Castro Model issues it — the user is far
      * more likely to be standing in the shop. The row's wording turns on exactly this.
      */
-    int scoreProperName(String normalizedQuery) {
-        return scoreIn(nameHaystacks, normalizedQuery);
+    int scoreProperName(Query query) {
+        return scoreIn(nameHaystacks, query);
     }
 
-    private static int scoreIn(String[] haystacks, String normalizedQuery) {
+    /**
+     * Best tier across a set of haystacks, exact matching first and skeletons only if that
+     * found nothing — the same two-pass shape {@link Store#match} uses, for the same reason:
+     * a card found literally must not be reported as found by spelling skeleton.
+     */
+    private static int scoreIn(Haystacks haystacks, Query query) {
         int best = MatchScore.NONE;
-        for (String hay : haystacks) {
-            if (!SearchNormalizer.containsNormalized(hay, normalizedQuery)) {
-                continue;
-            }
-            int s;
-            if (hay.equals(normalizedQuery)) {
-                s = MatchScore.EXACT;
-            } else if (hay.startsWith(normalizedQuery)) {
-                s = MatchScore.PREFIX;
-            } else {
-                s = MatchScore.SUBSTRING;
-            }
-            if (s > best) {
-                best = s;
-            }
+        for (String hay : haystacks.exact) {
+            best = Math.max(best, Store.tier(hay, query.exact(), false));
+        }
+        if (best > MatchScore.NONE || !query.hasFuzzy()) {
+            return best;
+        }
+        for (String hay : haystacks.folded) {
+            best = Math.max(best, Store.tier(hay, query.fuzzy(), true));
         }
         return best;
+    }
+
+    /** A set of normalized strings and their {@link HebrewFold} skeletons, folded once. */
+    private static final class Haystacks {
+
+        final String[] exact;
+        final String[] folded;
+
+        Haystacks(List<String> normalized) {
+            this.exact = normalized.toArray(new String[0]);
+            this.folded = new String[this.exact.length];
+            for (int i = 0; i < this.exact.length; i++) {
+                this.folded[i] = HebrewFold.of(this.exact[i]);
+            }
+        }
     }
 }

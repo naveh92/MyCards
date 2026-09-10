@@ -110,7 +110,7 @@ public class MatchReasonTest {
     @Test
     public void castroNamesTheShopsThatMatched() {
         CardMatch match = matchFor("castro", loveGiftCard);
-        List<Store> stores = match.getMatchedStores();
+        List<StoreMatch> stores = match.getMatchedStores();
         assertEquals(2, stores.size());
         assertTrue(stores.get(0).getName().startsWith("קסטרו"));
     }

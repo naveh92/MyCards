@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A month's heading, with what was spent in it on the far side.
+
+    Not a sticky header. RecyclerView has no built-in support for one, and this log is sparse
+    enough — a handful of purchases a month — that a month rarely fills a screen, which is the
+    only situation a sticky header solves. The extra machinery would earn nothing.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="22dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/monthLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAlignment="viewStart"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnSurface"
+        tools:text="September 2026" />
+
+    <TextView
+        android:id="@+id/monthTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        tools:text="₪420" />
+
+</LinearLayout>

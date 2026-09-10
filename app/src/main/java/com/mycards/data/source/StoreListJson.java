@@ -130,6 +130,40 @@ public final class StoreListJson {
         }
     }
 
+    /**
+     * Reads only the {@code "v"} marker off a compact snapshot, without parsing the
+     * merchants.
+     *
+     * <p>Lets a cache written by an older build be spotted and replaced. Streaming rather
+     * than string-matching because the marker sits in a JSON document, and a substring test
+     * would happily find one inside a merchant's name.
+     *
+     * @return the format version, or 0 for a snapshot written before the marker existed
+     */
+    public static int readFormatVersion(InputStream in) throws IOException {
+        try (JsonReader r = new JsonReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            r.beginObject();
+            while (r.hasNext()) {
+                String field = r.nextName();
+                if ("v".equals(field)) {
+                    return r.peek() == JsonToken.NUMBER ? r.nextInt() : 0;
+                }
+                // The marker is written before the merchants, so reaching them means there
+                // is none — and skipping past a megabyte of stores to confirm it would cost
+                // more than the answer is worth.
+                if ("stores".equals(field)) {
+                    return 0;
+                }
+                r.skipValue();
+            }
+        } catch (IOException | RuntimeException malformed) {
+            // A snapshot too damaged to read its own marker is certainly not current, and
+            // the caller's answer to both is the same: replace it.
+            return 0;
+        }
+        return 0;
+    }
+
     private static void readCompactArray(JsonReader r, StoreVisitor visitor) throws IOException {
         r.beginArray();
         while (r.hasNext()) {

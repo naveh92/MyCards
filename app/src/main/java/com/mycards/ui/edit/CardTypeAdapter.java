@@ -7,8 +7,10 @@ import android.widget.Filter;
 import androidx.annotation.NonNull;
 
 import com.mycards.data.catalog.model.CardTypeDef;
-import com.mycards.search.SearchNormalizer;
+import com.mycards.search.HebrewFold;
+import com.mycards.search.Query;
 import com.mycards.search.SearchEngine;
+import com.mycards.search.SearchNormalizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,9 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
         public final String label;
         private final List<String> haystacks = new ArrayList<>();
 
+        /** The same spellings folded, so a Hebrew variant of a card name still matches. */
+        private final List<String> folded = new ArrayList<>();
+
         public Option(CardTypeDef def, String label) {
             this.def = def;
             this.label = label;
@@ -47,13 +52,14 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
             String n = SearchNormalizer.normalize(raw);
             if (!n.isEmpty() && !haystacks.contains(n)) {
                 haystacks.add(n);
+                folded.add(HebrewFold.of(n));
             }
         }
 
-        boolean matches(List<String> normalizedVariants) {
-            for (String variant : normalizedVariants) {
-                for (String hay : haystacks) {
-                    if (SearchNormalizer.containsNormalized(hay, variant)) {
+        boolean matches(List<Query> variants) {
+            for (Query variant : variants) {
+                for (int i = 0; i < haystacks.size(); i++) {
+                    if (variant.hits(haystacks.get(i), folded.get(i))) {
                         return true;
                     }
                 }
@@ -121,7 +127,7 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
             List<Option> matched = new ArrayList<>();
 
             String raw = constraint == null ? "" : constraint.toString().trim();
-            List<String> variants = SearchEngine.queryVariants(raw);
+            List<Query> variants = SearchEngine.queryVariants(raw);
 
             // Reopening the menu on a field that already holds a choice should offer every
             // option again, not just the one already picked. Recognising a selection here

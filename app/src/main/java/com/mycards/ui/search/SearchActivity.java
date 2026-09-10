@@ -23,14 +23,20 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.mycards.R;
+import com.mycards.cards.CardStatus;
+import com.mycards.cards.WalletTotal;
 import com.mycards.data.db.AppDatabase;
 import com.mycards.ui.AppExecutors;
 import com.mycards.ui.EdgeToEdge;
+import com.mycards.ui.Formats;
 import com.mycards.ui.detail.CardDetailActivity;
 import com.mycards.ui.edit.AddEditCardActivity;
+import com.mycards.ui.history.HistoryActivity;
 import com.mycards.ui.settings.SettingsActivity;
 
 /**
@@ -87,18 +93,32 @@ public class SearchActivity extends AppCompatActivity {
 
         RecyclerView results = findViewById(R.id.results);
         results.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new CardRowAdapter(this::openCard);
+        // White, not the theme accent. The matched words are drawn on a card face, which is
+        // one of eight saturated fills — the accent blue that read well on the old grey rows
+        // is nearly invisible on the indigo face and fights the rose one. White is the only
+        // value that lifts off all eight, and it is already the colour the rest of the card
+        // is set in, so the highlight reads as emphasis rather than as a second palette.
+        // Bolding, which the adapter applies alongside this, is what carries the distinction
+        // for anyone who does not receive the colour at all.
+        adapter = new CardRowAdapter(
+                getColor(R.color.on_face),
+                this::openCard,
+                () -> viewModel.toggleArchive());
         results.setAdapter(adapter);
 
-        FloatingActionButton addCard = findViewById(R.id.addCard);
+        ExtendedFloatingActionButton addCard = findViewById(R.id.addCard);
         addCard.setOnClickListener(v ->
                 startActivity(new Intent(this, AddEditCardActivity.class)));
+        shrinkWhileScrolling(results, addCard);
+        fadeTotalOnCollapse();
 
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+        viewModel.total().observe(this, this::showTotal);
         viewModel.rows().observe(this, rows -> {
             adapter.submitList(rows);
-            updateEmptyState(rows == null || rows.isEmpty());
+            updateEmptyState(rows);
         });
+        viewModel.retiredNotice().observe(this, this::showRetiredNotice);
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -160,15 +180,108 @@ public class SearchActivity extends AppCompatActivity {
         debounce.postDelayed(pendingSearch, SEARCH_DEBOUNCE_MS);
     }
 
-    private void updateEmptyState(boolean empty) {
-        if (!empty) {
+    /**
+     * Collapses the add button to its icon while the list is being scrolled.
+     *
+     * <p>An extended button says what it does, which is worth the width on arrival and not
+     * worth it afterwards: at full size it covers most of a card, and the wallet is a list
+     * you read. Scrolling is the signal that reading has started.
+     *
+     * <p>It comes back at the top of the list rather than after a pause, so the label is
+     * tied to a place rather than to a timer — the same gesture always returns it, and it
+     * never expands under a thumb that is still moving.
+     */
+    private static void shrinkWhileScrolling(RecyclerView list,
+                                             ExtendedFloatingActionButton button) {
+        list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView view, int dx, int dy) {
+                // canScrollVertically(-1) is false only at the very top, which is the one
+                // state the label belongs in. Testing dy instead would expand it mid-flick
+                // on the first upward pixel.
+                if (view.canScrollVertically(-1)) {
+                    button.shrink();
+                } else {
+                    button.extend();
+                }
+            }
+        });
+    }
+
+    /**
+     * Fades the total out as the header collapses, rather than letting it be sliced.
+     *
+     * <p>The block is three lines being drawn behind a pinned toolbar, so as the bar closes
+     * the toolbar crops it — first the subtitle, then a horizontal cut through the digits of
+     * the balance. Cropped text does not read as motion, it reads as a bug.
+     *
+     * <p>The snap flag on the app bar means it never comes to <em>rest</em> mid-way, so this
+     * is only about the frames under the user's finger. It is gone by 60% closed, which is
+     * before the crop reaches the balance — the top 40% of the travel only eats the padding
+     * below it, and fading during that would make a small scroll look like a fault of its
+     * own.
+     */
+    private void fadeTotalOnCollapse() {
+        AppBarLayout appBar = findViewById(R.id.appBar);
+        View totalBlock = findViewById(R.id.totalBlock);
+        appBar.addOnOffsetChangedListener((bar, verticalOffset) -> {
+            int range = bar.getTotalScrollRange();
+            if (range == 0) {
+                // Nothing to collapse: too few cards to scroll, so the header never moves.
+                totalBlock.setAlpha(1f);
+                return;
+            }
+            float closed = Math.abs(verticalOffset) / (float) range;
+            float alpha = 1f - Math.min(closed / 0.6f, 1f);
+            totalBlock.setAlpha(alpha);
+        });
+    }
+
+    /**
+     * Shows what the wallet is worth, above the cards.
+     *
+     * <p>A wallet with nothing spendable says so in words rather than showing "₪0". Zero is
+     * a balance — it invites the reader to wonder which card lost its money. "Nothing to
+     * spend" is a state, and it is the true one when every card is archived, lapsed or run
+     * out.
+     */
+    private void showTotal(WalletTotal total) {
+        TextView amount = findViewById(R.id.totalAmount);
+        TextView subtitle = findViewById(R.id.totalSubtitle);
+        if (total == null || total.isEmpty()) {
+            amount.setText(R.string.wallet_total_none);
+            subtitle.setVisibility(View.GONE);
+            return;
+        }
+        // Currency is left to Formats: every card is ILS — the column exists but nothing in
+        // the app ever sets it to anything else — so there is no wallet-level currency to
+        // pass and no mixed-currency total to get wrong.
+        amount.setText(Formats.money(total.amount(), null));
+        subtitle.setText(getResources().getQuantityString(
+                R.plurals.wallet_total_subtitle, total.cardCount(), total.cardCount()));
+        subtitle.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Explains an empty result, where "empty" means no card you can actually spend.
+     *
+     * <p>The archive group does not count as an answer. A search that turns up nothing but an
+     * expired card still needs to say so out loud — the group header alone reads as a result,
+     * and at a checkout counter that is the difference between putting a card on the counter
+     * and knowing not to. Both are shown together: the sentence above, the group below it.
+     */
+    private void updateEmptyState(java.util.List<CardRow> rows) {
+        if (hasSpendableCard(rows)) {
             emptyState.setVisibility(View.GONE);
             return;
         }
         String query = viewModel.currentQuery();
         if (query.trim().isEmpty()) {
-            // Distinguish "you own nothing" from "nothing matched" — different next steps.
-            emptyState.setText(getString(R.string.no_cards_yet));
+            // Three different situations that all look like an empty screen, and three
+            // different next steps: add a card, go and unarchive one, or nothing at all.
+            emptyState.setText(getString(viewModel.walletIsEmpty()
+                    ? R.string.no_cards_yet
+                    : R.string.all_cards_retired));
         } else if (viewModel.anyPartialStoreList()) {
             // One of the wallet's lists is known to have gaps, so "not accepted" would be
             // asserting more than is known.
@@ -177,6 +290,51 @@ public class SearchActivity extends AppCompatActivity {
             emptyState.setText(getString(R.string.no_results, query));
         }
         emptyState.setVisibility(View.VISIBLE);
+    }
+
+    /** True when the list holds at least one card that is neither a header nor retired. */
+    private boolean hasSpendableCard(java.util.List<CardRow> rows) {
+        if (rows == null) {
+            return false;
+        }
+        for (CardRow row : rows) {
+            if (!row.isHeader() && !row.status.isRetired()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Says so when a card has left the wallet on its own.
+     *
+     * <p>Archiving announces itself, because someone chose it. These two do not: a card
+     * empties inside the dialog that logs the purchase, and a card expires overnight with the
+     * app closed. Without a word here the card is simply missing next time the wallet is
+     * opened, which is the difference between an app that tidied up after you and an app that
+     * lost one of your cards.
+     *
+     * <p>Carries a way to look, because the natural next thought is "wait, which one?".
+     */
+    private void showRetiredNotice(SearchViewModel.RetiredNotice notice) {
+        if (notice == null) {
+            return;
+        }
+        String message;
+        if (notice.count > 1) {
+            message = getResources().getQuantityString(
+                    R.plurals.cards_moved_to_archive, notice.count, notice.count);
+        } else if (notice.status == CardStatus.EXPIRED) {
+            message = getString(R.string.card_now_expired, notice.cardName);
+        } else {
+            message = getString(R.string.card_now_empty, notice.cardName);
+        }
+
+        Snackbar.make(findViewById(R.id.searchRoot), message, Snackbar.LENGTH_LONG)
+                .setAction(R.string.show_archive, v -> viewModel.expandArchive())
+                .show();
+        // Consumed, so a rotation does not replay it.
+        viewModel.noticeShown();
     }
 
     private void openCard(CardRow row) {
@@ -203,6 +361,10 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_history) {
+            startActivity(new Intent(this, HistoryActivity.class));
+            return true;
+        }
         if (item.getItemId() == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;

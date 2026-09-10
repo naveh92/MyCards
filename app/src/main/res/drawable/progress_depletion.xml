@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The depletion bar on a card face, drawn by hand.
+
+    This replaced Material's LinearProgressIndicator, which is the obvious component for the
+    job and could not be made to stop drawing its stop indicator — the dot marking where a
+    determinate track would reach "done". That mark belongs on a task in flight; on a bar
+    that only reports how much of a gift card is left there is nothing travelling towards it,
+    and on screen it reads as a speck of dirt. Setting trackStopIndicatorSize to 0 in the
+    style, on the view, and via setTrackStopIndicatorSize() all left it drawn.
+
+    A layer-list on a plain ProgressBar has no opinions of its own, renders identically on
+    every API level from 26 up, and is a handful of lines. The rounded ends and the two
+    on-face colours are the whole of what the Material widget was contributing.
+
+    gravity="start" rather than "left" so the bar fills from the right in Hebrew.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="@color/on_face_track" />
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress">
+        <clip
+            android:clipOrientation="horizontal"
+            android:gravity="start">
+            <shape android:shape="rectangle">
+                <corners android:radius="3dp" />
+                <solid android:color="@color/on_face" />
+            </shape>
+        </clip>
+    </item>
+
+</layer-list>

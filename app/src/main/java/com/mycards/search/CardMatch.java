@@ -16,16 +16,16 @@ public final class CardMatch {
     private final int score;
     private final boolean matchedByCardName;
     private final boolean matchedByCardProperName;
-    private final List<Store> matchedStores;
+    private final List<StoreMatch> matchedStores;
 
     CardMatch(CardTypeIndex cardType, int score, boolean matchedByCardName,
-              boolean matchedByCardProperName, List<Store> matchedStores) {
+              boolean matchedByCardProperName, List<StoreMatch> matchedStores) {
         this.cardType = cardType;
         this.score = score;
         this.matchedByCardName = matchedByCardName;
         this.matchedByCardProperName = matchedByCardProperName;
         this.matchedStores = matchedStores == null
-                ? Collections.<Store>emptyList()
+                ? Collections.<StoreMatch>emptyList()
                 : Collections.unmodifiableList(matchedStores);
     }
 
@@ -58,14 +58,14 @@ public final class CardMatch {
     }
 
     /** The merchants that matched, best first, capped at the engine's display limit. */
-    public List<Store> getMatchedStores() {
+    public List<StoreMatch> getMatchedStores() {
         return matchedStores;
     }
 
     /** True when any matched merchant supports online redemption. */
     public boolean hasOnlineMatch() {
-        for (Store s : matchedStores) {
-            if (s.isOnlineRedeem()) {
+        for (StoreMatch s : matchedStores) {
+            if (s.getStore().isOnlineRedeem()) {
                 return true;
             }
         }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The overflow menu's own background. Supplied as a drawable rather than a shapeAppearance
+    because a PopupMenu's window background is a plain drawable slot — it does not read the
+    Material shape system, which is why the menu stayed square while everything around it
+    became rounded.
+
+    Inset on all four sides so the elevation shadow has somewhere to fall; without it the
+    shadow is clipped to the window and the menu looks flat against the page.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="4dp">
+    <shape android:shape="rectangle">
+        <corners android:radius="16dp" />
+        <solid android:color="?attr/colorSurfaceContainer" />
+    </shape>
+</inset>
