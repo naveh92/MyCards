@@ -7,9 +7,9 @@
 
     <string name="wallet_total_label">זמין</string>
     <plurals name="wallet_total_subtitle">
-        <item quantity="one">בכרטיס אחד</item>
-        <item quantity="two">בשני כרטיסים</item>
-        <item quantity="other">ב־%1$,d כרטיסים</item>
+        <item quantity="one">כרטיס אחד</item>
+        <item quantity="two">שני כרטיסים</item>
+        <item quantity="other">%1$,d כרטיסים</item>
     </plurals>
     <string name="wallet_total_none">אין מה לנצל</string>
     <string name="search_empty_prompt">הקלידו שם של חנות כדי לראות אילו כרטיסים מתקבלים בה</string>
@@ -29,7 +29,7 @@
     <string name="no_expiry">ללא תאריך תפוגה</string>
     <string name="expired">פג תוקף</string>
     <string name="expires_soon">פג תוקף בעוד %1$d ימים</string>
-    <string name="of_initial_amount">מתוך %1$s</string>
+    <string name="over_initial_amount">/%1$s</string>
     <string name="expired_on">פג תוקף ב-%1$s</string>
 
     <!-- Retired cards: used up, expired, or put away by hand -->
@@ -54,7 +54,7 @@
     </plurals>
     <string name="show_archive">הצגה</string>
     <string name="archive_group">ארכיון (%1$d)</string>
-    <string name="archive_group_matched">נמצא גם בארכיון (%1$d)</string>
+    <string name="archive_group_matched">מהארכיון (%1$d)</string>
     <string name="group_expanded">פתוח</string>
     <string name="group_collapsed">סגור</string>
     <string name="all_cards_retired">כל הכרטיסים בארנק ריקים, פג תוקפם או הועברו לארכיון. פתחו את הארכיון למטה כדי להחזיר אחד מהם.</string>
@@ -139,6 +139,18 @@
     <string name="gift_link_unusable">לא נשמר קישור תקין לכרטיס המתנה</string>
     <string name="gift_link_no_app">אין במכשיר אפליקציה שיכולה לפתוח קישורים</string>
     <string name="error_pick_card_type">בחרו סוג כרטיס</string>
+
+    <!-- Card colour -->
+    <string name="face_color_heading">צבע הכרטיס</string>
+    <string name="face_color_automatic">אוטומטי</string>
+    <string name="face_color_custom">צבע מותאם</string>
+    <string name="face_color_swatch">צבע %1$d</string>
+    <string name="face_color_preview_title">הכרטיס שלך</string>
+    <string name="face_color_preview_meta">בתוקף עד 03/27</string>
+    <string name="face_color_red">אדום</string>
+    <string name="face_color_green">ירוק</string>
+    <string name="face_color_blue">כחול</string>
+    <string name="face_color_channel">%1$s %2$d</string>
     <string name="error_amount_required">הזינו את הסכום שעל הכרטיס</string>
 
     <!-- Store list provenance -->
@@ -203,7 +215,8 @@
     <string name="sync_done">נתוני החנויות עודכנו</string>
     <string name="sync_failed">העדכון נכשל — מוצגים הנתונים השמורים</string>
     <string name="catalog_not_configured">לא הוגדרה כתובת קטלוג, ולכן נעשה שימוש ברשימות החנויות המובנות בלבד.</string>
-    <string name="about_data_sources">מקורות רשימות החנויות</string>
+    <string name="store_data">נתוני חנויות</string>
+    <string name="store_data_explain">רשימות החנויות שבהן אפשר לממש כל כרטיס. החיפוש והיתרות מתבססים עליהן, לכן כדאי לעדכן אם חנות חסרה או לא מעודכנת.</string>
 
     <!-- Backup -->
     <string name="backup">גיבוי</string>

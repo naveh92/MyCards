@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.util.Log;
+import android.view.View;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -541,11 +542,14 @@ public class SettingsActivity extends AppCompatActivity {
         lastSync.setText(getString(R.string.last_sync,
                 at == 0L ? getString(R.string.never) : Formats.prettyDate(this, at)));
 
+        // Where the lists come from is ours to know, not something a reader can act on,
+        // so the note only speaks up when this build has no catalog to sync from at all.
         TextView note = findViewById(R.id.catalogNote);
-        if (!RemoteConfig.isCatalogUrlConfigured()) {
-            note.setText(R.string.catalog_not_configured);
+        if (RemoteConfig.isCatalogUrlConfigured()) {
+            note.setVisibility(View.GONE);
         } else {
-            note.setText(RemoteConfig.CATALOG_BASE_URL);
+            note.setVisibility(View.VISIBLE);
+            note.setText(R.string.catalog_not_configured);
         }
 
         findViewById(R.id.syncNow).setOnClickListener(v -> {

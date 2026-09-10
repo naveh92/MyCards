@@ -18,6 +18,9 @@ public final class Purchase {
     /** The catalog id of the card that paid, which is what picks the row's colour. */
     public final String cardTypeId;
 
+    /** The colour that card was given by hand, if any, which outranks its type's. */
+    public final Integer faceColor;
+
     public final String currency;
 
     /**
@@ -43,9 +46,15 @@ public final class Purchase {
     private final String cardFolded;
 
     public Purchase(SpendEntity spend, String cardName, String cardTypeId, String currency) {
+        this(spend, cardName, cardTypeId, null, currency);
+    }
+
+    public Purchase(SpendEntity spend, String cardName, String cardTypeId, Integer faceColor,
+                    String currency) {
         this.spend = spend;
         this.cardName = cardName;
         this.cardTypeId = cardTypeId;
+        this.faceColor = faceColor;
         this.currency = currency;
         this.title = SearchNormalizer.normalize(spend.title);
         this.store = SearchNormalizer.normalize(spend.storeName);

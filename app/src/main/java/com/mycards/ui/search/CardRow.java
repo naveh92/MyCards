@@ -28,6 +28,15 @@ public class CardRow {
     public long cardId;
     public String cardTypeId;
 
+    /**
+     * The colour this card was given by hand, ARGB, or null to take the card type's own.
+     *
+     * <p>Carried on the row rather than looked up at bind time so the list stays a value
+     * object: a row knows everything needed to draw it, and the adapter never reaches back
+     * into the database from the main thread.
+     */
+    public Integer faceColor;
+
     /** The user's label if they gave one, otherwise the card type's name. */
     public String title;
 

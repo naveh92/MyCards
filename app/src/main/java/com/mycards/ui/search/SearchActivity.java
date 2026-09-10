@@ -65,6 +65,15 @@ public class SearchActivity extends AppCompatActivity {
 
     private SearchViewModel viewModel;
     private CardRowAdapter adapter;
+
+    /**
+     * The query the list on screen is currently answering.
+     *
+     * <p>Kept so that a republished list can be told apart from a re-asked question. The rows
+     * are also rebuilt on every {@code onResume} — coming back from a card screen, from the
+     * archive being opened — and those must leave the reader exactly where they were.
+     */
+    private String renderedQuery;
     private TextInputEditText searchInput;
     private TextView emptyState;
 
@@ -83,7 +92,11 @@ public class SearchActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        EdgeToEdge.apply(this);
+        // Not the plain EdgeToEdge.apply: padding this screen's CoordinatorLayout stops the
+        // total collapsing at all. See EdgeToEdge#applyAroundAppBar.
+        EdgeToEdge.applyAroundAppBar(this, findViewById(R.id.searchRoot),
+                findViewById(R.id.appBar), findViewById(R.id.searchContent),
+                findViewById(R.id.addCard));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -115,7 +128,16 @@ public class SearchActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         viewModel.total().observe(this, this::showTotal);
         viewModel.rows().observe(this, rows -> {
-            adapter.submitList(rows);
+            // A new query is a new answer, and an answer is read from the top. The list keeps
+            // its scroll offset across a submitList, so without this a wallet scrolled down
+            // into the archive answered "cas" with its third result at the top of the screen
+            // and the first two above the fold — the best match, off screen, in the one
+            // interaction this app exists for.
+            String query = viewModel.currentQuery();
+            boolean newQuestion = !query.equals(renderedQuery);
+            renderedQuery = query;
+
+            adapter.submitList(rows, newQuestion ? () -> showFromTheTop(results, query) : null);
             updateEmptyState(rows);
         });
         viewModel.retiredNotice().observe(this, this::showRetiredNotice);
@@ -131,7 +153,12 @@ public class SearchActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                scheduleSearch(s == null ? "" : s.toString());
+                String query = s == null ? "" : s.toString();
+                scheduleSearch(query);
+                // Not debounced, unlike the search itself. Getting the add button out of the
+                // way is the direct response to a keystroke and has to happen on it: waiting
+                // even 120ms is long enough to see it sitting over the results.
+                showAddButton(query.trim().isEmpty());
             }
         });
 
@@ -209,6 +236,49 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     /**
+     * Takes the add button off the results while a search is running.
+     *
+     * <p>It is a button for a job nobody is doing at that moment. Someone typing a shop's
+     * name is at a counter looking for a card they already own; the one thing they are not
+     * about to do is add a new one — and on a phone the shrunken button still covers a
+     * corner of whichever card happens to be under it, which during a search is a card being
+     * read.
+     *
+     * <p>{@code hide()} rather than {@code setVisibility}: it scales and fades out and leaves
+     * the button non-clickable while gone, so nothing is dismissed by a tap aimed at the
+     * result underneath it. It comes back the moment the field is cleared.
+     */
+    /**
+     * Puts a freshly answered list back at its first row.
+     *
+     * <p>Run as the commit callback of {@code submitList} rather than beside it: the diff is
+     * applied on a background thread, and scrolling before it lands moves the list that is
+     * about to be replaced.
+     *
+     * <p>The header only comes back when the search has been cleared. While a query is being
+     * typed the wallet's total is not the answer to it, and re-expanding on every keystroke
+     * would push the results down and let them spring back on the next scroll — churn during
+     * the one interaction that has to feel steady. Clearing the field is a different thing: it
+     * is a return to the wallet, and the wallet's own view starts with what it is worth.
+     */
+    private void showFromTheTop(RecyclerView results, String query) {
+        results.scrollToPosition(0);
+        if (query.trim().isEmpty()) {
+            AppBarLayout appBar = findViewById(R.id.appBar);
+            appBar.setExpanded(true, false);
+        }
+    }
+
+    private void showAddButton(boolean show) {
+        ExtendedFloatingActionButton addCard = findViewById(R.id.addCard);
+        if (show) {
+            addCard.show();
+        } else {
+            addCard.hide();
+        }
+    }
+
+    /**
      * Fades the total out as the header collapses, rather than letting it be sliced.
      *
      * <p>The block is three lines being drawn behind a pinned toolbar, so as the bar closes
@@ -247,9 +317,14 @@ public class SearchActivity extends AppCompatActivity {
      */
     private void showTotal(WalletTotal total) {
         TextView amount = findViewById(R.id.totalAmount);
+        TextView label = findViewById(R.id.totalLabel);
         TextView subtitle = findViewById(R.id.totalSubtitle);
         if (total == null || total.isEmpty()) {
+            // Both captions go, not just the count. "Nothing to spend" is already a sentence;
+            // "Available" beside it would be captioning a phrase rather than a figure, and
+            // the line would read as two half-thoughts.
             amount.setText(R.string.wallet_total_none);
+            label.setVisibility(View.GONE);
             subtitle.setVisibility(View.GONE);
             return;
         }
@@ -259,6 +334,7 @@ public class SearchActivity extends AppCompatActivity {
         amount.setText(Formats.money(total.amount(), null));
         subtitle.setText(getResources().getQuantityString(
                 R.plurals.wallet_total_subtitle, total.cardCount(), total.cardCount()));
+        label.setVisibility(View.VISIBLE);
         subtitle.setVisibility(View.VISIBLE);
     }
 

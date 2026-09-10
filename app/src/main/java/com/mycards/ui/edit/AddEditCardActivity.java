@@ -55,6 +55,9 @@ public class AddEditCardActivity extends AppCompatActivity {
     private final List<CardTypeDef> cardTypes = new ArrayList<>();
     private CardTypeDef selectedType;
 
+    /** The colour row, and whatever it currently has chosen. */
+    private FacePicker facePicker;
+
     private ExpiryTextWatcher giftExpiryWatcher;
     private ExpiryTextWatcher cardExpiryWatcher;
 
@@ -85,6 +88,11 @@ public class AddEditCardActivity extends AppCompatActivity {
         cardExpiryInput = findViewById(R.id.cardExpiryInput);
         giftUrlInput = findViewById(R.id.giftUrlInput);
         notesInput = findViewById(R.id.notesInput);
+
+        // Built before the catalog loads, so the row is on screen from the first frame
+        // rather than appearing under the user a moment later and shifting the form.
+        facePicker = new FacePicker(findViewById(R.id.faceColorRow));
+        facePicker.attach();
 
         editingCardId = getIntent().getLongExtra(EXTRA_CARD_ID, 0L);
         toolbar.setTitle(editingCardId > 0 ? R.string.edit_card : R.string.add_card);
@@ -143,6 +151,9 @@ public class AddEditCardActivity extends AppCompatActivity {
                     if (picked != null) {
                         selectedType = picked.def;
                         cardTypeLayout.setError(null);
+                        // "Automatic" means this card type's colour, so the swatch showing
+                        // it has to change when the type does.
+                        facePicker.setCardType(picked.def.id);
                     }
                     adapter.restoreAll();
                 });
@@ -165,9 +176,11 @@ public class AddEditCardActivity extends AppCompatActivity {
             if (option.def.id.equals(card.cardTypeId)) {
                 selectedType = option.def;
                 cardTypeInput.setText(option.label, false);
+                facePicker.setCardType(option.def.id);
                 break;
             }
         }
+        facePicker.setChosen(card.faceColor);
         labelInput.setText(card.label);
         amountInput.setText(String.valueOf(card.initialAmount));
         notesInput.setText(card.notes);
@@ -313,6 +326,9 @@ public class AddEditCardActivity extends AppCompatActivity {
                 card.initialAmount = amount;
                 card.expiryDate = expiryStored;
                 card.notes = text(notesInput);
+                // Null when the row is on "Automatic", which is the card going back to
+                // taking its colour from its type rather than keeping the last one picked.
+                card.faceColor = facePicker.chosen();
                 card.updatedAt = System.currentTimeMillis();
 
                 SecretVault vault = cardsRepo.vault();

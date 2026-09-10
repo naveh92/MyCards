@@ -118,7 +118,7 @@ public class HistoryViewModel extends AndroidViewModel {
                     continue;
                 }
                 built.add(new Purchase(spend, cardName(card, catalog, tag), card.cardTypeId,
-                        card.currency));
+                        card.faceColor, card.currency));
             }
 
             AppExecutors.main(() -> {

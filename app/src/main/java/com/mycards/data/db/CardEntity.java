@@ -83,6 +83,17 @@ public class CardEntity {
      */
     public String giftUrlFingerprint;
 
+    /**
+     * The colour the user chose for this card, as an opaque ARGB int; null to let the card
+     * type pick.
+     *
+     * <p>Stored as the colour that was <em>picked</em>, not the darkened one that ends up on
+     * screen: { FaceGradient.legible} is applied at paint time, so if the readability
+     * floor is ever retuned, every hand-coloured card follows it instead of being frozen at
+     * whatever the rule was on the day it was saved.
+     */
+    public Integer faceColor;
+
     public String notes;
 
     public long createdAt;

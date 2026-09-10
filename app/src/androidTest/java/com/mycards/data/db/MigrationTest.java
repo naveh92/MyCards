@@ -80,8 +80,8 @@ public class MigrationTest {
     }
 
     /**
-     * The upgrade a phone still on 1.2 will actually take, which is 1 to 3 in one go rather
-     * than either step on its own.
+     * The upgrade a phone still on 1.2 will actually take, which is 1 to 4 in one go rather
+     * than any step on its own.
      *
      * <p>Worth its own test even though both steps are covered: Room applies migrations in
      * sequence, and a chain that works pairwise can still fail as a chain — most obviously
@@ -97,18 +97,20 @@ public class MigrationTest {
                 + " 400.0, 'ILS', 'from Dana', 1690000000000, 0, 0)");
         v1.close();
 
-        SupportSQLiteDatabase v3 =
-                helper.runMigrationsAndValidate(DB, 3, true, AppDatabase.migrations());
+        SupportSQLiteDatabase v4 =
+                helper.runMigrationsAndValidate(DB, 4, true, AppDatabase.migrations());
 
-        Cursor cards = v3.query(
-                "SELECT label, initialAmount, archivedAt, giftUrlFingerprint FROM cards WHERE id = 1");
-        assertTrue("the card did not survive both migrations", cards.moveToFirst());
+        Cursor cards = v4.query("SELECT label, initialAmount, archivedAt, giftUrlFingerprint,"
+                + " faceColor FROM cards WHERE id = 1");
+        assertTrue("the card did not survive the migrations", cards.moveToFirst());
         assertEquals("Holiday gift", cards.getString(0));
         assertEquals(400.0d, cards.getDouble(1), 0.0001d);
         assertEquals(0L, cards.getLong(2));
         // Null, and deliberately so: the value is a hash of the decrypted link and a
         // migration has no vault to decrypt with. CardsRepository fills these in later.
         assertTrue("the fingerprint should start out unknown", cards.isNull(3));
+        // Likewise: a card that predates hand-picked colours has not picked one.
+        assertTrue("the colour should start out unchosen", cards.isNull(4));
         cards.close();
     }
 
@@ -140,6 +142,39 @@ public class MigrationTest {
                         + " AND name = 'index_cards_giftUrlFingerprint'");
         assertTrue("the migration did not create the index Room expects", index.moveToFirst());
         index.close();
+    }
+
+    /**
+     * The colour column has to accept a colour and give it back, and has to be null for a
+     * card that predates it — which is what makes such a card keep taking its colour from
+     * its card type instead of arriving black.
+     */
+    @Test
+    public void theColourColumnStartsUnsetAndStoresAColour() throws IOException {
+        SupportSQLiteDatabase v3 = helper.createDatabase(DB, 3);
+        v3.execSQL("INSERT INTO cards ("
+                + "id, uuid, updatedAt, cardTypeId, initialAmount, currency, createdAt,"
+                + " lastBalanceCheckAt, hasUnreconciledMismatch, archivedAt) VALUES ("
+                + "4, 'card-uuid-4', 1700000000000, 'buyme_all', 50.0, 'ILS', 1690000000000,"
+                + " 0, 0, 0)");
+        v3.close();
+
+        SupportSQLiteDatabase v4 =
+                helper.runMigrationsAndValidate(DB, 4, true, AppDatabase.migrations());
+
+        Cursor existing = v4.query("SELECT faceColor FROM cards WHERE id = 4");
+        assertTrue("the card did not survive the migration", existing.moveToFirst());
+        assertTrue("a card from before the column should have made no choice",
+                existing.isNull(0));
+        existing.close();
+
+        // Opaque and above 0x7FFFFFFF, which is the case a narrower column type would ruin:
+        // every real face colour has its alpha byte set and so reads as a negative int.
+        v4.execSQL("UPDATE cards SET faceColor = " + 0xFF3B5BC0 + " WHERE id = 4");
+        Cursor coloured = v4.query("SELECT faceColor FROM cards WHERE id = 4");
+        assertTrue(coloured.moveToFirst());
+        assertEquals(0xFF3B5BC0, coloured.getInt(0));
+        coloured.close();
     }
 
     /** An empty wallet is the other real case: installed, never used, then updated. */

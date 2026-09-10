@@ -51,6 +51,9 @@ public class HistoryRow {
      */
     public String cardTypeId;
 
+    /** The colour that card was given by hand, if any, which outranks its type's. */
+    public Integer faceColor;
+
     public String currency;
 
     private HistoryRow(int type, long id) {
@@ -67,11 +70,12 @@ public class HistoryRow {
     }
 
     public static HistoryRow purchase(SpendEntity spend, String cardName, String cardTypeId,
-                                      String currency) {
+                                      Integer faceColor, String currency) {
         HistoryRow row = new HistoryRow(TYPE_PURCHASE, spend.id);
         row.spend = spend;
         row.cardName = cardName;
         row.cardTypeId = cardTypeId;
+        row.faceColor = faceColor;
         row.currency = currency;
         return row;
     }

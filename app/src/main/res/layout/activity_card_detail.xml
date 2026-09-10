@@ -110,6 +110,18 @@
                                 tools:visibility="visible" />
                         </LinearLayout>
 
+                        <!--
+                            The balance and what the card started with, written the way the
+                            wallet writes them: "252 ₪/700 ₪", the second figure hard up
+                            against the first.
+
+                            It used to be pushed to the far edge of the hero by a weighted
+                            balance, which put a card's own two numbers at opposite ends of
+                            the card — near enough that they were obviously related, far
+                            enough that they read as two separate readings rather than one
+                            ratio. A horizontal LinearLayout baseline-aligns its children, so
+                            the small figure sits on the big one's line without being told to.
+                        -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -118,9 +130,8 @@
 
                             <TextView
                                 android:id="@+id/balance"
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:textAlignment="viewStart"
                                 android:textAppearance="@style/TextAppearance.MyCards.WalletTotal"
                                 android:textColor="@color/on_face"
@@ -130,23 +141,35 @@
                                 android:id="@+id/balanceMeta"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
                                 android:textAppearance="@style/TextAppearance.MyCards.Meta"
                                 android:textColor="@color/on_face_variant"
-                                tools:text="of ₪700" />
+                                tools:text="/₪700" />
                         </LinearLayout>
 
-                        <ProgressBar
-                            android:id="@+id/depletion"
-                            style="?android:attr/progressBarStyleHorizontal"
+                        <!--
+                            The same meter the wallet draws, for the same reason: see
+                            BalanceMeter. A card's own screen showing a draining bar while
+                            the list behind it counts segments would be two answers to one
+                            question.
+                        -->
+                        <LinearLayout
+                            android:id="@+id/meterRow"
                             android:layout_width="match_parent"
-                            android:layout_height="6dp"
-                            android:layout_marginTop="10dp"
-                            android:max="100"
-                            android:progressDrawable="@drawable/progress_depletion"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:baselineAligned="false"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
                             android:visibility="gone"
-                            tools:progress="36"
-                            tools:visibility="visible" />
+                            tools:visibility="visible">
+
+                            <com.mycards.ui.BalanceMeter
+                                android:id="@+id/meter"
+                                android:layout_width="0dp"
+                                android:layout_height="10dp"
+                                android:layout_weight="1" />
+
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/expiry"
@@ -202,13 +225,20 @@
                         android:paddingTop="12dp"
                         android:paddingBottom="8dp">
 
+                        <!-- The same mark the wallet row carries, so the two screens name the
+                             same thing the same way. Tinted to the text beside it, which on
+                             this surface is already the amber the row has to add for itself. -->
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:drawablePadding="8dp"
+                            android:gravity="start|center_vertical"
                             android:text="@string/unlogged_transaction_title"
                             android:textAlignment="viewStart"
                             android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="@color/expiry_warning" />
+                            android:textColor="@color/expiry_warning"
+                            app:drawableStartCompat="@drawable/ic_warning"
+                            app:drawableTint="@color/expiry_warning" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/reconcileButton"
@@ -369,7 +399,7 @@
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addSpend"
-        style="@style/Widget.Material3Expressive.ExtendedFloatingActionButton.Medium"
+        style="@style/Widget.Material3Expressive.ExtendedFloatingActionButton.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

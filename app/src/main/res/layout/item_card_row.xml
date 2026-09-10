@@ -7,10 +7,10 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
-    android:layout_marginBottom="12dp"
+    android:layout_marginBottom="10dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="20dp"
+    app:cardCornerRadius="@dimen/card_face_corner"
     app:cardElevation="2dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="@android:color/transparent">
@@ -21,11 +21,10 @@
          instead of the text's own, which is what keeps a Latin card name on the right in
          an RTL screen — TextView otherwise picks direction from the first strong character
          it finds and left-aligns it. -->
-    <!-- The face is set from code, per card type, by CardRowAdapter; the value here is only
-         what the layout preview and the very first frame show. It is set on this child
-         rather than on the MaterialCardView itself so the card keeps its own elevation and
-         ripple, and so a retired row can be repainted grey without touching the card's
-         shape. -->
+    <!-- The face is set from code, per card, by CardRowAdapter; the value here is only what
+         the layout preview and the very first frame show. It is set on this child rather
+         than on the MaterialCardView itself so the card keeps its own elevation and ripple,
+         and so a retired row can be repainted grey without touching the card's shape. -->
     <!-- ⚠️ Do not express a retired card as alpha on itemView. RecyclerView's item animator
          treats itemView's alpha as its own and resets it to 1 at the end of every add and
          change animation, so the dimming disappears with no trace in the code. -->
@@ -35,8 +34,18 @@
         android:layout_height="wrap_content"
         android:background="@drawable/card_face_slate"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:padding="12dp">
 
+        <!--
+            Name and balance on one line.
+
+            They used to be two, with the balance given a row of its own beneath the name.
+            That is the arrangement a single card deserves and the wrong one for a list: it
+            spent a whole line saying nothing, and the wallet fitted two and a half cards on
+            a phone. Reading across rather than down also puts the two figures that decide
+            which card you reach for — this one's balance and the next one's — in a column,
+            where they can be compared without moving the eye sideways.
+        -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +55,9 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:layout_marginEnd="10dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -75,103 +86,144 @@
             </LinearLayout>
 
             <!--
-                One badge slot, carrying whichever single fact most needs saying about this
-                card: why it is in the archive, or that it is about to lapse. The two cannot
-                both apply — an expiring card is by definition still live — so they share
-                the corner rather than each claiming one.
+                The number you actually need at the counter, and what it started as, on one
+                line.
 
-                A word rather than a shade: colour alone is unreadable to a good number of
-                people and invisible to a screen reader, and on a wallet of eight different
-                hues there is no colour that would mean the same thing on all of them
-                anyway.
+                Stacked, the smaller figure sat directly under the balance and read as a
+                second, quieter balance. Beside it on the baseline it reads as what it is: a
+                phrase, "45 of 180". It also gives the row back a line, which is the whole
+                argument of this layout.
             -->
-            <TextView
-                android:id="@+id/statusBadge"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_face_badge"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:textAppearance="?attr/textAppearanceLabelSmall"
-                android:textColor="@color/on_face"
-                android:visibility="gone"
-                tools:text="Archived"
-                tools:visibility="visible" />
-        </LinearLayout>
+                android:orientation="horizontal">
 
-        <!-- The number you actually need at the counter, and what it started as. Baselines
-             are aligned so the small figure sits on the big one's line rather than floating
-             beside it. -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="viewEnd"
+                    android:textAppearance="@style/TextAppearance.MyCards.Amount"
+                    android:textColor="@color/on_face"
+                    tools:text="₪252" />
 
-            <TextView
-                android:id="@+id/amount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="viewStart"
-                android:textAppearance="@style/TextAppearance.MyCards.Balance"
-                android:textColor="@color/on_face"
-                tools:text="₪252" />
-
-            <TextView
-                android:id="@+id/initialAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textAppearance="@style/TextAppearance.MyCards.Meta"
-                android:textColor="@color/on_face_variant"
-                android:visibility="gone"
-                tools:text="of ₪700"
-                tools:visibility="visible" />
+                <TextView
+                    android:id="@+id/initialAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="viewEnd"
+                    android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                    android:textColor="@color/on_face_variant"
+                    android:visibility="gone"
+                    tools:text="/₪700"
+                    tools:visibility="visible" />
+            </LinearLayout>
         </LinearLayout>
 
         <!--
-            How much of the card is gone. A balance on its own does not say whether ₪252 is
-            most of the card or the last of it, and that is the thing that decides whether
-            you reach for this card or another one.
+            How much of the card is still there, across the whole width of the card.
 
-            Hidden entirely when the starting amount is unknown, which is common — people
-            often only ever know what is left. An empty track in that case would be a claim
-            that the card is spent.
+            It had the expiry beside it and gave up a third of its length for it. A meter is
+            read by how far along it stops, and ten segments squeezed into two thirds of a
+            row is a shorter answer to the only question it exists to answer; the date reads
+            just as well one line down, sharing a row that was already there.
+
+            Gone entirely when the starting amount is unknown, which is common — people
+            often only ever know what is left. An empty meter would be a claim that the card
+            is spent.
         -->
-        <ProgressBar
-            android:id="@+id/depletion"
-            style="?android:attr/progressBarStyleHorizontal"
+        <com.mycards.ui.BalanceMeter
+            android:id="@+id/meter"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_marginTop="8dp"
-            android:max="100"
-            android:progressDrawable="@drawable/progress_depletion"
-            android:visibility="gone"
-            tools:progress="36"
-            tools:visibility="visible" />
+            android:layout_height="8dp"
+            android:layout_marginTop="10dp" />
 
-        <LinearLayout
+        <!--
+            Why this card matched, with the width of the card to say it in.
+
+            This is the sentence the whole app is for. Someone is standing at a till holding
+            three cards, and the only question is which one this shop takes; the shop's name,
+            spelled the way the merchant list spells it, is the answer. It shared a line with
+            the date and the badges and came out as "Accepted at BUONA CAS…", which is not an
+            answer, it is the shape of one.
+
+            Three lines of it, which is the engine's cap of three merchants plus the "and N
+            more" that follows them — so the row can always say the whole of what it was
+            given. It usually needs two.
+        -->
+        <TextView
+            android:id="@+id/matchReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textAlignment="viewStart"
+            android:textAppearance="@style/TextAppearance.MyCards.Meta"
+            android:textColor="@color/on_face_variant"
+            tools:text="Accepted at BUONA CASA, Picasso by Eran Shvartzbard, קאזה בלה (Casa Bella) +1 more" />
+
+        <!--
+            When the card runs out, and what state it is in.
+
+            Beneath the reason rather than beside it, because everything here is short and
+            fixed while the reason is long and variable — sharing a line meant the variable
+            one paid for all of them.
+
+            The badges are one slot carrying whichever single fact most needs saying: why the
+            card is in the archive, or that it is about to lapse. The two cannot both apply —
+            an expiring card is by definition still live — so they share the corner rather
+            than each claiming one. A word rather than a shade, because colour alone is
+            unreadable to a good number of people and invisible to a screen reader, and on a
+            wallet of eight hues there is no colour that would mean the same thing on all of
+            them anyway.
+        -->
+        <LinearLayout
+            android:id="@+id/metaRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/expiry"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:maxLines="1"
                 android:textAlignment="viewStart"
                 android:textAppearance="@style/TextAppearance.MyCards.Meta"
                 android:textColor="@color/on_face_variant"
                 tools:text="Expires 04/27" />
+
+            <!-- The gap, as a view of its own rather than as weight on the date. A card with
+                 no expiry hides that label entirely, and a weighted label that is gone stops
+                 pushing — which would leave the badges against the leading edge of a card
+                 whose every other line starts there, reading as a column rather than as a
+                 corner mark. -->
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/statusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_face_badge"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="@color/on_face"
+                android:visibility="gone"
+                tools:text="Archived"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/onlineBadge"
@@ -181,26 +233,13 @@
                 android:background="@drawable/bg_face_badge"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
                 android:text="@string/online_badge"
                 android:textAppearance="?attr/textAppearanceLabelSmall"
                 android:textColor="@color/on_face"
                 android:visibility="gone" />
         </LinearLayout>
-
-        <!-- Why this card matched: the difference between a useful answer and a guess. -->
-        <TextView
-            android:id="@+id/matchReason"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textAlignment="viewStart"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="@color/on_face_variant"
-            tools:text="Accepted at Castro" />
 
         <!--
             Drawn as a pill rather than as coloured text. The amber this used to use is

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Keys for View.setTag(int, Object), which requires an id from the app's own resources
+        rather than an arbitrary int. This one lets CardFaces remember which face it last
+        painted on a row, so rebinding a recycled holder to the same card does not build a
+        fresh gradient every frame of a scroll.
+    -->
+    <item name="tag_card_face" type="id" />
+</resources>

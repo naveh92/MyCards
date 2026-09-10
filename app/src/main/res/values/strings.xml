@@ -10,9 +10,12 @@
          which excludes everything in the archive, and neither of the other two words says
          so. -->
     <string name="wallet_total_label">Available</string>
+    <!-- Sits at the far end of the total's line, as a caption to the figure rather than a
+         sentence about it: "441 ₪  Available .......... 3 cards". "Across" was doing the
+         work of joining two lines that are no longer separate. -->
     <plurals name="wallet_total_subtitle">
-        <item quantity="one">across %1$,d card</item>
-        <item quantity="other">across %1$,d cards</item>
+        <item quantity="one">%1$,d card</item>
+        <item quantity="other">%1$,d cards</item>
     </plurals>
     <!-- Shown in place of the total when every card is archived, empty or lapsed. -->
     <string name="wallet_total_none">Nothing to spend</string>
@@ -40,8 +43,12 @@
          most of what there is to know about a card once it is in the archive. -->
     <string name="expired_on">Expired %1$s</string>
     <string name="expires_soon">Expires in %1$d days</string>
-    <!-- Sits beside the balance on a card face: "₪252" then "of ₪700". -->
-    <string name="of_initial_amount">of %1$s</string>
+    <!-- What the card started with, hard up against what is left of it: "45 ₪/180 ₪".
+         A slash rather than a word because the two are touching, and because neither the
+         wallet row nor the card's own hero has space for a preposition. Bidi resolves the
+         leading slash to the paragraph direction, which keeps it against the balance in
+         Hebrew as well as in English. -->
+    <string name="over_initial_amount">/%1$s</string>
 
     <!-- Retired cards: empty, expired, or put away by hand.
 
@@ -81,7 +88,7 @@
          it can hold an empty card, a lapsed one and one put away on purpose without
          misdescribing any of them — each row states its own reason. -->
     <string name="archive_group">Archive (%1$d)</string>
-    <string name="archive_group_matched">Also in the archive (%1$d)</string>
+    <string name="archive_group_matched">From archive (%1$d)</string>
     <string name="group_expanded">Showing</string>
     <string name="group_collapsed">Hidden</string>
     <string name="all_cards_retired">Every card in your wallet is empty, expired or archived. Open the archive below to bring one back.</string>
@@ -170,6 +177,19 @@
     <string name="gift_link_unusable">No usable gift card link saved</string>
     <string name="gift_link_no_app">No app on this phone can open links</string>
     <string name="error_pick_card_type">Choose a card type</string>
+
+    <!-- Card colour -->
+    <string name="face_color_heading">Card colour</string>
+    <string name="face_color_automatic">Automatic</string>
+    <string name="face_color_custom">Custom colour</string>
+    <!-- Spoken for each preset swatch, which is otherwise a circle with no name. -->
+    <string name="face_color_swatch">Colour %1$d</string>
+    <string name="face_color_preview_title">Your card</string>
+    <string name="face_color_preview_meta">Expires 03/27</string>
+    <string name="face_color_red">Red</string>
+    <string name="face_color_green">Green</string>
+    <string name="face_color_blue">Blue</string>
+    <string name="face_color_channel">%1$s %2$d</string>
     <string name="error_amount_required">Enter the amount on the card</string>
 
     <!-- Store list provenance -->
@@ -232,7 +252,8 @@
     <string name="sync_done">Store data updated</string>
     <string name="sync_failed">Update failed — showing the last saved data</string>
     <string name="catalog_not_configured">No catalog URL configured, so only the built-in store lists are used.</string>
-    <string name="about_data_sources">Where store lists come from</string>
+    <string name="store_data">Store data</string>
+    <string name="store_data_explain">The lists of shops each card can be spent at. Searching and balances read from these, so update them if a shop looks missing or out of date.</string>
 
     <!-- Backup -->
     <string name="backup">Backup</string>

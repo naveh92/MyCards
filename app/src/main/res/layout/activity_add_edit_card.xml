@@ -110,6 +110,36 @@
                     android:maxLength="5" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!--
+                The card's colour, chosen rather than derived.
+
+                A row of circles rather than a menu: the thing being picked is the colour
+                itself, so it has to be the thing on screen. It scrolls because ten swatches
+                do not fit a phone at a size worth tapping, and clipToPadding is off so the
+                first and last still clear the form's margin when the row is at either end.
+            -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/face_color_heading"
+                android:textAlignment="viewStart"
+                android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:clipToPadding="false"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/faceColorRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
             <!-- The theme's own outline rather than ?android:attr/listDivider, which is the
                  framework's and does not follow the app's palette in either mode. -->
             <View

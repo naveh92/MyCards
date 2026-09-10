@@ -42,6 +42,30 @@ public final class MatchScore {
     public static final int EXACT = 100;
 
     /**
+     * True when a tier says the query <em>is</em> the name, or the start of it, rather than
+     * something found buried inside it.
+     *
+     * <p>The distinction decides what a result row says about itself. Naming a card is a
+     * request for that card, so the row answers with what the card covers — "748 stores" —
+     * instead of pointing at a shop nobody asked about. Finding the query inside the name is
+     * not that request: "c" turns up in the middle of "Dinner voucher", and in fifteen
+     * hundred shop names at once, and spending the row's one line on coverage there throws
+     * away every shop that matched, on the strength of a letter.
+     *
+     * <p>{@link #SUBSTRING} is the only tier excluded. The fuzzy tiers sort below it but are
+     * whole-skeleton or skeleton-prefix by construction — a buried skeleton is never reported,
+     * see {@link #FUZZY_PREFIX} — so they are the same claim spelled differently, and count.
+     *
+     * <p>Ranking is a separate question and deliberately more generous: a buried hit still
+     * earns {@link #CARD_NAME_BONUS}, because someone typing "lida" is plainly reaching for
+     * "Holiday gift 2026" and that card should lead. Being wrong about the order costs a
+     * glance; being wrong about the sentence costs the answer.
+     */
+    public static boolean names(int tier) {
+        return tier != NONE && tier != SUBSTRING;
+    }
+
+    /**
      * Matching the card's own name is worth more than matching one of the hundreds of
      * stores it covers — typing "buyme" means "show me my BuyMe card", not "show me every
      * card that happens to include a shop called BuyMe".

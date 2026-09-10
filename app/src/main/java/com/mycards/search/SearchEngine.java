@@ -120,8 +120,13 @@ public final class SearchEngine {
                 topStores.add(hits.get(i));
             }
 
+            // Named by the query, rather than merely containing it: see MatchScore#names.
+            // Any hit at all used to count here, so a search for "c" found the "c" in "Love
+            // Gift Card" and the row answered "8 stores" instead of naming the shops that
+            // matched. Ranking is unaffected — the bonus above still applies to a buried
+            // hit, because the card should still lead the list.
             results.add(new CardMatch(index, total, byName,
-                    properNameScore > MatchScore.NONE, topStores));
+                    MatchScore.names(properNameScore), topStores));
         }
 
         Collections.sort(results, new Comparator<CardMatch>() {

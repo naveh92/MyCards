@@ -6,6 +6,7 @@ import android.widget.Filter;
 
 import androidx.annotation.NonNull;
 
+import com.mycards.R;
 import com.mycards.data.catalog.model.CardTypeDef;
 import com.mycards.search.HebrewFold;
 import com.mycards.search.Query;
@@ -78,7 +79,7 @@ public class CardTypeAdapter extends ArrayAdapter<CardTypeAdapter.Option> {
     private final List<Option> master;
 
     public CardTypeAdapter(@NonNull Context context, @NonNull List<Option> options) {
-        super(context, android.R.layout.simple_list_item_1, new ArrayList<>(options));
+        super(context, R.layout.item_card_type_dropdown, new ArrayList<>(options));
         this.master = new ArrayList<>(options);
     }
 

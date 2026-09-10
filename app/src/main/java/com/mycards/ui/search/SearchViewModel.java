@@ -374,7 +374,10 @@ public class SearchViewModel extends AndroidViewModel {
             // A wallet holds a handful of cards where a card type holds thousands of shops,
             // so this costs nothing measurable — and it cannot drift out of step with the
             // cards it describes, which a cached parallel map eventually would.
-            int labelScore = CardLabel.of(card.label).score(variants);
+            // Named to keep it clear of label(match, variants) below, which builds display
+            // names for merchants rather than reading the one the user gave this card.
+            CardLabel cardLabel = CardLabel.of(card.label);
+            int labelScore = cardLabel.score(variants);
 
             if (match == null && labelScore == MatchScore.NONE) {
                 // Neither this card's type, its merchants, nor its own name matched.
@@ -393,6 +396,7 @@ public class SearchViewModel extends AndroidViewModel {
             CardRow row = new CardRow();
             row.cardId = card.id;
             row.cardTypeId = card.cardTypeId;
+            row.faceColor = card.faceColor;
 
             boolean hasLabel = card.label != null && !card.label.trim().isEmpty();
             row.title = hasLabel ? card.label.trim() : index.getDisplayName();
@@ -417,12 +421,21 @@ public class SearchViewModel extends AndroidViewModel {
             }
 
             if (labelScore > MatchScore.NONE) {
+                row.matchedByCardName = true;
+            }
+
+            if (cardLabel.namesTheCard(variants)) {
                 // Treated exactly as a hit on the card type's own name, because it is the
                 // same kind of answer: the row reports what the card covers rather than
                 // naming a merchant. Someone typing the name they gave a card is asking for
                 // the card, and answering "Accepted at ANNIVERSARY FLOWERS" would be the app
                 // hearing a different question from the one asked.
-                row.matchedByCardName = true;
+                //
+                // Only when the query names the card, though, rather than merely turning up
+                // inside its name. This used to fire on any label hit at all, so searching
+                // "c" found the middle of "Dinner voucher" and replaced fifteen hundred
+                // matching shops with "748 stores" — the row going quiet on the strength of
+                // one letter, on the screen where naming the shop is the whole answer.
                 row.matchedByCardProperName = true;
                 row.matchedStores = Collections.emptyList();
                 row.totalMatchingStores = 0;

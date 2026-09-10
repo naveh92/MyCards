@@ -11,7 +11,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 @Database(
         entities = {CardEntity.class, SpendEntity.class, StoreCacheEntity.class},
-        version = 3,
+        version = 4,
         exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -38,7 +38,6 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    /** Every migration this build knows, in order. Shared with the migration test. */
     /**
      * Adds {@link CardEntity#giftUrlFingerprint} and its index, so a gift link already in the
      * wallet can be recognised before it is added a second time.
@@ -61,9 +60,24 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Adds {@link CardEntity#faceColor}, the colour a user picked for one particular card.
+     *
+     * <p>Nullable with no default, and null is the meaningful value: it means "no choice was
+     * made", which is every card that existed before this column did. A card in that state
+     * keeps taking its colour from its card type, so the wallet looks exactly as it did
+     * before the update.
+     */
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE cards ADD COLUMN faceColor INTEGER");
+        }
+    };
+
     /** Every migration this build knows, in order. Shared with the migration test. */
     public static Migration[] migrations() {
-        return new Migration[]{MIGRATION_1_2, MIGRATION_2_3};
+        return new Migration[]{MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4};
     }
 
     public static AppDatabase get(Context context) {

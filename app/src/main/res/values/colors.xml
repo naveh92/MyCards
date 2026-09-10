@@ -100,6 +100,20 @@
     <color name="face_retired_start">#64696F</color>
     <color name="face_retired_end">#4E5257</color>
 
+    <!--
+        The mark on the "unlogged transaction" badge, where it is drawn on a card face.
+
+        Fixed across night mode, like the faces themselves and for the same reason: it is
+        drawn on a card, not on the page, and a card does not change colour after dark. The
+        badge stays the same translucent white as its neighbours — the amber is a mark on
+        it, not a repaint of it, because the row already says the important part in words and
+        a card that shouts is a card that gets ignored.
+
+        A retired card takes /expiry_warning instead: that one is tuned to the page
+        surface, which is what such a card wears, and this one would vanish on it.
+    -->
+    <color name="warning_mark">#FFC14D</color>
+
     <!-- Drawn on every face. Held as names rather than literal #FFFFFF at each use so the
          relationship to the faces above is stated once. -->
     <color name="on_face">#FFFFFF</color>

@@ -206,6 +206,7 @@ public class BackupManager {
             out.createdAt = card.createdAt;
             out.updatedAt = card.updatedAt;
             out.archivedAt = card.archivedAt;
+            out.faceColor = card.faceColor;
 
             // Unwrapped from the device-bound key here, rewrapped under the passphrase by
             // the codec. This is the only moment they exist in the clear.
@@ -465,6 +466,9 @@ public class BackupManager {
         // existed carries 0, which is exactly "in use" — the state such a card was in when
         // the file was written.
         target.archivedAt = incoming.archivedAt;
+        // Null restores as null, which is the card taking its colour from its type — the
+        // state every card in a file written before this field existed was in.
+        target.faceColor = incoming.faceColor;
     }
 
     /**

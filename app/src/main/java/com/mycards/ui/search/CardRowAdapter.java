@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +22,7 @@ import com.google.android.material.color.MaterialColors;
 import com.mycards.R;
 import com.mycards.cards.CardFace;
 import com.mycards.cards.CardStatus;
+import com.mycards.ui.BalanceMeter;
 import com.mycards.ui.CardFaces;
 import com.mycards.ui.Formats;
 
@@ -47,6 +47,18 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
 
     /** The accent the matched words are drawn in; resolved from the theme by the activity. */
     private final int highlightColor;
+
+    /*
+     * A chevron lived here, opening a result out to show the rest of it. It was removed
+     * rather than fixed, because there was no rest of it: the engine attaches at most
+     * SearchEngine.DEFAULT_MAX_STORES_PER_CARD merchants to a row, and the reason line holds
+     * all three. Shut and open were the same row.
+     *
+     * A control that reliably reveals nothing is worse than no control — it is a promise
+     * the row cannot keep, on the one screen this app exists for. If a result ever needs to
+     * say more than it does, the fix is more merchants from the engine, not somewhere to put
+     * the ones it already returns.
+     */
 
     public CardRowAdapter(int highlightColor, OnCardClick listener, OnGroupToggle groupToggle) {
         super(DIFF);
@@ -78,9 +90,12 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             }
             return a.score == b.score
                     && a.remaining == b.remaining
-                    // Governs the depletion bar, which redraws only when told to.
+                    // Governs the meter, which redraws only when told to.
                     && a.initialAmount == b.initialAmount
                     && a.status == b.status
+                    // The colour a card was given by hand, which is the whole of what an
+                    // edit to it may have changed.
+                    && equal(a.faceColor, b.faceColor)
                     // Drives the badge in the corner, and crosses its threshold overnight
                     // without anything else on the row changing.
                     && a.isExpiringSoon() == b.isExpiringSoon()
@@ -91,6 +106,10 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
                     && a.matchedStores.equals(b.matchedStores);
         }
     };
+
+    private static boolean equal(Integer a, Integer b) {
+        return a == null ? b == null : a.equals(b);
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -156,7 +175,8 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
         private final TextView onlineBadge;
         private final TextView warning;
         private final TextView statusBadge;
-        private final ProgressBar depletion;
+        private final BalanceMeter meter;
+        private final View metaRow;
 
         /** Everything inside the card, which is what carries the card's face. */
         private final View content;
@@ -164,9 +184,10 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
         /** The lift a live card has in the layout, kept so a retired one can be given it back. */
         private final float liveElevation;
 
-        /** The two on-face text colours, read once rather than on every bind. */
+        /** The three on-face colours, read once rather than on every bind. */
         private final int onFace;
         private final int onFaceVariant;
+        private final int onFaceTrack;
 
         /** The pill for this row’s face, chosen in bindRetired and applied in bind. */
         private int warningPill = R.drawable.bg_face_badge;
@@ -178,6 +199,7 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             content = itemView.findViewById(R.id.cardContent);
             onFace = itemView.getContext().getColor(R.color.on_face);
             onFaceVariant = itemView.getContext().getColor(R.color.on_face_variant);
+            onFaceTrack = itemView.getContext().getColor(R.color.on_face_track);
             float density = itemView.getResources().getDisplayMetrics().density;
             pillPadH = Math.round(10f * density);
             pillPadV = Math.round(5f * density);
@@ -193,7 +215,8 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             onlineBadge = itemView.findViewById(R.id.onlineBadge);
             warning = itemView.findViewById(R.id.warning);
             statusBadge = itemView.findViewById(R.id.statusBadge);
-            depletion = itemView.findViewById(R.id.depletion);
+            meter = itemView.findViewById(R.id.meter);
+            metaRow = itemView.findViewById(R.id.metaRow);
         }
 
         void bind(CardRow row, OnCardClick listener, int highlightColor) {
@@ -210,10 +233,10 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             amount.setText(Formats.money(row.remaining, row.currency));
             bindStatus(ctx, row);
             bindRetired(row);
-            bindDepletion(ctx, row);
+            bindMeter(ctx, row);
 
             // Nothing to say when the card has no expiry, so say nothing rather than
-            // spending a line telling the user something is absent.
+            // spending the space telling the user something is absent.
             if (row.expiryDate == null || row.expiryDate.trim().isEmpty()) {
                 expiry.setVisibility(View.GONE);
             } else {
@@ -230,8 +253,7 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             matchReason.setText(reason);
             // A card with no merchant list and no query to answer has nothing to say here,
             // and an empty TextView is not nothing: it keeps its line height and its top
-            // margin, leaving a blank band inside the card. Most visible on the archive rows,
-            // where a lapsed card would show a gap between its expiry and the note below it.
+            // margin, leaving a blank band inside the card.
             matchReason.setVisibility(reason.length() == 0 ? View.GONE : View.VISIBLE);
 
             // The badge describes the merchants listed above it, so it only makes sense when
@@ -246,18 +268,44 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             // identically, the first borrowed the second’s urgency and, as a filled pill,
             // looked like a button that would do something about it.
             if (row.hasUnreconciledMismatch) {
+                // The badge stays the quiet translucent pill its neighbours are; what marks
+                // it out is one small amber triangle at its head. This is the only thing a
+                // row says that is a doubt about the figure above it rather than a fact about
+                // the card — the balance may be higher than what the till will find — and
+                // that earns a glyph, not a repaint. A card face is already a saturated
+                // colour, and a second saturated block on top of it turns a note into an
+                // alarm, on a screen that can show several at once.
                 warning.setText(ctx.getString(R.string.unlogged_transaction_title));
                 warning.setBackgroundResource(warningPill);
+                warning.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                        R.drawable.ic_warning, 0, 0, 0);
+                warning.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(
+                        // The amber that reads on this row's background: a card face takes the
+                        // fixed one, a retired card the page's own, which is tuned to it.
+                        ctx.getColor(row.status.isRetired()
+                                ? R.color.expiry_warning : R.color.warning_mark)));
+                warning.setCompoundDrawablePadding(pillPadV);
                 warning.setPadding(pillPadH, pillPadV, pillPadH, pillPadV);
                 warning.setVisibility(View.VISIBLE);
             } else if (!row.hasStoreList()) {
+                // Deliberately the quiet one: a gap in our data, not money gone missing. It
+                // keeps the row's own text colour, which bindRetired has already set.
                 warning.setText(ctx.getString(R.string.store_list_unavailable));
                 warning.setBackground(null);
+                warning.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
                 warning.setPadding(0, 0, 0, 0);
                 warning.setVisibility(View.VISIBLE);
             } else {
                 warning.setVisibility(View.GONE);
             }
+
+            // The date and the badges share a line beneath the reason, and it goes when
+            // neither has anything to show: a card with no expiry and no state worth naming.
+            metaRow.setVisibility(
+                    expiry.getVisibility() == View.VISIBLE
+                            || statusBadge.getVisibility() == View.VISIBLE
+                            || onlineBadge.getVisibility() == View.VISIBLE
+                            ? View.VISIBLE : View.GONE);
 
             itemView.setOnClickListener(v -> listener.onCard(row));
         }
@@ -269,12 +317,12 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
          * to lapse. The two are mutually exclusive, so they share the corner rather than
          * each claiming one and leaving a gap on every row that has neither.
          *
-         * <p>Every retired state is marked, expiry included, even though the line below also
-         * reports it. Seen next to its neighbours the alternative was worse: three cards in
-         * the archive, two wearing a badge and one bare, and the odd one out reads as an
+         * <p>Every retired state is marked, expiry included, even though the line beside it
+         * also reports it. Seen next to its neighbours the alternative was worse: three cards
+         * in the archive, two wearing a badge and one bare, and the odd one out reads as an
          * oversight rather than a decision. A set of states is only legible as a set when
          * every member is marked the same way — so the word is worth repeating, and the line
-         * below still carries the part the badge does not, which is when.
+         * beside it still carries the part the badge does not, which is when.
          *
          * <p>The nudge for a card about to lapse moved here from coloured text. On a wallet
          * of eight hues there is no single colour that reads as "warning" on all of them —
@@ -302,45 +350,47 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
         }
 
         /**
-         * Draws how much of the card is left.
+         * Draws how much of the card is left, as segments.
          *
          * <p>Hidden outright when the starting amount is unknown, which is common — people
-         * often only ever learn what is left on a card. A zero-width bar in that case would
-         * be a claim that the card is spent, which is a different and much worse thing to
-         * say than nothing.
+         * often only ever learn what is left on a card. An empty meter in that case would be
+         * a claim that the card is spent, which is a different and much worse thing to say
+         * than nothing.
          *
-         * <p>A retired card keeps its bar. "This one is empty" is exactly what the archive
+         * <p>A retired card keeps its meter. "This one is empty" is exactly what the archive
          * is there to show, and an archived card with ₪40 still on it is worth being able to
          * tell apart from one with nothing.
          */
-        private void bindDepletion(android.content.Context ctx, CardRow row) {
+        private void bindMeter(android.content.Context ctx, CardRow row) {
             boolean known = row.initialAmount > 0d;
-            depletion.setVisibility(known ? View.VISIBLE : View.GONE);
-            if (known) {
-                float fraction = CardFace.remainingFraction(row.remaining, row.initialAmount);
-                depletion.setProgress(Math.round(fraction * 100f));
-                initialAmount.setText(ctx.getString(
-                        R.string.of_initial_amount,
-                        Formats.money(row.initialAmount, row.currency)));
-                initialAmount.setVisibility(View.VISIBLE);
-            } else {
-                initialAmount.setVisibility(View.GONE);
+            meter.setVisibility(known ? View.VISIBLE : View.GONE);
+            initialAmount.setVisibility(known ? View.VISIBLE : View.GONE);
+            if (!known) {
+                return;
             }
+
+            meter.setFraction(CardFace.remainingFraction(row.remaining, row.initialAmount));
+            initialAmount.setText(ctx.getString(
+                    R.string.over_initial_amount,
+                    Formats.money(row.initialAmount, row.currency)));
         }
 
         /**
-         * Sets a retired card back from the live ones.
+         * Sets a retired card back from the live ones, and paints whichever face it wears.
          *
-         * <p>It loses its colour and wears the neutral face instead. That is the whole
-         * purpose of the palette: the eight hues are there to help pick a card you are about
-         * to spend, so a card you cannot spend should stop competing for that attention.
+         * <p>A live card wears its own colour if it was given one and its card type's if it
+         * was not; a retired one wears neither. That is the whole purpose of the palette: the
+         * colours are there to help pick a card you are about to spend, so a card you cannot
+         * spend should stop competing for that attention — including a card someone chose a
+         * colour for by hand, which is the case most likely to feel like a lost setting and
+         * is exactly why it is worth saying out loud.
          *
-         * <p>Greying the face replaced dimming the content. Fading the whole card to 55%
-         * took its text down with it, which cost contrast on the one group of cards whose
-         * balances are already the hardest to justify reading; the grey face keeps white
-         * text at full strength and says the same thing more clearly. Elevation still goes:
-         * the live cards lift off the page and these lie flat on it, which separates the two
-         * groups before any word is read.
+         * <p>Greying the face replaced dimming the content. Fading the whole card to 55% took
+         * its text down with it, which cost contrast on the one group of cards whose balances
+         * are already the hardest to justify reading; the grey face keeps white text at full
+         * strength and says the same thing more clearly. Elevation still goes: the live cards
+         * lift off the page and these lie flat on it, which separates the two groups before
+         * any word is read.
          */
         private void bindRetired(CardRow row) {
             boolean retired = row.status.isRetired();
@@ -348,7 +398,7 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             // Always set every value on both branches, never only on one: a recycled holder
             // arrives carrying whatever the last row left behind, which is how a live card
             // comes back wearing an archived card’s colours.
-            content.setBackgroundResource(CardFaces.backgroundFor(row.cardTypeId, row.status));
+            CardFaces.paint(content, row.cardTypeId, row.faceColor, row.status);
             // Reset the alpha an earlier design left behind, or a holder recycled from that
             // era stays faded for the life of the list.
             content.setAlpha(1f);
@@ -363,10 +413,10 @@ public class CardRowAdapter extends ListAdapter<CardRow, RecyclerView.ViewHolder
             expiry.setTextColor(soft);
             matchReason.setTextColor(soft);
 
-            depletion.setProgressDrawable(androidx.core.content.ContextCompat.getDrawable(
-                    itemView.getContext(),
-                    retired ? R.drawable.progress_depletion_muted
-                            : R.drawable.progress_depletion));
+            meter.setColors(
+                    retired ? soft : onFace,
+                    retired ? themeColor(com.google.android.material.R.attr.colorOutlineVariant)
+                            : onFaceTrack);
 
             // The badges follow the same split: a translucent white pill only works on a
             // saturated fill, and on the page it would be an invisible smudge.

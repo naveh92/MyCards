@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One row of the card-type picker.
+
+    Replaces android.R.layout.simple_list_item_1, which drew the one card type whose only
+    name is Hebrew — עוטפים עסקים — as a blank row. See CardTypeAdapter for the diagnosis;
+    the fix is that this row states its own text appearance and colour instead of inheriting
+    the framework list-item ones.
+
+    textAlignment="viewStart" follows the layout direction rather than the text's own, so a
+    Hebrew name sits on the same edge as the Latin ones above it instead of jumping to the
+    other side of the menu.
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:gravity="start|center_vertical"
+    android:textAlignment="viewStart"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:ellipsize="end"
+    android:maxLines="1"
+    android:textAppearance="?attr/textAppearanceBodyLarge"
+    android:textColor="?attr/colorOnSurface" />

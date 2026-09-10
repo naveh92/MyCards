@@ -137,4 +137,23 @@ public class MatchReasonTest {
         assertFalse(match.isMatchedByCardProperName());
         assertEquals("הודיס", match.getMatchedStores().get(0).getName());
     }
+
+    /**
+     * A fragment found in the middle of the card's name is not a request for the card.
+     *
+     * <p>"c" is inside "Love Gift Card" and inside a good share of the shops it covers. The
+     * row has one line to answer with, and answering "8 stores" spends it on a coverage count
+     * while throwing away every shop that actually matched — on the strength of a letter that
+     * happens to sit mid-word in the name. The card still counts as name-matched for ranking,
+     * which is what keeps it near the top of the list; what changes is what the row says.
+     */
+    @Test
+    public void aFragmentInsideTheCardsNameIsNotARequestForTheCard() {
+        CardMatch match = matchFor("c", loveGiftCard);
+
+        assertTrue("the premise: the name does contain it", match.isMatchedByCardName());
+        assertFalse("but it does not name the card", match.isMatchedByCardProperName());
+        assertFalse("so the shops that matched are still there to name",
+                match.getMatchedStores().isEmpty());
+    }
 }

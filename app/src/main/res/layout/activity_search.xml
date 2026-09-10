@@ -50,48 +50,68 @@
                 and until now this app could not answer it without adding three numbers up
                 by eye. The top margin clears the pinned toolbar above; a CollapsingToolbar
                 stacks its children like a FrameLayout rather than a column.
+
+                One line rather than three. Stacked — label, then figure, then count — the
+                block ran to about a third of the screen above a list that is the point of
+                the screen, and two of those lines were four words between them. Read across,
+                the figure keeps the whole of its size and the two small facts sit on its
+                baseline, where they are captions to it rather than lines of their own.
+
+                A horizontal LinearLayout baseline-aligns its children by default, which is
+                what puts "Available" and "3 cards" on the number's feet instead of its
+                middle. The Space is what holds the count against the far edge without
+                weighting either label — a weighted TextView that is hidden stops pushing,
+                and the count would slide inward on a wallet with nothing in it.
+
+                Padded to 16dp to match the toolbar title above it and the search field and
+                cards below, so the screen has one left edge rather than two 4dp apart.
             -->
             <LinearLayout
                 android:id="@+id/totalBlock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="?attr/actionBarSize"
-                android:orientation="vertical"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="20dp"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="16dp"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.6">
 
                 <TextView
-                    android:id="@+id/totalLabel"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/wallet_total_label"
-                    android:textAlignment="viewStart"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
-
-                <TextView
                     android:id="@+id/totalAmount"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
                     android:textAlignment="viewStart"
                     android:textAppearance="@style/TextAppearance.MyCards.WalletTotal"
                     android:textColor="?attr/colorOnSurface"
                     tools:text="₪441" />
 
                 <TextView
-                    android:id="@+id/totalSubtitle"
-                    android:layout_width="match_parent"
+                    android:id="@+id/totalLabel"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/wallet_total_label"
                     android:textAlignment="viewStart"
-                    android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/totalSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:textAlignment="viewEnd"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
                     android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="across 3 cards" />
+                    tools:text="3 cards" />
             </LinearLayout>
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -105,6 +125,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/searchContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -167,9 +188,17 @@
             android:paddingBottom="96dp" />
     </LinearLayout>
 
+    <!--
+        The add button, at the Small size rather than the Medium one it started at.
+
+        Medium is the size for a screen whose main verb is "add something". This screen's is
+        "find the card I already have", and at 80dp the button covered a third of whichever
+        card it sat over — on the one screen that exists to be read. It disappears entirely
+        while a search is running; see SearchActivity#showAddButton.
+    -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/addCard"
-        style="@style/Widget.Material3Expressive.ExtendedFloatingActionButton.Medium"
+        style="@style/Widget.Material3Expressive.ExtendedFloatingActionButton.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

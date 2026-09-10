@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +42,7 @@ import com.mycards.ui.AppExecutors;
 import com.mycards.ui.BiometricGate;
 import com.mycards.ui.CardFaces;
 import com.mycards.ui.EdgeToEdge;
+import com.mycards.ui.BalanceMeter;
 import com.mycards.ui.Formats;
 import com.mycards.ui.edit.AddEditCardActivity;
 import com.mycards.ui.reconcile.ReconcileActivity;
@@ -200,24 +200,25 @@ public class CardDetailActivity extends AppCompatActivity {
         // card wears, which is a plain surface and therefore needs dark text on it.
         CardStatus heroState = CardStatus.of(remaining, Formats.daysUntil(card.expiryDate),
                 card.archivedAt);
-        findViewById(R.id.heroContent).setBackgroundResource(
-                CardFaces.backgroundFor(card.cardTypeId, heroState));
+        findViewById(R.id.heroContent).setBackground(
+                CardFaces.faceFor(this, card.cardTypeId, card.faceColor, heroState));
         paintHero(heroState.isRetired());
 
         TextView balanceMeta = findViewById(R.id.balanceMeta);
-        ProgressBar depletion = findViewById(R.id.depletion);
+        View meterRow = findViewById(R.id.meterRow);
         if (card.initialAmount > 0d) {
-            balanceMeta.setText(getString(R.string.of_initial_amount,
+            balanceMeta.setText(getString(R.string.over_initial_amount,
                     Formats.money(card.initialAmount, card.currency)));
             balanceMeta.setVisibility(View.VISIBLE);
-            depletion.setProgress(Math.round(
-                    CardFace.remainingFraction(remaining, card.initialAmount) * 100f));
-            depletion.setVisibility(View.VISIBLE);
+
+            ((BalanceMeter) findViewById(R.id.meter)).setFraction(
+                    CardFace.remainingFraction(remaining, card.initialAmount));
+            meterRow.setVisibility(View.VISIBLE);
         } else {
             // Nothing is known about what the card started with, so there is no fraction to
-            // draw. An empty track would claim it had been spent.
+            // draw. An empty meter would claim it had been spent.
             balanceMeta.setVisibility(View.GONE);
-            depletion.setVisibility(View.GONE);
+            meterRow.setVisibility(View.GONE);
         }
 
         TextView expiry = findViewById(R.id.expiry);
@@ -327,10 +328,11 @@ public class CardDetailActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.balanceMeta)).setTextColor(soft);
         ((TextView) findViewById(R.id.expiry)).setTextColor(soft);
 
-        ((ProgressBar) findViewById(R.id.depletion)).setProgressDrawable(
-                androidx.core.content.ContextCompat.getDrawable(this,
-                        retired ? R.drawable.progress_depletion_muted
-                                : R.drawable.progress_depletion));
+        ((BalanceMeter) findViewById(R.id.meter)).setColors(
+                retired ? soft : getColor(R.color.on_face),
+                retired ? MaterialColors.getColor(this,
+                        com.google.android.material.R.attr.colorOutlineVariant, 0)
+                        : getColor(R.color.on_face_track));
 
         TextView badge = findViewById(R.id.statusBadge);
         badge.setBackgroundResource(

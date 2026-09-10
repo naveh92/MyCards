@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        The corner of a card face.
+
+        Stated once because it is now set from two places: the eight face drawables in XML,
+        and CardFaces, which builds the same shape in code for a card wearing a colour the
+        user chose. A hand-picked card whose corners were a couple of dp off its neighbours'
+        would be the most visible way for those two to drift apart.
+    -->
+    <dimen name="card_face_corner">20dp</dimen>
+</resources>

@@ -141,6 +141,15 @@
 
     <style name="TextAppearance.MyCards.Meta" parent="TextAppearance.Material3.BodySmall" />
 
+    <!-- One channel's name and value above its slider in the colour picker. -->
+    <style name="TextAppearance.MyCards.ColorChannel" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?attr/textAppearanceLabelLarge</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
     <!-- Monospace keeps a 16-digit number readable while typing it into a terminal. -->
     <style name="TextAppearance.MyCards.Secret" parent="TextAppearance.Material3.TitleMedium">
         <item name="android:fontFamily">monospace</item>

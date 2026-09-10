@@ -120,12 +120,12 @@
                 </RadioGroup>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- ══ Shop data ══ -->
+            <!-- ══ Store data ══ -->
             <TextView
                 style="@style/TextAppearance.MyCards.SettingsHeading"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/about_data_sources" />
+                android:text="@string/store_data" />
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/Widget.MyCards.SettingsGroup"
@@ -139,19 +139,29 @@
                     android:padding="16dp">
 
                     <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/store_data_explain"
+                        android:textAlignment="viewStart"
+                        android:textAppearance="@style/TextAppearance.MyCards.Meta"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
                         android:id="@+id/lastSync"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
                         android:textAlignment="viewStart"
                         android:textAppearance="?attr/textAppearanceBodyMedium" />
 
-                    <!-- Holds a bare URL, which is pure left-to-right and so aligned itself
-                         to the left in Hebrew while every line around it sat right. -->
+                    <!-- Only shown when this build has no catalog URL at all; the code
+                         hides it otherwise. -->
                     <TextView
                         android:id="@+id/catalogNote"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:visibility="gone"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.MyCards.Meta"
                         android:textColor="?attr/colorOnSurfaceVariant" />

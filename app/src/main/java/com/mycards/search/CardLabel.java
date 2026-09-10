@@ -62,6 +62,31 @@ public final class CardLabel {
      * @return a score comparable with a {@link CardMatch}'s, or {@link MatchScore#NONE}
      */
     public int score(List<Query> variants) {
+        int best = bestTier(variants);
+        return best == MatchScore.NONE ? MatchScore.NONE : best + MatchScore.CARD_NAME_BONUS;
+    }
+
+    /**
+     * True when the query <em>is</em> this card's name, or the start of it.
+     *
+     * <p>Narrower than {@link #score} on purpose, and the difference decides what a row says
+     * about itself. Typing a card's name is a request for that card, so the row answers with
+     * what the card covers — "748 stores" — rather than naming a shop nobody asked about.
+     * Finding the query buried inside the name is not that request: searching "c" matches
+     * "Dinner voucher" through the middle of a word, and answering a one-letter query with a
+     * coverage count throws away the fifteen hundred shops that also matched it, on the
+     * strength of a letter.
+     *
+     * <p>A fuzzy hit counts. {@code Store.tier} never reports a buried skeleton — see
+     * {@link MatchScore#FUZZY_PREFIX} — so any fuzzy match here is already whole-or-opening,
+     * which is the same claim on the card's identity spelled the other way.
+     */
+    public boolean namesTheCard(List<Query> variants) {
+        return MatchScore.names(bestTier(variants));
+    }
+
+    /** The best untiered match across every spelling, before the card-name bonus. */
+    private int bestTier(List<Query> variants) {
         if (normalized.isEmpty() || variants == null) {
             return MatchScore.NONE;
         }
@@ -75,7 +100,6 @@ public final class CardLabel {
                 best = Math.max(best, Store.tier(folded, variant.fuzzy(), true));
             }
         }
-
-        return best == MatchScore.NONE ? MatchScore.NONE : best + MatchScore.CARD_NAME_BONUS;
+        return best;
     }
 }

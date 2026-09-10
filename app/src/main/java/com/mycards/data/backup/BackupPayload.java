@@ -44,6 +44,16 @@ public class BackupPayload {
          */
         public long archivedAt;
 
+        /**
+         * The colour the user picked for this card, ARGB, or null to let the card type pick.
+         *
+         * <p>Added the same way {@link #archivedAt} was and for the same reason: an older
+         * file has no such field, Gson leaves it null, and the card restores taking its
+         * colour from its type — which is what it was doing. Nothing about the format needs
+         * to change for that to work in both directions.
+         */
+        public Integer faceColor;
+
         // Decrypted for transport, re-encrypted under the passphrase by the codec.
         public String pan;
         public String cvv;

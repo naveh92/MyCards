@@ -145,4 +145,52 @@ public class CardLabelTest {
         assertEquals(MatchScore.NONE, score("Holiday gift", "   "));
         assertEquals(MatchScore.NONE, CardLabel.of("Holiday gift").score(null));
     }
+
+    // ── Naming the card, as opposed to merely turning up inside its name ──
+
+    private static boolean names(String label, String typed) {
+        return CardLabel.of(label).namesTheCard(SearchEngine.queryVariants(typed));
+    }
+
+    /**
+     * What a request for a card actually looks like: its name, or as much of the start of it
+     * as has been typed so far.
+     */
+    @Test
+    public void typingACardsNameNamesIt() {
+        assertTrue(names("Dinner voucher", "Dinner voucher"));
+        assertTrue(names("Dinner voucher", "dinner"));
+        assertTrue(names("Dinner voucher", "din"));
+        assertTrue(names("Holiday gift 2026", "holiday gift"));
+    }
+
+    /**
+     * The case this exists for. "c" is inside "Dinner voucher" and inside fifteen hundred
+     * shop names, and the row has one line to answer with: taking that line for the card's
+     * coverage, on the strength of a letter found mid-word, loses every shop that matched.
+     */
+    @Test
+    public void aFragmentFoundInsideTheNameDoesNot() {
+        assertTrue("the premise: it is still a match", score("Dinner voucher", "c") > MatchScore.NONE);
+        assertFalse(names("Dinner voucher", "c"));
+        assertFalse(names("Dinner voucher", "voucher"));
+        assertFalse(names("Holiday gift 2026", "lida"));
+    }
+
+    /**
+     * A fuzzy hit is a claim on the card's identity spelled the other way, so it counts.
+     * {@code Store.tier} never reports a skeleton found buried inside a longer one, so there
+     * is no fuzzy equivalent of the case above to exclude.
+     */
+    @Test
+    public void aFuzzySpellingOfTheNameStillNamesIt() {
+        assertTrue(names("אירוקה", "ארוקה"));
+    }
+
+    @Test
+    public void nothingIsNamedByNothing() {
+        assertFalse(names("Dinner voucher", ""));
+        assertFalse(names("", "dinner"));
+        assertFalse(CardLabel.of("Dinner voucher").namesTheCard(null));
+    }
 }

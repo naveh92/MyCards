@@ -161,7 +161,7 @@ public class HistoryAdapter extends ListAdapter<HistoryRow, RecyclerView.ViewHol
             // before a word of it is read. Decorative: the card is named in full below, and
             // this is not the only way to tell one row from another.
             cardMarker.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                    ctx.getColor(CardFaces.accentFor(row.cardTypeId))));
+                    CardFaces.accentFor(ctx, row.cardTypeId, row.faceColor)));
 
             StringBuilder sub = new StringBuilder(Formats.prettyDate(ctx, spend.spentAt));
             if (spend.storeName != null && !spend.storeName.trim().isEmpty()) {

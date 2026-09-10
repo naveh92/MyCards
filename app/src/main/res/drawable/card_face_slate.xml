@@ -9,7 +9,7 @@
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <corners android:radius="20dp" />
+    <corners android:radius="@dimen/card_face_corner" />
     <gradient
         android:angle="315"
         android:startColor="@color/face_slate_start"

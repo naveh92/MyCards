@@ -54,8 +54,8 @@ final class HistoryGrouping {
             Totals totals = total(month.getValue());
             out.add(HistoryRow.month(month.getKey(), totals.amount, totals.currency));
             for (Purchase purchase : month.getValue()) {
-                out.add(HistoryRow.purchase(purchase.spend, purchase.cardName, purchase.cardTypeId,
-                        purchase.currency));
+                out.add(HistoryRow.purchase(purchase.spend, purchase.cardName,
+                        purchase.cardTypeId, purchase.faceColor, purchase.currency));
             }
         }
         return out;

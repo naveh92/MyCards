@@ -1,0 +1,13 @@
+<!-- The mark at the head of the "unlogged transaction" badge. Solid rather than outlined:
+     at 14dp on a translucent pill an outline reads as a smudge. Untinted here, because the
+     amber that reads on a card face is not the amber that reads on the page a retired card
+     sits on — CardRowAdapter picks one. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="14dp"
+    android:height="14dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M1,21h22L12,2 1,21zM13,18h-2v-2h2v2zM13,14h-2v-4h2v4z" />
+</vector>

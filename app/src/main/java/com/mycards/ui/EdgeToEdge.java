@@ -79,4 +79,70 @@ public final class EdgeToEdge {
             return WindowInsetsCompat.CONSUMED;
         });
     }
+
+    /**
+     * The same, for a screen whose app bar collapses as the list underneath it scrolls.
+     *
+     * <p>Padding the CoordinatorLayout itself breaks that collapse, and the way it breaks is
+     * worth writing down because nothing about it is visible. {@code AppBarLayout.Behavior}
+     * declines to take part in a nested scroll unless
+     *
+     * <pre>parent.getHeight() - scrollingChild.getHeight() &lt;= appBar.getHeight()</pre>
+     *
+     * <p>A CoordinatorLayout's own height includes its padding while its children are
+     * measured inside it, so every pixel of inset padding is added to the left-hand side and
+     * to nothing on the right. On a phone with a 136px status bar and a 63px gesture bar
+     * that is 199px of handicap, and the app bar has to be that much taller than its own
+     * collapsed height before the list can move it at all. This wallet's header cleared it by
+     * 132px and then lost 45dp in a redesign, at which point the total simply stopped
+     * collapsing — with no error, and still draggable by hand, which is what makes it read as
+     * a mystery rather than a bug.
+     *
+     * <p>So the insets go on the two views that actually meet the bars instead. The top one
+     * lands on the app bar, which is what sits under the status bar and now paints its own
+     * surface behind it; the bottom one lands on the content and on the floating button. The
+     * comparison above then reduces to {@code statusInset + collapsedHeight <= statusInset +
+     * collapsedHeight + headerHeight}, which is true for any header of any height on any
+     * device — the property the old arrangement only ever had by accident.
+     *
+     * @param activity the screen, whose system-bar icons are coloured as in {@link #apply}
+     * @param root    the CoordinatorLayout, which keeps only the horizontal insets
+     * @param header  the AppBarLayout, which takes the top one
+     * @param content the scrolling container, which takes the bottom one
+     * @param floating a button anchored to the bottom edge, kept clear of the bar and the
+     *                 keyboard by its margin; may be null
+     */
+    public static void applyAroundAppBar(Activity activity, View root, View header,
+                                         View content, View floating) {
+        applySystemBarIconColour(activity);
+        int floatingMargin = floating == null ? 0
+                : ((ViewGroup.MarginLayoutParams) floating.getLayoutParams()).bottomMargin;
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+            Insets bars = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars()
+                            | WindowInsetsCompat.Type.displayCutout());
+            Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
+            int bottom = Math.max(bars.bottom, ime.bottom);
+
+            view.setPadding(bars.left, 0, bars.right, 0);
+            header.setPadding(header.getPaddingLeft(), bars.top,
+                    header.getPaddingRight(), header.getPaddingBottom());
+            content.setPadding(content.getPaddingLeft(), content.getPaddingTop(),
+                    content.getPaddingRight(), bottom);
+
+            if (floating != null) {
+                // A floating button is not inside the content, so it gets the inset as
+                // margin. Folded into the margin the layout already asked for rather than
+                // replacing it, or the button would sit against the navigation bar.
+                ViewGroup.MarginLayoutParams lp =
+                        (ViewGroup.MarginLayoutParams) floating.getLayoutParams();
+                if (lp.bottomMargin != floatingMargin + bottom) {
+                    lp.bottomMargin = floatingMargin + bottom;
+                    floating.setLayoutParams(lp);
+                }
+            }
+            return WindowInsetsCompat.CONSUMED;
+        });
+    }
 }
