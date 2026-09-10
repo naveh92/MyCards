@@ -44,51 +44,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!--
-                The link goes first, because it is the fastest way to fill in everything
-                below it: paste it, tap the button, and whatever the issuer's page states
-                lands in the fields.
-
-                It used to sit at the bottom among the payment details, on the grounds that
-                it is as spendable as the card number. That is still true, and it is still
-                encrypted — but it is now also the way a card gets added, and a shortcut
-                nobody scrolls to is not a shortcut.
-            -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/giftUrlLayout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/gift_link"
-                app:helperText="@string/gift_link_helper"
-                app:helperTextEnabled="true">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/giftUrlInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textUri" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/fillFromLink"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:enabled="false"
-                android:minHeight="52dp"
-                android:text="@string/gift_link_fill" />
-
-            <!-- Marks the boundary between "let the link do it" and "type it yourself".
-                 Everything below can be filled in by the button above, or by hand. -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="?attr/colorOutlineVariant" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/cardTypeLayout"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -235,6 +190,20 @@
                         android:maxLength="4" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:hint="@string/gift_link">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/giftUrlInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textUri" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

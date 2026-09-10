@@ -67,17 +67,6 @@
     <string name="cvv">CVV</string>
     <string name="card_expiry">תוקף הכרטיס</string>
     <string name="gift_link">קישור לכרטיס המתנה</string>
-    <string name="gift_link_helper">הדביקו את הקישור שהגיע עם הכרטיס, ומלאו ממנו את השאר.</string>
-    <string name="gift_link_fill">מילוי מהקישור</string>
-    <string name="gift_link_fetching">קורא את עמוד הכרטיס…</string>
-    <plurals name="gift_link_filled">
-        <item quantity="one">מולא שדה אחד מהקישור. בדקו אותו לפני השמירה.</item>
-        <item quantity="two">מולאו שני שדות מהקישור. בדקו אותם לפני השמירה.</item>
-        <item quantity="other">מולאו %1$d שדות מהקישור. בדקו אותם לפני השמירה.</item>
-    </plurals>
-    <string name="gift_link_nothing_found">בעמוד הזה לא נמצאו פרטי כרטיס שהאפליקציה יכולה לקרוא. מלאו את השדות ידנית.</string>
-    <string name="gift_link_unreachable">לא הצלחנו לפתוח את העמוד. בדקו את הקישור ואת החיבור לרשת.</string>
-    <string name="gift_link_invalid">זה לא נראה כמו קישור.</string>
     <string name="open_gift_link">פתיחת כרטיס המתנה</string>
     <string name="copied_to_clipboard">הועתק</string>
     <string name="auto_hidden">הוסתר שוב מטעמי בטיחות</string>
@@ -127,8 +116,8 @@
     <!-- Add / edit card -->
     <string name="add_card">הוספת כרטיס</string>
 
-    <string name="duplicate_link_title">הקישור הזה כבר קיים</string>
-    <string name="duplicate_link_message">אותו קישור מתנה כבר שמור בכרטיס „%1$s”. הוספה נוספת תציג כרטיס אחד כשניים.</string>
+    <string name="duplicate_link_title">הקישור כבר קיים</string>
+    <string name="duplicate_link_message">אותו קישור מתנה כבר שמור בכרטיס „%1$s”.</string>
     <string name="duplicate_link_add_anyway">הוספה בכל זאת</string>
     <string name="edit_card">עריכת כרטיס</string>
     <string name="card_type">סוג הכרטיס</string>
