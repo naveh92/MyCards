@@ -75,23 +75,100 @@ The AAB to upload is `app/build/outputs/bundle/release/app-release.aab`.
 
 ---
 
+## Where this ranks today
+
+Measured against the live store on 2026-09-10, not remembered. Re-measure before trusting any
+of it — these numbers move.
+
+At the time of measurement the listing was **0+ installs, no ratings**, category Shopping,
+titled `MyGiftCards - Gift Card Wallet` (en-US) and `MyGiftCards: הכרטיסים שלי` (he-IL).
+
+| Query (IL store, Hebrew) | Result |
+|---|---|
+| `כרטיסי מתנה` | absent |
+| `כרטיס מתנה` | absent |
+| `יתרה בכרטיס מתנה` | absent |
+| `ניהול כרטיסי מתנה` | absent — a hair-salon booking app ranks #2 |
+| `הכרטיסים שלי` | absent, **despite being the exact he-IL title** |
+| `MyGiftCards` | **#3**, behind "Mygift card" and max finance's "mygift" (1M+ installs) |
+
+Two things follow, and they pull in opposite directions.
+
+**The title is the only lever that works right now.** At zero installs Play has no quality
+signal to rank on, so the listing surfaces only on a near-exact brand string. Which queries
+you are *eligible* for is decided entirely by metadata, and that is what the title rewrite
+above is buying.
+
+**The title is not the bottleneck.** No 30 characters win `כרטיסי מתנה` against BUYME's 1M
+installs. The first ~50 installs and ~10 ratings will move ranking more than any wording will.
+The rewrite targets the uncontested Hebrew long tail because that is the only on-ramp a
+zero-install listing has — not because it beats the incumbents.
+
+Worth knowing about the neighbourhood: `MyGift*` is a crowded namespace you cannot own, and
+the English `gift card` category on Play is dominated by resale apps ("Sell Gift Cards",
+"Gift Cards & Crypto"). Being filed next to those is its own conversion problem, which is a
+second reason the title avoids Wallet/Manager/Tracker phrasing.
+
+---
+
 ## Store listing — English (en-US)
 
-**App name** (30 char limit)
+**App name** (30 char limit — 25 used)
 
 ```
-MyGiftCards
+MyGiftCards: Where to Use
 ```
 
-The old title carried "Gift Card Wallet" as a keyword tail. The name now says "GiftCards"
-itself, so repeating it reads as padding. If you want the keywords back for store search,
-`MyGiftCards: Israeli Gift Cards` fits the 30-character limit exactly.
+The title names the job, not the mechanism. Checked against the live store: nothing on Play
+is named for "which of my cards does this shop take" — `which gift card works here` and
+`where can i use my gift card` both return only buy/sell/resale apps, so the position is
+unoccupied and the title just has to claim it.
 
-**Short description** (80 char limit — 76 used)
+What is deliberately **not** in it:
+
+- **"Search" / "Finder" / "Lookup".** Nobody types those, so they index for nothing, and
+  "Lookup" is ambiguous in the wrong direction — it suggests looking up your card's details
+  rather than the shop's acceptance. The search engine is the mechanism; "Where to Use" is
+  what the mechanism is for.
+- **"Wallet" / "Manager" / "Tracker".** The opposite problem: they are what the forty apps
+  you are not are called, and they promise store-it-once rather than check-it-at-the-counter.
+  The old `MyGiftCards - Gift Card Wallet` also said gift-card twice, which Play policy
+  treats as repetitive keywords.
+
+`Where to Use` on its own could be misread as *where to buy* gift cards — the resale-app
+neighbourhood. The `My` prefix is what resolves it: these are cards you already hold. That is
+a reason to keep the brand attached to this particular tail rather than a cost of it.
+
+One cost taken knowingly: `MyGiftCards` spends 11 of 25 characters on a brand with no equity,
+and as one compound token it may not index as the separated phrase `gift card`. If you set
+the **developer name** to MyGiftCards in Play Console — a free slot that renders under the
+title on every search impression — you could run `Gift Cards: Where to Use` (24) in the title
+and keep the brand visible underneath.
+
+**On renaming the app.** Considered and rejected. `MyGiftCards` has a measured defect: it
+ranks **#3 for its own name**, behind max finance's `mygift` (1M+ installs), so it is not
+ownable. But a new brand buys zero discovery — nobody searches a word they have never seen —
+and the collision has a cheaper fix in the developer-name slot. Of the alternatives checked
+against the live store, only `Pruta` (פרוטה) was actually free, and it says nothing about gift
+cards, which is a downgrade from a name that at least states the category. `Kupa` is a trap:
+besides three existing KUPA apps, the query drifts into poop-tracker results, because *kupa*
+is Polish for "poop". `CardCheck` lands in a wall of credit-card validators. `UseMe` collides
+with a Polish freelance platform, maps to job apps, and is derivative of BuyMe.
+
+**Short description** (80 char limit — 80 used, no slack)
 
 ```
-Find which of your gift cards works at the shop you are standing in right now.
+See which gift card is accepted at which shop, its balance, and when it expires.
 ```
+
+This is where the demoted keywords live. `balance` and `expires` are real query terms — the
+US results for "gift card balance" are a full page of apps fighting over the phrase — but
+they are keywords, not the pitch, so they belong in the second-strongest indexed field
+rather than in the title.
+
+It is exactly 80 characters, so any word swap breaks it. If you need slack,
+`See which gift card a shop accepts, its balance, and when it expires.` is 69 and also
+resolves the "its" sitting closer to "shop" than to "card".
 
 **Full description** (4000 char limit)
 
@@ -102,6 +179,9 @@ has grown, and you pay full price with your own credit card. Again. The gift car
 drawer until they expire.
 
 MyGiftCards answers that question in about two seconds.
+
+Gift cards, gift vouchers and store credit — all in one place, each showing its balance and
+its expiry date.
 
 TYPE A SHOP, SEE WHICH CARD WORKS
 Start typing the name of the shop you are standing in. MyGiftCards searches every merchant list
@@ -156,17 +236,31 @@ you how fresh a list is, so check with the shop before relying on it for a large
 
 ## Store listing — Hebrew (he-IL)
 
-**App name**
+**App name** (30 char limit — 22 used)
 
 ```
-MyGiftCards: כרטיסי המתנה שלי
+כרטיסי מתנה: איפה לממש
 ```
 
-**Short description**
+Keyword first, brand nowhere — the brand has no equity to protect in Hebrew, and this is the
+locale that matters. The old `MyGiftCards: הכרטיסים שלי` contained no מתנה at all, which is
+the direct cause of the miss documented under "Where this ranks today".
+
+`כרטיסי גיפט קארד` was considered and rejected twice over: it reads as "cards of gift card"
+(the כרטיסי and the קארד are the same word), and גיפט קארד is the thinner query — 8 results
+against 16+ for כרטיסי מתנה, with no Hebrew-titled app among them, because Play transliterates
+it to "gift card" and serves English titles. The en-US listing already covers that. גיפט קארד
+ goes in the short description instead, where it still indexes.
+
+There are 8 characters of headroom if you ever want them.
+
+**Short description** (80 char limit — 71 used)
 
 ```
-גלו תוך שניות איזה מכרטיסי המתנה שלכם מתקבל בחנות שאתם עומדים בה עכשיו.
+גלו איזה כרטיס מתנה או גיפט קארד מתקבל בחנות, מה היתרה שלו ומתי הוא פג.
 ```
+
+Mirrors the English line and picks up the two terms the title cannot carry: גיפט קארד and יתרה.
 
 **Full description**
 
@@ -176,6 +270,9 @@ MyGiftCards: כרטיסי המתנה שלי
 נשארים במגירה עד שהתוקף שלהם פג.
 
 MyGiftCards עונה על השאלה הזו בשתי שניות.
+
+כרטיסי מתנה, גיפט קארד ותווי קנייה — כולם במקום אחד, עם היתרה והתוקף של
+כל אחד.
 
 הקלידו שם של חנות, קבלו תשובה
 התחילו להקליד את שם החנות שאתם נמצאים בה. האפליקציה סורקת את כל רשימות בתי העסק ומראה איזה
@@ -228,7 +325,7 @@ MyGiftCards היא אפליקציה עצמאית. אין לה קשר, שיוך �
 | Field | Answer |
 |---|---|
 | App or game | App |
-| Category | Finance *(alternative: Shopping — see note below)* |
+| Category | **Shopping** *(what is live; Finance is the alternative — see note below)* |
 | Tags | Gift cards, Personal finance, Shopping |
 | Contact email | navehohana@gmail.com |
 | Website | https://naveh92.github.io/MyCards |
@@ -237,10 +334,11 @@ MyGiftCards היא אפליקציה עצמאית. אין לה קשר, שיוך �
 | In-app purchases | No |
 | Default language | English (United States), with Hebrew added |
 
-**On the category.** Finance matches what the app is for, but it draws a stricter review and
-Play asks a battery of financial-features questions. Shopping is defensible — the app helps
-you spend gift cards at shops — and attracts less scrutiny. Finance is the more honest label;
-pick it unless the review stalls.
+**On the category.** The live listing is **Shopping**. Finance matches what the app is for,
+but it draws a stricter review and Play asks a battery of financial-features questions.
+Shopping is defensible — the app helps you spend gift cards at shops — and attracts less
+scrutiny. Finance is the more honest label; Shopping is what shipped, and there is no reason
+to move it unless you want the Finance browse traffic.
 
 ## App content declarations
 
