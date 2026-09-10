@@ -67,9 +67,17 @@ public final class IconGen {
         write(flatten(scale(art, 512, 512)), new File(repo, "play/icon-512.png"));
         System.out.println("wrote play/icon-512.png (flattened, no alpha)");
 
+        // ⚠️ NOT play/feature-graphic-1024x500.png. THE SHIPPED BANNER IS HAND-PICKED.
+        //
+        // This used to write straight over it, which would have silently replaced the artwork
+        // actually live on the Play listing the next time anyone regenerated an icon. What
+        // ships is a hand-tuned variant of what this produces -- flatter field, different text
+        // placement -- so the generated one goes to its own path as a starting point, and
+        // swapping it in is a deliberate copy.
         write(flatten(featureGraphic(art)),
-                new File(repo, "play/feature-graphic-1024x500.png"));
-        System.out.println("wrote play/feature-graphic-1024x500.png");
+                new File(repo, "play/feature-graphic-generated.png"));
+        System.out.println("wrote play/feature-graphic-generated.png"
+                + "  (a starting point -- the shipped banner is hand-picked, see STORE-LISTING.md)");
     }
 
     /**

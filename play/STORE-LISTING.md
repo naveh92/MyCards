@@ -8,7 +8,7 @@ Assets in this folder:
 | File | Play field | Requirement |
 |---|---|---|
 | `icon-512.png` | App icon | 512×512 PNG, no transparency |
-| `feature-graphic-1024x500.png` | Feature graphic | 1024×500 |
+| `feature-graphic-1024x500.png` | Feature graphic | 1024×500, no transparency — **hand-picked, not generated** |
 | `screenshots/01…08` | Phone screenshots | 1080×1920, min 2, max 8 |
 | `promo-video.mp4` | Promo video | upload to YouTube, paste the URL — see below |
 | `alt-wallet.png`, `alt-detail.png` | *(spares)* | ready-framed swaps. Eight is Play's cap — see below |
@@ -40,6 +40,13 @@ history screen has more than one month heading. Its card *types* are chosen so t
 active cards all stock Castro — otherwise screenshot 1, the most-viewed image in the listing,
 answers "which card works here?" with a single row. One card is also seeded already flagged by
 the daily balance check, which is what screenshot 6 photographs.
+
+**⚠️ The feature graphic is the one exception to "generated, not hand-made."** What is on the
+listing is a hand-tuned variant — flatter field, different text placement — of what
+`tools/IconGen.java` produces. The generator therefore writes to
+`play/feature-graphic-generated.png` and **never** to the shipped filename; it used to write
+over it, which would have replaced the live banner the next time anyone regenerated an icon.
+Treat the generated file as a starting point and copy it across deliberately.
 
 **The spares are swaps, not additions.** Play accepts at most eight. `alt-wallet.png` is the
 wallet in English and light; `alt-detail.png` is one card in full. Drop either over whichever
