@@ -117,13 +117,15 @@ multi-brand card returns megabytes, which makes them trivial to tell apart.
 | | | **Love Gift Card** | **8** |
 | | | Max Gift Card | *none found* |
 
-**HTZone (the Zone family).** No API, but each `voucher-zone/{id}` page embeds its whole
-merchant list as a `business_arr` literal in the markup — names, English names, addresses,
-categories, regions and an online-redemption flag. [tools/HtZoneGen.java](tools/HtZoneGen.java)
-reads it; ids are mapped in [tools/htzone-pages.txt](tools/htzone-pages.txt) by following each
-product page to the list it links to. The same shop appears once per filter it matches, so
-rows are deduplicated by id and their category/region labels merged into aliases — which is
-why searching "אופנה" or "מרכז" also works. Five more ids carry large lists but could not be
+**HTZone (the Zone family).** No API, but each `voucher-zone/{id}` page is a Next.js page whose
+server-rendered data (the `self.__next_f.push` script chunks) carries its whole merchant list as
+`businesses` — names, English names, addresses, category and region ids, and an
+online-redemption flag — next to the `categories` and `areas` tables those ids point into.
+[tools/HtZoneGen.java](tools/HtZoneGen.java) decodes the chunks and reads it; ids are mapped in
+[tools/htzone-pages.txt](tools/htzone-pages.txt) by following each product page to the list it
+links to. Each shop's category and region names become aliases, which is why searching "אופנה"
+or "מרכז" also works. (Until November 2026 the page embedded a `business_arr` literal instead;
+the site's Next.js rebuild removed it.) Five more ids carry large lists but could not be
 attributed to a named voucher with confidence, so they were left out rather than guessed at.
 
 **Love Gift Card.** Issued by Castro Model Ltd and accepted only at that group's own brands,

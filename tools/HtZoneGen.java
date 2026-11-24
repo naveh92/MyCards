@@ -7,10 +7,14 @@ import java.util.*;
 /**
  * Extracts the merchant list for an HTZone "Zone" voucher.
  *
- * <p>Unlike BuyMe there is no JSON endpoint here, but the voucher-zone page embeds the whole
- * list as a {@code business_arr = {...}} literal in its markup, which is just as good and
- * needs no browser to read. Rows repeat once per category and region filter, so entries are
- * deduplicated by business id.
+ * <p>Unlike BuyMe there is no JSON endpoint here, but the voucher-zone page is a Next.js page
+ * whose server-rendered data (the "flight" payload, pushed in {@code self.__next_f.push} script
+ * chunks) carries the whole list, which is just as good and needs no browser to read. Next to
+ * {@code businesses} sit {@code categories} and {@code areas} tables; each business points
+ * into them by id.
+ *
+ * <p>Until November 2026 the page embedded a {@code business_arr} literal instead, one row per
+ * filter a shop matched. The site was rebuilt on Next.js and that literal went away.
  *
  * <p>Usage: {@code HtZoneGen <outFile> <slug> <pageFile>}
  */
@@ -20,31 +24,38 @@ public class HtZoneGen {
         String outFile = args[0], slug = args[1], pageFile = args[2];
 
         String html = new String(Files.readAllBytes(Paths.get(pageFile)), StandardCharsets.UTF_8);
-        JsonObject root = extractBusinessArr(html);
-        if (root == null || !root.has("business")) {
-            System.err.println("SKIP " + slug + ": no business_arr found");
+        String flight = flightData(html);
+        JsonArray businesses = arrayAfter(flight, "businesses", flight.length());
+        if (businesses == null) {
+            System.err.println("SKIP " + slug + ": no businesses list in the page data");
             return;
         }
+        // The lookup tables come just before the list they describe. Searching backwards from
+        // it avoids picking up an unrelated "categories" array elsewhere on the page, such as
+        // the site's own navigation.
+        int listAt = flight.indexOf("\"businesses\":[");
+        Map<String, String> categories = labels(arrayAfter(flight, "categories", listAt));
+        Map<String, String> areas = labels(arrayAfter(flight, "areas", listAt));
+        Map<String, String> tags = labels(arrayAfter(flight, "tags", listAt));
 
-        // Keyed by business id: the same shop appears once per filter it matches.
+        // Keyed by business id, in case a shop is ever listed twice.
         Map<String, JsonObject> unique = new LinkedHashMap<>();
-        // Each duplicate row carries a different filter label — one its category, another
-        // its region. Merging them all makes a shop findable by any of them, rather than
-        // by whichever happened to come first.
+        // Category, region and tag labels ("מסעדות", "מרכז", "כשר"): a shop should be findable
+        // by any of them, since someone may well type the category rather than the brand.
+        // Some ids point at entries the page's tables do not have; those are just skipped.
         Map<String, Set<String>> filterLabels = new LinkedHashMap<>();
 
-        for (JsonElement el : root.getAsJsonArray("business")) {
+        for (JsonElement el : businesses) {
             if (!el.isJsonObject()) continue;
             JsonObject o = el.getAsJsonObject();
             String id = str(o, "id");
             if (id == null || str(o, "name") == null) continue;
+            if (unique.putIfAbsent(id, o) != null) continue;
 
-            unique.putIfAbsent(id, o);
-
-            String label = str(o, "text");
-            if (label != null && !label.trim().isEmpty()) {
-                filterLabels.computeIfAbsent(id, k -> new LinkedHashSet<>()).add(label.trim());
-            }
+            Set<String> into = filterLabels.computeIfAbsent(id, k -> new LinkedHashSet<>());
+            addLabels(into, o.get("categoryIds"), categories);
+            addLabels(into, o.get("areaIds"), areas);
+            addLabels(into, o.get("tagIds"), tags);
         }
 
         StringBuilder sb = new StringBuilder();
@@ -60,14 +71,14 @@ public class HtZoneGen {
             if (name.isEmpty()) continue;
 
             List<String> aliases = new ArrayList<>();
-            addAlias(aliases, str(o, "eng_name"), name);
-            // Category and region labels ("מסעדות", "אופנה", "מרכז") are legitimate ways
-            // to search: someone may well type the category rather than the brand.
+            addAlias(aliases, str(o, "englishName"), name);
             for (String label : filterLabels.getOrDefault(entry.getKey(), Collections.emptySet())) {
                 addAlias(aliases, label, name);
             }
 
-            boolean isOnline = "1".equals(str(o, "is_honored_online"));
+            JsonElement honor = o.get("honorOnline");
+            boolean isOnline = honor != null && honor.isJsonPrimitive()
+                    && honor.getAsJsonPrimitive().isBoolean() && honor.getAsBoolean();
             if (isOnline) online++;
 
             if (i++ > 0) sb.append(",\n");
@@ -102,39 +113,87 @@ public class HtZoneGen {
     }
 
     /**
-     * Pulls the {@code business_arr} object out of the page by counting braces from the
-     * first one after the assignment. A regex cannot do this reliably — the value contains
-     * braces inside quoted strings.
+     * Joins the string chunks Next.js streams into the page as
+     * {@code self.__next_f.push([1,"..."])}. Each chunk is a JSON string literal, and the data
+     * is split across them at arbitrary points, so it can only be searched once they are
+     * decoded and joined.
      */
-    static JsonObject extractBusinessArr(String html) {
-        int marker = html.indexOf("business_arr");
-        if (marker < 0) return null;
-        int start = html.indexOf('{', marker);
-        if (start < 0) return null;
-
-        int depth = 0;
-        boolean inString = false, escaped = false;
-        for (int i = start; i < html.length(); i++) {
-            char c = html.charAt(i);
-            if (escaped) { escaped = false; continue; }
-            if (c == '\\') { escaped = true; continue; }
-            if (c == '"') { inString = !inString; continue; }
-            if (inString) continue;
-            if (c == '{') depth++;
-            else if (c == '}' && --depth == 0) {
-                try {
-                    return JsonParser.parseString(html.substring(start, i + 1)).getAsJsonObject();
-                } catch (RuntimeException malformed) {
-                    return null;
-                }
+    static String flightData(String html) {
+        String marker = "self.__next_f.push([1,\"";
+        StringBuilder out = new StringBuilder();
+        int at = 0;
+        while ((at = html.indexOf(marker, at)) >= 0) {
+            int start = at + marker.length() - 1;   // the opening quote
+            int end = start + 1;
+            for (boolean escaped = false; end < html.length(); end++) {
+                char c = html.charAt(end);
+                if (escaped) escaped = false;
+                else if (c == '\\') escaped = true;
+                else if (c == '"') break;
             }
+            if (end >= html.length()) break;
+            try {
+                out.append(JsonParser.parseString(html.substring(start, end + 1)).getAsString());
+            } catch (RuntimeException malformed) {
+                // One unreadable chunk need not sink the rest; if it held the list, the
+                // caller finds no list and says so.
+            }
+            at = end + 1;
         }
-        return null;
+        return out.toString();
     }
 
+    /**
+     * Parses the JSON array that follows the last {@code "key":[} before {@code before}.
+     * The array ends wherever its brackets balance; a JSON reader stops there by itself, so
+     * nothing after it needs to be valid.
+     */
+    static JsonArray arrayAfter(String flight, String key, int before) {
+        String needle = "\"" + key + "\":[";
+        int at = flight.lastIndexOf(needle, before);
+        if (at < 0) return null;
+        try {
+            JsonElement e = JsonParser.parseReader(new com.google.gson.stream.JsonReader(
+                    new StringReader(flight.substring(at + needle.length() - 1))));
+            return e.isJsonArray() ? e.getAsJsonArray() : null;
+        } catch (RuntimeException malformed) {
+            return null;
+        }
+    }
+
+    /** Turns a {@code [{"id":84,"name":"..."}]} table into id → name. */
+    static Map<String, String> labels(JsonArray table) {
+        Map<String, String> byId = new HashMap<>();
+        if (table == null) return byId;
+        for (JsonElement el : table) {
+            if (!el.isJsonObject()) continue;
+            String id = str(el.getAsJsonObject(), "id");
+            String name = str(el.getAsJsonObject(), "name");
+            if (id != null && name != null && !name.trim().isEmpty()) byId.put(id, name.trim());
+        }
+        return byId;
+    }
+
+    static void addLabels(Set<String> into, JsonElement ids, Map<String, String> table) {
+        if (ids == null || !ids.isJsonArray()) return;
+        for (JsonElement id : ids.getAsJsonArray()) {
+            String label = id.isJsonPrimitive() ? table.get(id.getAsString()) : null;
+            if (label != null) into.add(label);
+        }
+    }
+
+    /**
+     * Reads a string field, undoing the flight payload's encoding: an absent value is written
+     * {@code "$undefined"}, other {@code $}-prefixed values are references rather than text,
+     * and a literal leading {@code $} is escaped as {@code $$}.
+     */
     static String str(JsonObject o, String key) {
         JsonElement e = o.get(key);
-        return e == null || e.isJsonNull() ? null : e.getAsString();
+        if (e == null || e.isJsonNull() || !e.isJsonPrimitive()) return null;
+        String s = e.getAsString();
+        if (s.startsWith("$$")) return s.substring(1);
+        if (s.startsWith("$")) return null;
+        return s;
     }
 
     static String q(String s) {

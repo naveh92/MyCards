@@ -71,7 +71,7 @@ for entry in "${SUPPLIERS[@]}"; do
   fi
 done
 
-echo "--- HTZone (business_arr in page markup) ---"
+echo "--- HTZone (businesses list in the Next.js page data) ---"
 
 # voucher-zone id : name : minimum entries expected
 ZONES=(
@@ -86,14 +86,16 @@ for entry in "${ZONES[@]}"; do
   id="${entry%%:*}"; rest="${entry#*:}"; name="${rest%%:*}"; floor="${rest##*:}"
   out="$WORK/zone-$id.html"
 
-  if ! fetch "https://www.htzone.co.il/voucher-zone/$id" "$out" 'business_arr'; then
-    echo "FAIL  $name (voucher-zone/$id): no business_arr after $ATTEMPTS attempts — markup changed"
+  # The list sits inside a JSON string in the page's script chunks, so its quotes appear
+  # backslash-escaped in the raw markup: businesses\":[
+  if ! fetch "https://www.htzone.co.il/voucher-zone/$id" "$out" 'businesses\\":\['; then
+    echo "FAIL  $name (voucher-zone/$id): no businesses list after $ATTEMPTS attempts — page changed"
     fail=1
     continue
   fi
 
-  # Entries repeat once per filter they match, so this over-counts: it is a floor, not a total.
-  count=$(grep -o '"is_active"' "$out" | wc -l | tr -d ' ')
+  # One honorOnline flag per business. Each business is listed once, so this is the total.
+  count=$(grep -o 'honorOnline\\":' "$out" | wc -l | tr -d ' ')
   if [ "$count" -lt "$floor" ]; then
     echo "FAIL  $name (voucher-zone/$id): only $count entries, expected at least $floor"
     fail=1

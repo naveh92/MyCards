@@ -1,7 +1,7 @@
 # HTZone "Zone" vouchers: <voucher-zone id>:<slug>
 #
 # The id is the number in https://www.htzone.co.il/voucher-zone/{id}, whose markup embeds
-# the whole merchant list as a business_arr literal.
+# the whole merchant list in its Next.js page data (see HtZoneGen).
 #
 # Mapped by following each product page to the business list it links to:
 #   All-In Zone  -> /webview/107082/  -> voucher-zone/10
